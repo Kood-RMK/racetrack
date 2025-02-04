@@ -1,0 +1,15 @@
+---
+services:
+  racetrack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_ID: ${USER_ID:-0}
+        GROUP_ID: ${GROUP_ID:-0}
+    pull_policy: always
+    volumes:
+      - ..:/workspace:cached
+    ports:
+      - 3005:3005
+      - 2222:22
