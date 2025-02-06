@@ -120,5 +120,8 @@ RUN yarn config set prefix $YARN_HOME
 
 USER root
 
+# Switch default shell on bash.
+RUN usermod -s /bin/bash ${USERNAME}
+
 # Start SSH server.
 CMD ["/usr/sbin/sshd", "-D"]
