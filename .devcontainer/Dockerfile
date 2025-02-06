@@ -52,7 +52,6 @@ RUN curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 
 
 # Create dev user.
-
 ARG USER_UID=1000
 ARG USER_GID=1000
 ARG USERNAME=racetrack
@@ -60,7 +59,7 @@ ARG USER_PASSWORD=racetrack
 ENV HOME /home/$USERNAME
 
 
-# Generate a user matching host system.
+# Create a user matching host system.
 RUN set -e && \
     if [[ -z "$USER_UID" || -z "$USER_GID" || -z "$USERNAME" ]]; then \
         echo "Error: USER_UID, USER_GID, and USERNAME must be provided."; \

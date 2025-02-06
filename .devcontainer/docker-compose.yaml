@@ -5,8 +5,10 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        USER_ID: ${USER_ID:-0}
-        GROUP_ID: ${GROUP_ID:-0}
+        USER_ID: ${DEV_USER_ID}
+        GROUP_ID: ${DEV_GROUP_ID}
+        USERNAME: ${DEV_USERNAME}
+        USER_PASSWORD: ${DEV_USER_PASSWORD}
     pull_policy: always
     volumes:
       - ..:/workspace:cached
