@@ -9,7 +9,7 @@ services:
         GROUP_ID: ${GROUP_ID:-0}
     pull_policy: always
     volumes:
-      - ..:/~/workspace:cached
+      - ..:/workspace:cached
     ports:
       - 3005:3005
       - 2222:22
