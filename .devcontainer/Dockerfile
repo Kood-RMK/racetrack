@@ -56,7 +56,7 @@ RUN curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 ARG USER_UID=1000
 ARG USER_GID=1000
 ARG USERNAME=racetrack
-ARG USER_PASSWORD ${USERNAME}
+ARG USER_PASSWORD=racetrack
 ENV HOME /home/$USERNAME
 
 
