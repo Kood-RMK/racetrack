@@ -8,10 +8,6 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN echo "root:root" | chpasswd
 
 
-# Create workspace dir.
-# RUN mkdir -p /workspace
-
-
 # Update and install some basic tools.
 RUN apt-get update && apt-get install -y \
     wget \
@@ -34,7 +30,7 @@ RUN apt-get update && apt-get install -y openssh-server
 # Configure SSH
 RUN mkdir /var/run/sshd
 #password for user login
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config
 EXPOSE 22
 
 RUN env | egrep -v "^(HOME=|USER=|MAIL=|LC_ALL=|LS_COLORS=|LANG=|HOSTNAME=|PWD=|TERM=|SHLVL=|LANGUAGE=|_=)" >> /etc/environment
@@ -57,7 +53,6 @@ ARG USER_GID=1000
 ARG USERNAME=racetrack
 ARG USER_PASSWORD=racetrack
 ENV HOME /home/$USERNAME
-
 
 # Create a user matching host system.
 RUN set -e && \
@@ -87,8 +82,6 @@ RUN if [[ -n "$USER_PASSWORD" ]]; then \
 
 # Switch to non-root user.
 USER ${USER_ID}:${GROUP_ID}
-
-
 WORKDIR /home/$USERNAME
 
 # Set Node.js environment variables.
@@ -117,9 +110,10 @@ ENV PATH="${PATH}:${YARN_HOME}:${YARN_BIN}"
 RUN npm install --global yarn
 RUN yarn config set prefix $YARN_HOME
 
+# Switch back to root user.
 USER root
 
-# Switch default shell on bash.
+# Switch default shell to bash.
 RUN usermod -s /bin/bash ${USERNAME}
 
 # Start SSH server.
