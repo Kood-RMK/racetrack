@@ -53,10 +53,10 @@ RUN curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 
 # Create dev user.
 
-ENV USER_UID 1000
-ENV USER_GID 1000
-ENV USERNAME racetrack
-ENV USER_PASSWORD ${USERNAME}
+ARG USER_UID=1000
+ARG USER_GID=1000
+ARG USERNAME=racetrack
+ARG USER_PASSWORD ${USERNAME}
 ENV HOME /home/$USERNAME
 
 
