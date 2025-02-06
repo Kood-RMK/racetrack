@@ -9,7 +9,16 @@ services:
         GROUP_ID: ${GROUP_ID:-0}
     pull_policy: always
     volumes:
-      - ..:/workspace:cached
+      - ..:/~/workspace:cached
     ports:
       - 3005:3005
       - 2222:22
+  valkey:
+    image: valkey/valkey:latest
+    container_name: valkey
+    restart: unless-stopped
+    volumes:
+      - ./valkey/valkey.conf:/etc/valkey/valkey.conf:ro
+    ports:
+      - "6379:6379"
+    command: ["valkey-server", "/etc/valkey/valkey.conf"]

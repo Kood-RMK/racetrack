@@ -1,5 +1,5 @@
 
-#Run privileged build to configure container.
+# Run privileged build to configure container.
 FROM ubuntu:latest
 
 # Replace shell with bash so we can source files
@@ -8,8 +8,8 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN echo "root:root" | chpasswd
 
 
-#Create workspace dir.
-RUN mkdir -p /workspace && chmod -R 777 /workspace
+# Create workspace dir.
+# RUN mkdir -p /workspace
 
 
 # Update and install some basic tools.
@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     iputils-ping \
     dnsutils \
-    sudo
+    sudo \
+    valkey
     
 
 # Install SSH server
@@ -52,24 +53,38 @@ RUN curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 
 # Create dev user.
 
-ARG USER_UID=1000
-ARG USER_GID=1000
+ENV USER_UID 1000
+ENV USER_GID 1000
 ENV USERNAME racetrack
+ENV USER_PASSWORD ${USERNAME}
 ENV HOME /home/$USERNAME
 
 
-RUN awk -F: '$3 == 1000 {print $1}' /etc/passwd | xargs -r userdel && \
-    awk -F: '$3 == 1000 {print $1}' /etc/group | xargs -r groupdel
+# Generate a user matching host system.
+RUN set -e && \
+    if [[ -z "$USER_UID" || -z "$USER_GID" || -z "$USERNAME" ]]; then \
+        echo "Error: USER_UID, USER_GID, and USERNAME must be provided."; \
+        exit 1; \
+    fi && \
+    if getent passwd "$USER_UID" >/dev/null 2>&1; then \
+        echo "User with UID $USER_UID exists, deleting..."; \
+        userdel -r "$(getent passwd "$USER_UID" | cut -d: -f1)"; \
+    fi && \
+    if getent group "$USER_GID" >/dev/null 2>&1; then \
+        echo "Group with GID $USER_GID exists, deleting..."; \
+        groupdel "$(getent group "$USER_GID" | cut -d: -f1)"; \
+    fi && \
+    groupadd --gid "$USER_GID" "$USERNAME" && \
+    useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" && \
+    mkdir -p /etc/sudoers.d && \
+    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME" && \
+    chmod 0440 "/etc/sudoers.d/$USERNAME"
 
-# Create a non-root user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && mkdir -p /etc/sudoers.d \
-    && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Set user password.
-RUN echo "${USERNAME}:racetrack" | chpasswd
+RUN if [[ -n "$USER_PASSWORD" ]]; then \
+        echo "$USERNAME:$USER_PASSWORD" | chpasswd; \
+    fi
 
 # Switch to non-root user.
 USER ${USER_ID}:${GROUP_ID}
