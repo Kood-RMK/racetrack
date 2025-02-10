@@ -9,9 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mdi/js": "^7.4.47",
+    "@mdi/react": "^1.6.1",
     "next": "15.1.6",
     "react": "^19.0.0",
-    "react-aria-components": "^1.6.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
