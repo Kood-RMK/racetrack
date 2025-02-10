@@ -22,5 +22,5 @@ services:
     volumes:
       - ./valkey/valkey.conf:/etc/valkey/valkey.conf:ro
     ports:
-      - "6379:6379"
+      - "6380:6379"
     command: ["valkey-server", "/etc/valkey/valkey.conf"]
