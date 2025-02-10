@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Sidebar from "@components/navigation/sidebar"
 
 
 export const metadata: Metadata = {
@@ -6,13 +7,14 @@ export const metadata: Metadata = {
   description: "",
 };
 
-export function AdminLayout({
+export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <body className="bg-red-200">
+    <body className="bg-gray-950 h-screen w-screen">
+        <Sidebar></Sidebar>
         {children}
     </body>
   );
