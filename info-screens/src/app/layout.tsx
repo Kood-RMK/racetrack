@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${cairoFont.variable}`}>
+    <html lang="en" className={`${cairoFont.variable} `}>
         {children}
     </html>
   );
