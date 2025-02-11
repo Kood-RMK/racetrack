@@ -11,7 +11,9 @@ export default {
       colors: {
         "gold" : "#3A2F05",
         "silver" : "#292E37",
-        "bronze" : "#271304"
+        "bronze" : "#271304",
+        "bg-primary" : "#000000",
+        "bg-secondary" : "#0A0A0A"
       },
       backgroundColor : {
         "primary" : "#000000",
