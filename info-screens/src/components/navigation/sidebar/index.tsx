@@ -2,7 +2,7 @@
 
 
 import {Button, Disclosure, DisclosureGroup, DisclosurePanel, DisclosureProps, Heading, Label, ListBox, ListBoxItem, Popover, Select, SelectValue} from 'react-aria-components';
-import React, { Key, ReactNode } from 'react';
+import React, { Key, ReactNode, useEffect } from 'react';
 import Icon from '@mdi/react';
 import { mdiAccountOutline, mdiChevronDown, mdiChevronUp, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline, mdiPowerStandby } from '@mdi/js';
 
@@ -21,31 +21,26 @@ interface SidebarItemProps {
 function SidebarItem({title, path} : SidebarItemProps) {
 
   return (
-      <Button slot="trigger" className="flex transition-all duration-200 hover:text-gray-100">
+      <Button slot="trigger" className="flex transition-all duration-200 hover:text-gray-300">
         <span className="text-lg">{title}</span>
       </Button>
   )
 }
 
 function SidebarDisclosure({title, iconPath, items, children, ...props}: SidebarDisclosureProps) {
-  let [isExpanded, setIsExpanded] = React.useState(false);
-
   return (
     <Disclosure  
-    isExpanded={isExpanded} 
-    onExpandedChange={setIsExpanded}
-    defaultExpanded={false}
     className="text-white w-full flex flex-col items-center font-cairo text-lg font-medium"
     {...props}
     >
-      <Button slot="trigger" className="flex flex-row w-full items-center justify-between bg-secondary rounded-lg py-2 px-2 mb-2">
+      <Button slot="trigger" className="group flex flex-row w-full items-center justify-between bg-secondary rounded-lg py-2 px-2 mb-2">
         <div className="flex align-middle items-center">
           <Icon className="w-7 min-w-7 h-auto" path={iconPath} />
           <span className="ml-3">
             {title}
           </span>
         </div>
-        <Icon className={"w-7 min-w-7 h-auto transition-transform duration-150 ease-in-out " + (isExpanded ? "rotate-0" : "rotate-180")} path={ mdiChevronDown } />
+        <Icon className={"w-7 min-w-7 h-auto transition-transform duration-200 ease-in-out group-aria-expanded:rotate-180"} path={ mdiChevronDown } />
       </Button>
       <DisclosurePanel className="w-full mb-8">
         <ul className="w-full flex flex-col pl-12 gap-1">
@@ -76,7 +71,7 @@ function SidebarUserManagement() {
   }
 
   return (
-    <div className="flex flex-col gap-2 py-8">
+    <div className="flex flex-col gap-2 py-6">
       <ActionButton iconPath={mdiAccountOutline}>
         <span>Rivo</span>
       </ActionButton>
@@ -89,8 +84,8 @@ function SidebarUserManagement() {
 
 
 export default function Sidebar() {
+
   return (
-    <>
     <header className="w-72 flex flex-col bg-primary font-cairo items-center overflow-auto">
       <div className="flex w-full py-6 flex-row justify-center border-b-2 border-bg-secondary gap-1">
         <Icon className="rotate-12 w-7 min-w-7 text-yellow-400" path={mdiLightningBoltOutline}/>
@@ -100,27 +95,31 @@ export default function Sidebar() {
       <nav className="flex flex-col w-64 h-full">
 
         {/* NAV MENU */}
-        <DisclosureGroup defaultExpandedKeys={['admin', 'display']} allowsMultipleExpanded className="w-full pt-6 flex flex-1 flex-col items-center">
-          <SidebarDisclosure 
-          id="admin" 
-          title="Front Desk" 
-          iconPath={mdiOfficeBuildingCog} 
-          items={[
-            <SidebarItem title="Race Control" path="/admin/race-control"/>,
-            <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
-            <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
-          ]}>
-          </SidebarDisclosure>
-          <SidebarDisclosure 
-          id="display" 
-          title="Race Display" 
-          iconPath={mdiDivingScubaFlag} 
-          items={[
-            <SidebarItem title="Race Control" path="/admin/race-control"/>,
-            <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
-            <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
-          ]}>
-            Details about system requirements here
+        <DisclosureGroup
+          allowsMultipleExpanded  
+          defaultExpandedKeys={['admin', 'display']}
+          className="w-full pt-6 flex flex-1 flex-col items-center">
+            <SidebarDisclosure 
+            id="admin" 
+            title="Front Desk" 
+            iconPath={mdiOfficeBuildingCog} 
+            items={[
+              <SidebarItem title="Race Control" path="/admin/race-control"/>,
+              <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
+              <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
+            ]}
+            >
+            </SidebarDisclosure>
+            <SidebarDisclosure 
+            id="display" 
+            title="Race Display" 
+            iconPath={mdiDivingScubaFlag} 
+            items={[
+              <SidebarItem title="Race Control" path="/admin/race-control"/>,
+              <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
+              <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
+            ]}>
+              Details about system requirements here
           </SidebarDisclosure>
 
           <SidebarDisclosure 
@@ -141,6 +140,5 @@ export default function Sidebar() {
         </SidebarUserManagement>
       </nav>
     </header>
-    </>
   );
 }
