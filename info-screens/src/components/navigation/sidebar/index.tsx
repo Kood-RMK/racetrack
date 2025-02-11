@@ -4,7 +4,7 @@
 import {Button, Disclosure, DisclosureGroup, DisclosurePanel, DisclosureProps, Heading, Label, ListBox, ListBoxItem, Popover, Select, SelectValue} from 'react-aria-components';
 import React, { Key, ReactNode } from 'react';
 import Icon from '@mdi/react';
-import { mdiChevronDown, mdiChevronUp, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline } from '@mdi/js';
+import { mdiAccountOutline, mdiChevronDown, mdiChevronUp, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline, mdiPowerStandby } from '@mdi/js';
 
 interface SidebarDisclosureProps extends Omit<DisclosureProps, 'children'> {
   title: string,
@@ -35,7 +35,7 @@ function SidebarDisclosure({title, iconPath, items, children, ...props}: Sidebar
     isExpanded={isExpanded} 
     onExpandedChange={setIsExpanded}
     defaultExpanded={false}
-    className="text-white w-64 flex flex-col items-center font-cairo text-lg font-medium"
+    className="text-white w-full flex flex-col items-center font-cairo text-lg font-medium"
     {...props}
     >
       <Button slot="trigger" className="flex flex-row w-full items-center justify-between bg-secondary rounded-lg py-2 px-2 mb-2">
@@ -63,17 +63,44 @@ function SidebarDisclosure({title, iconPath, items, children, ...props}: Sidebar
 }
 
 
+function SidebarUserManagement() {
+
+
+  function ActionButton({iconPath, children, ...props} : {iconPath : string, children? : React.ReactNode}) {
+    return (
+      <Button className="flex text-white text-lg gap-2 font-medium items-center" {...props}>
+        <Icon className="w-7 min-w-7" path={iconPath} />
+        {children}
+      </Button>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-2 py-8">
+      <ActionButton iconPath={mdiAccountOutline}>
+        <span>Rivo</span>
+      </ActionButton>
+      <ActionButton iconPath={mdiPowerStandby}>
+        <span>Log out</span>
+      </ActionButton>
+    </div>
+  )
+}
+
+
 export default function Sidebar() {
   return (
     <>
-    <header className="w-72 flex flex-col bg-primary h-screen font-cairo">
-      <div className="flex py-6 flex-row justify-center border-b-2 border-bg-secondary gap-1">
+    <header className="w-72 flex flex-col bg-primary font-cairo items-center overflow-auto">
+      <div className="flex w-full py-6 flex-row justify-center border-b-2 border-bg-secondary gap-1">
         <Icon className="rotate-12 w-7 min-w-7 text-yellow-400" path={mdiLightningBoltOutline}/>
         <h1 className="text-xl text-white font-semibold">Racetrack Control</h1>
         <Icon className="rotate-12 w-7 min-w-7 text-yellow-400" path={mdiLightningBoltOutline}/>
       </div>
-      <nav className=" pb-8">
-        <DisclosureGroup defaultExpandedKeys={['admin', 'display']} allowsMultipleExpanded className="h-full w-full pt-6 flex flex-col items-center ">
+      <nav className="flex flex-col w-64 h-full">
+
+        {/* NAV MENU */}
+        <DisclosureGroup defaultExpandedKeys={['admin', 'display']} allowsMultipleExpanded className="w-full pt-6 flex flex-1 flex-col items-center">
           <SidebarDisclosure 
           id="admin" 
           title="Front Desk" 
@@ -95,7 +122,23 @@ export default function Sidebar() {
           ]}>
             Details about system requirements here
           </SidebarDisclosure>
+
+          <SidebarDisclosure 
+          id="display1" 
+          title="Race Display" 
+          iconPath={mdiDivingScubaFlag} 
+          items={[
+            <SidebarItem title="Race Control" path="/admin/race-control"/>,
+            <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
+            <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
+          ]}>
+            Details about system requirements here
+          </SidebarDisclosure>
         </DisclosureGroup>
+
+        {/* USER MENU */}
+        <SidebarUserManagement>
+        </SidebarUserManagement>
       </nav>
     </header>
     </>

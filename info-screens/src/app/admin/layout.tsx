@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <body className="flex">
+    <body className="flex h-full">
         <Sidebar/>
         {children}
     </body>
