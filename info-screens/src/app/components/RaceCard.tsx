@@ -54,5 +54,5 @@ export default function RaceCard() {
         </button>
       </div>
     </div>
-  ); 
+  );
 }

@@ -19,8 +19,6 @@ export default function NewRaceCard() {
         <Icon path={mdiCheckerboardPlus} size={1.5} />
         <span>Schedule Race</span>
     </div>
-
-
   </div>
  );
 } 
