@@ -116,8 +116,6 @@ export default function NewRaceDialog() {
                         <p className="text-center text-sm text-gray-500 flex justify-start">Enter a number between 1 and 10</p>
                         </div>
 
-                       
-
                     </Dialog>
                 </Modal>
             </DialogTrigger>
