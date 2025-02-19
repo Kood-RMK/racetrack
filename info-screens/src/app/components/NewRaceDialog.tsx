@@ -29,7 +29,7 @@ import {
 } from '@mdi/js';
 
 export default function NewRaceDialog() {
-    const [driverCount, setDriverCount] = useState(8); //whats this for?
+    const [driverCount, setDriverCount] = useState(8);
 
     return (
         <div className="bg-gray-100 w-80 h-56 p-4 gap-4 flex flex-col font-cairo">
@@ -76,7 +76,7 @@ export default function NewRaceDialog() {
                                 <Button>
                                 <div className="realtive flex items-center">
                                   <Icon path={mdiClockTimeFour} size={0.9} className="absolute left-2 text-gray-500 pointer-events-none"></Icon>
-                                  <Input placeholder="Timeslot" className="border rounded pl-8 pr-8 py-1 w-full"/>
+                                  <Input placeholder="Timeslot" className="border border-gray-300 rounded-lg pl-8 pr-8 py-1 w-full"/>
                                   <Icon path={mdiMenuDown} size={1} className="absolute right-2 text-black pointer-events-none"></Icon>
                                 </div>
                                 </Button>
@@ -102,13 +102,13 @@ export default function NewRaceDialog() {
                         </div>
                        
                         {/* Racecar Inputs */}
-                        <div className="grid grid-cols-2 gap-3 my-4 py-5">
-                            {[...Array(driverCount)].map((_, i) => ( // whats this do here???
+                        <div className="grid grid-cols-2 gap-y-6 gap-x-20 my-4 py-5">
+                            {[...Array(driverCount)].map((_, i) => ( 
                                 <TextField key={i} className="flex flex-col">
-                                    <Label className="text-sm font-medium">Racecar {i + 1}</Label>
+                                    <Label className="text-sm font-medium pb-2">Racecar {i + 1}</Label>
                                     <div className="relative flex items-center">
                                         <Icon path={mdiAccount} size={0.8} className="absolute left-2 text-gray-500"/>
-                                        <Input className="border rounded pl-8 py-1 w-full" placeholder="Name" />
+                                        <Input className="border border-gray-300 rounded-lg pl-8 py-1 w-full" placeholder="Name" />
                                     </div>
                                 </TextField>
                             ))}
@@ -123,13 +123,13 @@ export default function NewRaceDialog() {
                           <div className="flex items-center justify-center gap-2 py-2">
                             <Button
                                 onPress={() => setDriverCount(Math.max(1, driverCount - 1))}
-                                className="bg-gray-300 px-3 py-1 rounded">
+                                className="px-3 py-1 rounded border">
                                 -
                             </Button>
                             <span className="text-lg font-medium">{driverCount}</span>
                             <Button
                                 onPress={() => setDriverCount(Math.min(10, driverCount + 1))}
-                                className="bg-gray-300 px-3 py-1 rounded">
+                                className="px-3 py-1 rounded border">
                                 +
                             </Button>
                           </div>
