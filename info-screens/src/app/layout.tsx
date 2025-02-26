@@ -20,7 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${cairoFont.variable} h-full w-full`}>
+      <body>
         {children}
+      </body>
+        
     </html>
   );
 }
