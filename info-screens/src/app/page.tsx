@@ -1,10 +1,14 @@
-import {Header} from "@/components/display/header";
+import RaceTimer from "@/components/display/timer";
 
-export default function RaceTimerPage() {
+const Leaderboard = () => {
   return (
-    <div className="bg-gray-900 min-h-screen text-white flex flex-col items-center">
-      <Header />
-      {/* Other components */}
-    </div>
+    <div className="bg-black">
+    
+
+        <RaceTimer timeLeft="08:05:03" />
+      </div>
+
   );
-}
+};
+
+export default Leaderboard;

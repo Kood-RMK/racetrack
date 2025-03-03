@@ -15,7 +15,8 @@
     "react": "^19.0.0",
     "react-aria": "^3.37.0",
     "react-aria-components": "^1.6.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
