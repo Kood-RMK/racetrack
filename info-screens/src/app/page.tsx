@@ -1,12 +1,10 @@
-// import LeaderboardTable from "./components/LeaderboardTable";
-import AnnouncementHeader from "./components/AnnouncementHeader";
+import {Header} from "@/components/display/header";
 
-
-export default function Home() {
+export default function RaceTimerPage() {
   return (
-    <main className="flex items-center justify-center min-h-screen bg-black gap-5">
-      <AnnouncementHeader />
-    </main>
+    <div className="bg-gray-900 min-h-screen text-white flex flex-col items-center">
+      <Header />
+      {/* Other components */}
+    </div>
   );
 }
-
