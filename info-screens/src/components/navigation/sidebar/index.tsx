@@ -86,7 +86,7 @@ function SidebarUserManagement() {
 export default function Sidebar() {
 
   return (
-    <header className="w-72 flex flex-col bg-primary font-cairo items-center overflow-auto">
+    <header className="w-72 h-full flex flex-col bg-primary font-cairo items-center overflow-auto">
       <div className="flex w-full py-6 flex-row justify-center border-b-2 border-bg-secondary gap-1">
         <Icon className="rotate-12 w-7 min-w-7 text-yellow-400" path={mdiLightningBoltOutline}/>
         <h1 className="text-xl text-white font-semibold">Racetrack Control</h1>

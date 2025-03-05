@@ -12,9 +12,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <body className="flex h-full">
+    <body className="flex min-h-screen">
+        
+        <div className="w-72 min-h-full flex-shrink-0">
         <Sidebar/>
+        </div>
+
+        <div className="flex-1 overflow-auto">
         {children}
+        </div>
     </body>
   );
 }
