@@ -1,10 +1,12 @@
 import type { ReactElement } from 'react'
- 
+import {Header} from "@/components/display/header";
+import LeaderboardTable from '@/components/table/leaderboard';
 
-export default async function Page() {
- 
+export default function RaceTimerPage() {
   return (
-    <p className='font-cairo text-silver'>Hello</p>
-  )
-
+    <div className="bg-black min-h-screen min-w-screen text-white flex flex-col items-center">
+      <Header />
+      <LeaderboardTable />
+    </div>
+  );
 }
