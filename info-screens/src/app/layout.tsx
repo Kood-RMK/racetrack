@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cairo } from "next/font/google";
 import "./globals.css";
+import { ClientProvider } from "@/components/socket/ClientProvider";
 
 const cairoFont = Cairo({
   variable: "--font-cairo",
@@ -20,10 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${cairoFont.variable} h-full w-full`}>
-      <body>
-        {children}
-      </body>
-        
+      <ClientProvider>
+        <body>
+          {children}
+        </body>
+      </ClientProvider>
     </html>
   );
 }

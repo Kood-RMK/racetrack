@@ -10,7 +10,7 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-export const SocketProvider = ({ children }: { children: ReactNode }) => {
+export const ClientProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
