@@ -1,10 +1,19 @@
-import type { ReactElement } from 'react'
- 
+import { FC } from "react";
+import useSceduleSocket from "../../../../client/raceSceduleSocket";
 
-export default async function Page() {
- 
+const LeaderboardPage: FC = () => {
+  const leaderboard = useSceduleSocket();
+  
   return (
-    <p className='font-cairo text-silver'>Hello</p>
-  )
+    <div>
+      <h1>Leaderboard</h1>
+      <ul>
+        {leaderboard.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
-}
+export default LeaderboardPage;
