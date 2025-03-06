@@ -27,9 +27,20 @@ import {
     mdiMenuDown,
     mdiInvoiceTextEdit
 } from '@mdi/js';
+import { useSocket } from "@/components/socket/ClientProvider";
 
 export default function NewRaceDialog() {
     const [driverCount, setDriverCount] = useState(8);
+    const socket = useSocket();
+    const onSave = () => {
+        console.log("Test")
+
+        if (socket){
+            socket.emit("updateDrivers", {drivers: ["Rivo", "Mimi"]})
+
+        }
+    }
+
 
     return (
         <div className="bg-gray-100 w-80 h-56 p-4 gap-4 flex flex-col font-cairo">
@@ -135,7 +146,8 @@ export default function NewRaceDialog() {
                           </div>
 
                            {/* Save Button */}
-                           <Button slot="close" className="bg-blue-800 text-white w-[192px] h-8 rounded flex justify-center items-center text-xs whitespace-nowrap gap-1">
+                           <Button slot="close" className="bg-blue-800 text-white w-[192px] h-8 rounded flex justify-center items-center text-xs whitespace-nowrap gap-1"
+                            onPress={onSave}>
                            <Icon path={mdiInvoiceTextEdit} className="w-4 h-4 flex-shrink-0"/>
                             Save Details
                            </Button>

@@ -1,4 +1,5 @@
 import type { Server as IOServer } from "socket.io";
+import { Socket } from "socket.io-client";
 import { RaceState } from "state";
 
 export type RaceControlEvents = RaceStateChanged;
@@ -15,7 +16,7 @@ export type RaceStateChanged = {
 }
 
 export function raceControlService(io : IOServer) {
-    io.of('/racecontrol').on('connection', (socket) => {
-        console.log('a user connected to leaderboard namespace');
-    });
+    io.on("connection",  (socket) => {
+        socket.on("updateDrivers", (data) => {console.log(data)});
+      });
 }
