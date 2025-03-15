@@ -1,7 +1,7 @@
 import NewRaceDialog from '@/components/card/placement-card'
-import RaceCard from '@/components/card/timeslot-card'
-import { RaceScheduleButtons } from '@/components/card/timeslot-card/Buttons'
-import { RaceScheduleTags } from '@/components/card/timeslot-card/Tags'
+import RaceCard from '@/components/card/race-control-card'
+import { RaceScheduleButtons } from '@/components/card/race-control-card/Buttons'
+import { RaceScheduleTags } from '@/components/card/race-control-card/Tags'
 import type { ReactElement } from 'react'
  
 
