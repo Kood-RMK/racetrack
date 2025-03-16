@@ -12,13 +12,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <body className="flex min-h-screen">
+    <body className="flex h-screen">
         
-        <div className="w-72 min-h-full flex-shrink-0">
+        <div className="w-72 flex-shrink-0">
         <Sidebar/>
         </div>
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-y-auto">
         {children}
         </div>
     </body>

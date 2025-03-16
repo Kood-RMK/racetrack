@@ -1,26 +1,19 @@
-import RaceCard from '@/components/card/timeslot-card'
-import {  RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, RaceCancelledButtons, EndSessionButtons } from '@/components/card/timeslot-card/Buttons'
-import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/timeslot-card/Tags'
+import RaceCard from '@/components/card/race-control-card'
+import {  RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons'
+import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags'
  
 
 export default async function Page() {
  
   return (
-    <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
+    <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
       
-      <p className='text-center pt-14 mr-12'>Race Control</p>
+      <p className='text-center py-12'>Race Control</p>
 
       <div>
-        <div className='grid grid-cols-3 w-full max-w-[calc(100vw-16rem)] mx-auto pl-10 pt-10 gap-10  items-start'>
-
-        <RaceCard tags={<RacePendingTags/>} buttons={<RacePendingButtons/>} />
-        <RaceCard tags={<ActiveRaceTags/>} buttons={<ActiveRaceButtons/>} />
-        <RaceCard tags={<ActiveRaceHazardTags/>} buttons={<ActiveRaceHazardButtons/>} />
+        <div>
 
         <RaceCard tags={<ActiveRaceDangerTags/>} buttons={<ActiveRaceDangerButtons/>} />
-        <RaceCard tags={<RaceCancelledTags/>} buttons={<RaceCancelledButtons/>} />
-        <RaceCard tags={<EndSessionTags/>} buttons={<EndSessionButtons/>} />
-        
 
         </div>
       </div>
