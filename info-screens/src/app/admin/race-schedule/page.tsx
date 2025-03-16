@@ -19,7 +19,7 @@ export default async function Page() {
         <AdminRaceCard tags={<RacePendingTags/>} buttons={<RacePendingButtons/>} />
         <AdminRaceCard tags={<ActiveRaceTags/>} />
 
-        <AdminRaceCard tags={<CompletedRaceTags/>}/>
+        <AdminRaceCard tags={<CompletedRaceTags/>} />
         
 
       </div>
