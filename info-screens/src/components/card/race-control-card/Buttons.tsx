@@ -2,26 +2,8 @@
 
 import React from "react";
 import Icon from '@mdi/react';
-import { mdiInvoiceTextEdit, mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
+import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
-
-// Race Schedule Buttons
-
-export function RaceScheduleButtons() {
-    return (
-        <div aria-label="Race schedule buttons" className="flex justify-end w-full h-20 gap-4 flex-shrink-0">
-            <Button aria-label="Modify drivers" className="text-xl flex justify-center items-center bg-blue-800 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap">
-            <Icon path={mdiInvoiceTextEdit} className="w-6 h-6 flex-shrink-0"/>
-            Modify Drivers
-            </Button>
-
-            <Button aria-label="Delete race" className="text-xl flex justify-center items-center bg-red-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap">
-            <Icon path={mdiDelete} className="w-6 h-6 flex-shrink-0"/>
-            Delete Race
-            </Button>
-        </div>
-    );
-}
 
 
 // Race Pending Buttons
@@ -103,15 +85,6 @@ export function ActiveRaceDangerButtons() {
             <Icon path={mdiStopCircle} className="w-6 h-6 flex-shrink-0"/>
             Stop Race
             </Button>
-        </div>
-    );
-}
-
-// Race Cancelled Buttons
-
-export function RaceCancelledButtons() {
-    return (
-        <div aria-label="Race cancelled no buttons">
         </div>
     );
 }

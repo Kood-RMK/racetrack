@@ -1,28 +1,26 @@
-import NewRaceDialog from '@/components/card/placement-card'
-import RaceCard from '@/components/card/race-control-card'
-import { RaceScheduleButtons } from '@/components/card/race-control-card/Buttons'
-import { RaceScheduleTags } from '@/components/card/race-control-card/Tags'
-import type { ReactElement } from 'react'
- 
+import NewRaceDialog from '@/components/card/admin-placement-card'
+import AdminRaceCard from '@/components/card/admin-card'
+
+import React from "react";
+import { CompletedRaceTags, RacePendingTags, ActiveRaceTags } from '@/components/card/admin-card/Tags';
+import { RacePendingButtons } from '@/components/card/admin-card/Buttons'
 
 export default async function Page() {
  
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
       
-      <p className='text-center pt-14 mr-12'>Race Schedule</p>
+      <p className='text-center py-10'>Race Schedule</p>
 
       <div>
-      <div className='grid grid-cols-3 w-full max-w-[calc(100vw-16rem)] mx-auto pl-10 pt-10 gap-10  items-start'>
+      <div className='grid grid-cols-1 lg:grid-cols-3 w-full h-full pl-10 pt-10 gap-10 items-start'>
 
-        <RaceCard tags={<RaceScheduleTags/>} buttons={<RaceScheduleButtons/>} />
-        <RaceCard tags={<RaceScheduleTags/>} buttons={<RaceScheduleButtons/>} />
-        <RaceCard tags={<RaceScheduleTags/>} buttons={<RaceScheduleButtons/>} />
-
-
-
-        <RaceCard tags={<RaceScheduleTags/>} buttons={<RaceScheduleButtons/>} />
         <NewRaceDialog/>
+        <AdminRaceCard tags={<RacePendingTags/>} buttons={<RacePendingButtons/>} />
+        <AdminRaceCard tags={<ActiveRaceTags/>} />
+
+        <AdminRaceCard tags={<CompletedRaceTags/>}/>
+        
 
       </div>
       </div>

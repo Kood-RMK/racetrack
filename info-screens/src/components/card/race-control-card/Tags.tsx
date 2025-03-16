@@ -6,27 +6,6 @@ import { mdiClockTimeFour, mdiCheck, mdiAlertOctagon, mdiCloseOctagon, mdiTimerS
 import Icon from '@mdi/react';
 
 
-// Race Schedule Tags
-
-export function RaceScheduleTags() {
-    return (
-        <TagGroup aria-label="Race schedule tags" className="w-full h-14 flex flex-shrink-0">
-          <TagList className="flex gap-4">
-            
-            <Tag textValue="Time" className="bg-blue-200 w-40 h-8 text-base text-blue-800 font-medium rounded flex justify-center items-center gap-1 p-1 whitespace-nowrap">
-                <Icon path={mdiClockTimeFour} className="w-4 h-4 flex-shrink-0"/>
-                00:00 - 00:00</Tag>
-
-            <Tag textValue="Completed" className="bg-green-100 w-40 h-8 text-base text-green-800 font-medium rounded flex justify-center items-center gap-1 p-1 whitespace-nowrap">
-                <Icon path={mdiCheck} className="w-4 h-4 flex-shrink-0"/>
-                Completed</Tag>
-                
-          </TagList>
-        </TagGroup>
-    );
-}
-
-
 // Race Pending Tags
 
 export function RacePendingTags() {

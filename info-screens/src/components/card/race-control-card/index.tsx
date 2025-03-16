@@ -6,15 +6,15 @@ import { mdiAccountMultiple } from "@mdi/js";
 
 interface RaceCardProps {
   tags: React.ReactNode;  // Accepts any tag elements passed from Tags.tsx
-  buttons: React.ReactNode; // Accepts any button elements passed from Buttons.tsx
+  buttons?: React.ReactNode; // Accepts any button elements passed from Buttons.tsx
 }
 
-export default function RaceCard({ tags, buttons }: RaceCardProps ) {
+export default function ControlRaceCard({ tags, buttons }: RaceCardProps ) {
 
   return (
 <div className="bg-gray-100 w-full h-full p-8 gap-4 font-cairo">
     
-      {/* Header Section for dynamic tags*/}
+      {/*Tags*/}
       <div className="tags">{tags}</div>
 
       {/* Driver Info */}

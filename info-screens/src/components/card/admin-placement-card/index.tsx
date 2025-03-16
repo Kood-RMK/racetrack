@@ -43,23 +43,14 @@ export default function NewRaceDialog() {
 
 
     return (
-        <div className="bg-gray-100 w-80 h-56 p-4 gap-4 flex flex-col font-cairo">
+        <div className="bg-gray-100 w-full h-full p-4 gap-4 flex items-center justify-center font-cairo">
             
-            {/* Time Tag */}
-            <TagGroup selectionMode="multiple" className="w-48 h-5 gap-2 flex flex-shrink-0">
-              <TagList className="flex gap-2">
-               <Tag className="bg-blue-200 w-24 h-5 text-xs text-blue-800 font-medium rounded flex justify-center items-center gap-1 p-1 whitespace-nowrap">
-                <Icon path={mdiClockTimeFour} className="w-4 h-4 flex-shrink-0 max-w-xs md:max-w-sm" />
-                  9:00 - 9:10
-               </Tag>
-              </TagList>
-            </TagGroup>
         
             {/* Dialog */}
             <DialogTrigger>
 
                 {/* Button that triggers Dialog */}
-                <Button className="flex flex-col items-center gap-2 p-2 mt-8 text-base">
+                <Button className="flex flex-col items-center justify-center gap-2 p-2 text-base">
                     <Icon path={mdiCheckerboardPlus} size={1.5}/>
                     Schedule Race
                 </Button>
