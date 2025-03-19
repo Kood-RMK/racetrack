@@ -4,7 +4,8 @@
 import {Button, Disclosure, DisclosureGroup, DisclosurePanel, DisclosureProps, Heading, Label, ListBox, ListBoxItem, Popover, Select, SelectValue} from 'react-aria-components';
 import React, { Key, ReactNode, useEffect } from 'react';
 import Icon from '@mdi/react';
-import { mdiAccountOutline, mdiChevronDown, mdiChevronUp, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline, mdiPowerStandby } from '@mdi/js';
+import { mdiAccountOutline, mdiCarCruiseControl, mdiChevronDown, mdiChevronUp, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline, mdiPowerStandby } from '@mdi/js';
+import Link from 'next/link';
 
 interface SidebarDisclosureProps extends Omit<DisclosureProps, 'children'> {
   title: string,
@@ -21,9 +22,11 @@ interface SidebarItemProps {
 function SidebarItem({title, path} : SidebarItemProps) {
 
   return (
+    <Link href={path}>
       <Button slot="trigger" className="flex transition-all duration-200 hover:text-gray-300">
         <span className="text-lg">{title}</span>
       </Button>
+    </Link>
   )
 }
 
@@ -104,9 +107,7 @@ export default function Sidebar() {
             title="Front Desk" 
             iconPath={mdiOfficeBuildingCog} 
             items={[
-              <SidebarItem title="Race Control" path="/admin/race-control"/>,
-              <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
-              <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
+              <SidebarItem title="Race Schedule" path="/admin/race-schedule"/>
             ]}
             >
             </SidebarDisclosure>
@@ -115,21 +116,21 @@ export default function Sidebar() {
             title="Race Display" 
             iconPath={mdiDivingScubaFlag} 
             items={[
-              <SidebarItem title="Race Control" path="/admin/race-control"/>,
-              <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
-              <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
+              <SidebarItem title="Leaderboard" path="/display/race-leaderboard"/>,
+              <SidebarItem title="Timer" path="/display/race-timer"/>,
+              <SidebarItem title="Race Flag" path="/display/race-flag"/>,
+              <SidebarItem title="Announcements" path="/display/race-announcements"/>
             ]}>
               Details about system requirements here
           </SidebarDisclosure>
 
           <SidebarDisclosure 
           id="display1" 
-          title="Race Display" 
-          iconPath={mdiDivingScubaFlag} 
+          title="Race Control" 
+          iconPath={mdiCarCruiseControl} 
           items={[
             <SidebarItem title="Race Control" path="/admin/race-control"/>,
-            <SidebarItem title="Lap-line Observer" path="/admin/race-control"/>,
-            <SidebarItem title="Flag Bearer" path="/admin/race-control"/>
+            <SidebarItem title="Lap-line Observer" path="/admin/lap-line-observer"/>
           ]}>
             Details about system requirements here
           </SidebarDisclosure>

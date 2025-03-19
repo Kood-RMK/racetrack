@@ -20,7 +20,5 @@ export type ActiveContestant = {
 export type ActiveRace = {
     contestants : ActiveContestant[],
     raceState : RaceState,
-    isHazard : Boolean,
-    isDanger : Boolean,
     timeLeft : String
 }
