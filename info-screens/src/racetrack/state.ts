@@ -3,7 +3,7 @@ export type Contestant = {
  racecar : Number
 }
 
-export type RaceState = 'completed' | 'active' | 'canceled' | 'stopped';
+export type RaceState = 'completed' | 'active' | 'canceled' | 'finishing';
 
 export type Race = {
     contestants : Contestant[],
@@ -21,5 +21,6 @@ export type ActiveRace = {
     contestants : ActiveContestant[],
     raceState : RaceState,
     isHazard : Boolean,
+    isDanger : Boolean,
     timeLeft : String
 }

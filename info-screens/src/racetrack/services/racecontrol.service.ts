@@ -18,5 +18,6 @@ export type RaceStateChanged = {
 export function raceControlService(io : IOServer) {
     io.on("connection",  (socket) => {
         socket.on("updateDrivers", (data) => {console.log(data)});
+        socket.on("updateRaceState", (data) => {console.log(data)});
       });
 }

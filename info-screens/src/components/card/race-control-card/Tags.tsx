@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Tag, TagGroup, TagList } from 'react-aria-components';
-import { mdiClockTimeFour, mdiCheck, mdiAlertOctagon, mdiCloseOctagon, mdiTimerSand, mdiTimerSandFull, mdiStopCircle, mdiHazardLights } from "@mdi/js";
+import { mdiClockTimeFour, mdiCheck, mdiAlertOctagon, mdiCloseOctagon, mdiTimerSand, mdiTimerSandFull, mdiStopCircle, mdiHazardLights, mdiFlagCheckered } from "@mdi/js";
 import Icon from '@mdi/react';
 
 
@@ -127,9 +127,9 @@ export function EndSessionTags() {
                 <Icon path={mdiClockTimeFour} className="w-4 h-4 flex-shrink-0 max-w-xs md:max-w-sm"/>
                 00:00 - 00:00</Tag>
 
-            <Tag textValue="Race Stopped" className="bg-red-100 w-40 h-8 text-base text-red-800 font-medium rounded flex justify-center items-center gap-1 p-1 whitespace-nowrap">
-                <Icon path={mdiStopCircle} className="w-4 h-4 flex-shrink-0"/>
-                Race Stopped</Tag>
+            <Tag textValue="Race finishing" className="bg-lime-200 w-40 h-8 text-base text-lime-800 font-medium rounded flex justify-center items-center gap-1 p-1 whitespace-nowrap">
+                <Icon path={mdiFlagCheckered} className="w-4 h-4 flex-shrink-0"/>
+                Race Finishing</Tag>
                 
           </TagList>
         </TagGroup>
