@@ -15,13 +15,13 @@ export function RacePendingButtons() {
 
     const onCancel = () => { // Race control can cancel a race while its' state is 'pending'. Flag remains red
         if (socket) {
-            socket.emit("updateRaceState", {state: ["canceled"]})
+            socket.emit("changeRaceState", {newState: ["canceled"]})
         }
     }
     
     const onStart = () => { // Flag changes to green, timer starts counting down from 10
         if (socket) {
-            socket.emit("updateRaceState", {state: ["active"]})
+            socket.emit("changeRaceState", {newState: ["active"]})
         }
     }
 
@@ -51,19 +51,19 @@ export function ActiveRaceButtons() {
 
     const onFinish = () => { // Flag changes to checkered, drivers return to start/finish line
         if (socket) {
-            socket.emit("updateRaceState", {state: ["finishing"]})
+            socket.emit("changeRaceState", {newState: ["finishing"]})
         }
     }
     
     const onHazard = () => { // Flag changes to yellow, drive slow, time does not stop
         if (socket) {
-            socket.emit("updateRaceState", {state: ["hazard"]})
+            socket.emit("changeRaceState", {newState: ["hazard"]})
         }
     }
     
     const onDanger = () => { // Flag changes to red, cars need to stop, time stops.
         if (socket) {
-            socket.emit("updateRaceState", {state: ["danger"]})
+            socket.emit("changeRaceState", {newState: ["danger"]})
         }
     }
 
@@ -98,19 +98,19 @@ export function ActiveRaceHazardButtons() {
 
     const onFinish = () => { // Flag changes to checkered, drivers return to start/finish line
         if (socket) {
-            socket.emit("updateRaceState", {state: ["finishing"]})
+            socket.emit("changeRaceState", {newState: ["finishing"]})
         }
     }
     
     const onSafe = () => { // Flag changes to yellow, drive slow, time does not stop
         if (socket) {
-            socket.emit("updateRaceState", {state: ["safe"]})
+            socket.emit("changeRaceState", {newState: ["safe"]})
         }
     }
     
     const onDanger = () => { // Flag changes to red, cars need to stop, time stops.
         if (socket) {
-            socket.emit("updateRaceState", {state: ["danger"]})
+            socket.emit("changeRaceState", {newState: ["danger"]})
         }
     }
 
@@ -145,13 +145,13 @@ export function ActiveRaceDangerButtons() {
 
     const onResume = () => { // Flag changes to green, timer has been stopped, but continues counting when flag state is switched to "resumed"
         if (socket) {
-            socket.emit("updateRaceState", {state: ["resume"]})
+            socket.emit("changeRaceState", {newState: ["resume"]})
         }
     }
 
     const onFinish = () => { // Flag changes to green, timer has been stopped, but continues counting when flag state is switched to "resumed"
         if (socket) {
-            socket.emit("updateRaceState", {state: ["finishing"]})
+            socket.emit("changeRaceState", {newState: ["finishing"]})
         }
     }
 
@@ -180,7 +180,7 @@ export function EndSessionButtons() {
 
     const onEndSession = () => { // When everyone has returned to start/finish line, race control pushes "End Session" - flag changes to red.
         if (socket) {
-            socket.emit("updateRaceState", {state: ["completed"]})
+            socket.emit("changeRaceState", {newState: ["completed"]})
         }
     }
 

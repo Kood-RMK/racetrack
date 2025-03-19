@@ -6,9 +6,13 @@ import { raceControlService } from './services/racecontrol.service';
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
 
-
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  }
+});
 
 
 leaderboardService(io);
