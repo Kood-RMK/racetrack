@@ -1,6 +1,4 @@
-import { RangeCalendarStateContext } from "react-aria-components";
 import type { Server as IOServer } from "socket.io";
-import { Socket } from "socket.io-client";
 import { ActiveRace, RaceState } from "state";
 
 let activeRace: ActiveRace = {
@@ -15,6 +13,10 @@ let activeRace: ActiveRace = {
 export type RaceControlEvents = RaceStateChanged;
 export type RaceControlCommands = ChangeRaceState;
 
+// I have to change this here, and not partial pick but take all, right?
+// No, actually i think it's fine and i'll just need to create a separate export
+// where all of the  Active Race type is presented.
+// But not right now, flags are only dependent on the race state.
 export type ChangeRaceState = {
     type : 'changeRaceState',
     newState : RaceState,
@@ -30,6 +32,15 @@ export function raceControlService(io : IOServer) {
 
     io.on("connection", (socket) => {
         console.log("Client connected:", socket.id);
+
+        // Send the current race state only to the newly connected client
+        socket.emit("raceStateChanged", {
+            type: "raceStateChanged",
+            newState: activeRace.raceState,
+            isHazard: activeRace.isHazard,
+            isDanger: activeRace.isDanger,
+            isFinishing: activeRace.isFinishing,
+        });
 
         // Recieve driver data from AdminPlacementCard
         socket.on("updateDrivers", (data) => {console.log(data)});
@@ -51,7 +62,7 @@ export function raceControlService(io : IOServer) {
             console.log('isDanger:', activeRace.isDanger);
             console.log('isFinishing:', activeRace.isFinishing);
 
-            //Broadcast the message to all clients
+            // Send the changed race state to all connected clients
             io.emit("raceStateChanged", {
                 type: "raceStateChanged",
                 newState: activeRace.raceState,

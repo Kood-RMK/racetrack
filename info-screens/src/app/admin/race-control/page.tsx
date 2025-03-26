@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import {  useEffect } from "react";
 import { RaceStateChanged } from "@/racetrack/services/racecontrol.service";
 import { RaceState, ActiveRace } from "@/racetrack/state";
-import { socket, connectSocket, disconnectSocket } from "@/racetrack/services/sockets/ActiveRaceSocket";
+import { useRaceSocket } from "@/racetrack/services/sockets/ActiveRaceSocket";
 
 import RaceCard from '@/components/card/race-control-card';
 import { RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons';
@@ -47,38 +47,12 @@ const raceButtons = (raceState: RaceState, isHazard: boolean, isDanger: boolean,
 
 export default function Page() {
 
-  // Initialize state to manage the race state using the RaceState type
-  const [activeRace, setActiveRace] = useState<ActiveRace>({
-    contestants: [],
-    raceState: 'pending',
-    isHazard: false,
-    isDanger: false,
-    isFinishing: false,
-    timeLeft: '00:00',
-  });
+  // Use the custom hook to manage socket and race state
+  const { activeRace, connectSocket, disconnectSocket } = useRaceSocket();
   
   // Connect to the socket server
   useEffect(() => {   
     connectSocket();
-
-  socket.on("raceStateChanged", (raceState: RaceStateChanged) => { // Listen for race state changes
-    console.log("Race state changed:", raceState.newState);
-
-    // Extract the correct race state from the array
-    const fixedRaceState = Array.isArray(raceState.newState) 
-      ? raceState.newState[0]  // Take the first element
-      : raceState.newState;
-
-    // Update the activeRace state with the full race data
-    setActiveRace({
-      ...activeRace,
-      raceState: fixedRaceState as RaceState,
-      isHazard: raceState.isHazard ?? false,
-      isDanger: raceState.isDanger ?? false,
-      isFinishing: raceState.isFinishing ?? false,
-      timeLeft: "00:00"
-    });
-  });
 
   return () => { // Clean up on unmount
     disconnectSocket();
