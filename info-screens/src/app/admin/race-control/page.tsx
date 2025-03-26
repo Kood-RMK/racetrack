@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { RaceStateChanged } from "@/racetrack/services/racecontrol.service";
 import { RaceState, ActiveRace } from "@/racetrack/state";
-import { io, type Socket } from "socket.io-client";
+import { socket, connectSocket, disconnectSocket } from "@/racetrack/services/sockets/ActiveRaceSocket";
 
 import RaceCard from '@/components/card/race-control-card';
 import { RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons';
@@ -15,35 +15,15 @@ const raceTags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, is
   console.log('raceTags received:', { raceState, isHazard, isDanger, isFinishing });
 
   switch (raceState) {
-    case 'pending':
-      return <RacePendingTags />;
+    case 'pending': return <RacePendingTags />;
 
-    case 'active':
-      if (isHazard) {
-        console.log('Hazard');
-        console.log('Returning ActiveRaceHazardTags');
-        return <ActiveRaceHazardTags />;
-      }
-      if (isDanger) {
-        console.log('Returning ActiveRaceDangerTags');
-        return <ActiveRaceDangerTags />;
-      }
-      if (isFinishing) {
-        console.log('Returning EndSessionTags');
-        return <EndSessionTags />;
-      }
-      console.log('Returning ActiveRaceTags');
-      return <ActiveRaceTags />;
+    case 'active': return isHazard ? <ActiveRaceHazardTags /> : isDanger ? <ActiveRaceDangerTags /> : isFinishing ? <EndSessionTags /> : <ActiveRaceTags />; 
 
-    case 'completed':
-      return <RacePendingTags />;
+    case 'completed': return <RacePendingTags />;
 
-    case 'canceled':
-      return <RaceCancelledTags />;
+    case 'canceled': return <RaceCancelledTags />;
     
-    default:
-      console.log('No matching case in raceTags, returning null');
-      return null;
+    default: return null;
   
   }
 };
@@ -52,30 +32,15 @@ const raceButtons = (raceState: RaceState, isHazard: boolean, isDanger: boolean,
   console.log('raceButtons received:', { raceState, isHazard, isDanger, isFinishing });
   
   switch (raceState) {
-    case 'pending':
-      return <RacePendingButtons />;
+    case 'pending': return <RacePendingButtons />;
 
-    case 'active':
-      if (isHazard) {
-        return <ActiveRaceHazardButtons />;
-      }
-      if (isDanger) {
-        return <ActiveRaceDangerButtons />;
-      }
-      if (isFinishing) {
-        return <EndSessionButtons />;
-      }
-      return <ActiveRaceButtons />;
+    case 'active': return isHazard ? <ActiveRaceHazardButtons /> : isDanger ? <ActiveRaceDangerButtons /> : isFinishing ? <EndSessionButtons /> : <ActiveRaceButtons />;
 
-    case 'completed':
-      return <RacePendingButtons />;
+    case 'completed': return <RacePendingButtons />;
 
-    case 'canceled':
-      return null;
+    case 'canceled': return null;
 
-    default:
-      console.log('No matching case in raceButtons, returning null');
-      return null;
+    default: return null;
   }
 };
 
@@ -85,7 +50,7 @@ export default function Page() {
   // Initialize state to manage the race state using the RaceState type
   const [activeRace, setActiveRace] = useState<ActiveRace>({
     contestants: [],
-    raceState: 'active',
+    raceState: 'pending',
     isHazard: false,
     isDanger: false,
     isFinishing: false,
@@ -94,8 +59,7 @@ export default function Page() {
   
   // Connect to the socket server
   useEffect(() => {   
-    const socket = io("http://localhost:3001");
-  
+    connectSocket();
 
   socket.on("raceStateChanged", (raceState: RaceStateChanged) => { // Listen for race state changes
     console.log("Race state changed:", raceState.newState);
@@ -116,9 +80,8 @@ export default function Page() {
     });
   });
 
-
   return () => { // Clean up on unmount
-    socket.disconnect();
+    disconnectSocket();
   };
 }, []);
 
