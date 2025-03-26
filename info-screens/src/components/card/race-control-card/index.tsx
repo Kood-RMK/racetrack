@@ -29,9 +29,9 @@ export default function ControlRaceCard({ tags, buttons }: RaceCardProps ) {
           {Array(8)
             .fill(0)
             .map((_, index) => (
-              <div key={index} className="text-center text-2xl font-medium">
+              <div key={index} className="text-center text-xl lg:text-2xl font-medium">
                 <p>Racecar {index + 1}</p>
-                <p className="text-black font-medium text-3xl max-w-xs md:max-w-sm">Test Driver</p>
+                <p className="text-black font-medium text-2xl lg:text-3xl max-w-xs md:max-w-sm">Test Driver</p>
               </div>
             ))}
         </div>
