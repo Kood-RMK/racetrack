@@ -1,10 +1,13 @@
-import type { ReactElement } from 'react'
+import React from "react";
+import Flags from '@components/display/flags'
  
 
 export default async function Page() {
  
   return (
-    <p className='font-cairo text-silver'>Hello</p>
+    <div className='w-full h-full'>
+      <Flags/>
+    </div>
   )
 
 }

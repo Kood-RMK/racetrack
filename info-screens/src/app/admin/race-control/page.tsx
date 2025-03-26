@@ -1,59 +1,129 @@
 "use client";
 
-import RaceCard from '@/components/card/race-control-card'
-import {  RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons'
-import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags'
-
 import React, { useState, useEffect } from "react";
 import { RaceStateChanged } from "@/racetrack/services/racecontrol.service";
-import {RaceState} from "@/racetrack/state";
+import { RaceState, ActiveRace } from "@/racetrack/state";
 import { io, type Socket } from "socket.io-client";
+
+import RaceCard from '@/components/card/race-control-card';
+import { RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons';
+import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
 
 
 // Mapping between race state and components for buttons and tags
-const raceTags = {
-  'completed': <RacePendingTags />,
-  'active': <ActiveRaceTags />,
-  'canceled': <RaceCancelledTags />,  
-  'finishing': <EndSessionTags />,
-  'pending': <RacePendingTags/>,
-  'hazard': <ActiveRaceHazardTags/>,
-  'danger': <ActiveRaceDangerTags/>,
-  'safe': <ActiveRaceTags />,
-  'resume': <ActiveRaceTags />   
+const raceTags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean) => {
+  console.log('raceTags received:', { raceState, isHazard, isDanger, isFinishing });
+
+  switch (raceState) {
+    case 'pending':
+      return <RacePendingTags />;
+
+    case 'active':
+      if (isHazard) {
+        console.log('Hazard');
+        console.log('Returning ActiveRaceHazardTags');
+        return <ActiveRaceHazardTags />;
+      }
+      if (isDanger) {
+        console.log('Returning ActiveRaceDangerTags');
+        return <ActiveRaceDangerTags />;
+      }
+      if (isFinishing) {
+        console.log('Returning EndSessionTags');
+        return <EndSessionTags />;
+      }
+      console.log('Returning ActiveRaceTags');
+      return <ActiveRaceTags />;
+
+    case 'completed':
+      return <RacePendingTags />;
+
+    case 'canceled':
+      return <RaceCancelledTags />;
+    
+    default:
+      console.log('No matching case in raceTags, returning null');
+      return null;
+  
+  }
 };
 
-const raceButtons = {
-  'completed': <RacePendingButtons />,
-  'active': <ActiveRaceButtons />,
-  'canceled': null, 
-  'finishing': <EndSessionButtons />,
-  'pending': <RacePendingButtons/>,
-  'hazard': <ActiveRaceHazardButtons/>,
-  'danger': <ActiveRaceDangerButtons/>,
-  'safe': <ActiveRaceButtons />,
-  'resume': <ActiveRaceButtons />     
+const raceButtons = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean) => {
+  console.log('raceButtons received:', { raceState, isHazard, isDanger, isFinishing });
+  
+  switch (raceState) {
+    case 'pending':
+      return <RacePendingButtons />;
+
+    case 'active':
+      if (isHazard) {
+        return <ActiveRaceHazardButtons />;
+      }
+      if (isDanger) {
+        return <ActiveRaceDangerButtons />;
+      }
+      if (isFinishing) {
+        return <EndSessionButtons />;
+      }
+      return <ActiveRaceButtons />;
+
+    case 'completed':
+      return <RacePendingButtons />;
+
+    case 'canceled':
+      return null;
+
+    default:
+      console.log('No matching case in raceButtons, returning null');
+      return null;
+  }
 };
 
 
 export default function Page() {
 
   // Initialize state to manage the race state using the RaceState type
-  const [raceState, setRaceState] = useState<RaceState>('pending');
+  const [activeRace, setActiveRace] = useState<ActiveRace>({
+    contestants: [],
+    raceState: 'active',
+    isHazard: false,
+    isDanger: false,
+    isFinishing: false,
+    timeLeft: '00:00',
+  });
   
-  useEffect(() => {   // Connect to the socket server
+  // Connect to the socket server
+  useEffect(() => {   
     const socket = io("http://localhost:3001");
   
 
   socket.on("raceStateChanged", (raceState: RaceStateChanged) => { // Listen for race state changes
     console.log("Race state changed:", raceState.newState);
-    setRaceState(raceState.newState);
+
+    // Extract the correct race state from the array
+    const fixedRaceState = Array.isArray(raceState.newState) 
+      ? raceState.newState[0]  // Take the first element
+      : raceState.newState;
+
+    // Update the activeRace state with the full race data
+    setActiveRace({
+      ...activeRace,
+      raceState: fixedRaceState as RaceState,
+      isHazard: raceState.isHazard ?? false,
+      isDanger: raceState.isDanger ?? false,
+      isFinishing: raceState.isFinishing ?? false,
+      timeLeft: "00:00"
+    });
   });
+
 
   return () => { // Clean up on unmount
     socket.disconnect();
   };
 }, []);
+
+  // Extract values from the activeRace object
+  const { raceState, isHazard, isDanger, isFinishing } = activeRace;
  
   return (
     <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
@@ -63,7 +133,9 @@ export default function Page() {
       <div>
         <div>
 
-        <RaceCard tags={raceTags[raceState]} buttons={raceButtons[raceState]}/>
+        <RaceCard 
+          tags={raceTags(raceState, isHazard, isDanger, isFinishing)}
+          buttons={raceButtons(raceState, isHazard, isDanger, isFinishing)}/>
 
         </div>
       </div>

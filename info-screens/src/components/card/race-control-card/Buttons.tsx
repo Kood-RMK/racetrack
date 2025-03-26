@@ -15,13 +15,13 @@ export function RacePendingButtons() {
 
     const onCancel = () => { // Race control can cancel a race while its' state is 'pending'. Flag remains red
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["canceled"]})
+            socket.emit("changeRaceState", {newState: ['canceled']})
         }
     }
     
     const onStart = () => { // Flag changes to green, timer starts counting down from 10
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["active"]})
+            socket.emit("changeRaceState", {newState: ['active']})
         }
     }
 
@@ -51,19 +51,19 @@ export function ActiveRaceButtons() {
 
     const onFinish = () => { // Flag changes to checkered, drivers return to start/finish line
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["finishing"]})
+            socket.emit("changeRaceState", {newState: ['active'], isFinishing: true})
         }
     }
     
     const onHazard = () => { // Flag changes to yellow, drive slow, time does not stop
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["hazard"]})
+            socket.emit("changeRaceState", {newState: ['active'], isHazard: true}) 
         }
     }
     
     const onDanger = () => { // Flag changes to red, cars need to stop, time stops.
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["danger"]})
+            socket.emit("changeRaceState", {newState: ['active'], isDanger: true})
         }
     }
 
@@ -98,19 +98,25 @@ export function ActiveRaceHazardButtons() {
 
     const onFinish = () => { // Flag changes to checkered, drivers return to start/finish line
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["finishing"]})
+            socket.emit("changeRaceState", {
+                newState: 'active',
+                isFinishing: true
+            });
         }
     }
     
-    const onSafe = () => { // Flag changes to yellow, drive slow, time does not stop
+    const onActive = () => { // Flag changes to yellow, drive slow, time does not stop
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["safe"]})
+            socket.emit("changeRaceState", {newState: ['active']})
         }
     }
     
     const onDanger = () => { // Flag changes to red, cars need to stop, time stops.
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["danger"]})
+            socket.emit("changeRaceState", {
+                newState: 'active',
+                isDanger: true
+            });
         }
     }
 
@@ -123,7 +129,7 @@ export function ActiveRaceHazardButtons() {
             </Button>
 
             <Button aria-label="Safe" className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onSafe}>
+            onPress={onActive}>
             <Icon path={mdiCheck} className="w-6 h-6 flex-shrink-0"/>
             Safe
             </Button>
@@ -143,22 +149,22 @@ export function ActiveRaceDangerButtons() {
 
     const socket = useSocket();
 
-    const onResume = () => { // Flag changes to green, timer has been stopped, but continues counting when flag state is switched to "resumed"
+    const onActive = () => { // Flag changes to green, timer has been stopped, but continues counting when flag state is switched to "resumed"
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["resume"]})
+            socket.emit("changeRaceState", {newState: ['active']})
         }
     }
 
     const onFinish = () => { // Flag changes to green, timer has been stopped, but continues counting when flag state is switched to "resumed"
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["finishing"]})
+            socket.emit("changeRaceState", {newState: ['active'], isFinishing: true})
         }
     }
 
     return (
         <div aria-label="Active race danger buttons" className="flex justify-end w-full h-20 gap-4 flex-shrink-0">
             <Button aria-label="Resume race" className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onResume}>
+            onPress={onActive}>
             <Icon path={mdiPlayCircle} className="w-6 h-6 flex-shrink-0"/>
             Resume Race
             </Button>
@@ -180,7 +186,7 @@ export function EndSessionButtons() {
 
     const onEndSession = () => { // When everyone has returned to start/finish line, race control pushes "End Session" - flag changes to red.
         if (socket) {
-            socket.emit("changeRaceState", {newState: ["completed"]})
+            socket.emit("changeRaceState", {newState: ['completed']})
         }
     }
 
