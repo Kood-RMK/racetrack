@@ -1,8 +1,7 @@
 "use client";
 
-import {  useEffect } from "react";
-import { RaceStateChanged } from "@/racetrack/services/racecontrol.service";
-import { RaceState, ActiveRace } from "@/racetrack/state";
+import { useEffect } from "react";
+import { RaceState } from "@/racetrack/state";
 import { useRaceSocket } from "@/racetrack/services/sockets/ActiveRaceSocket";
 
 import RaceCard from '@/components/card/race-control-card';

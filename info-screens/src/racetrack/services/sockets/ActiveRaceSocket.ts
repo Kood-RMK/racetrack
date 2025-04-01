@@ -20,6 +20,7 @@ export const useRaceSocket = () => {
     // Create a new socket connection
     socket = io("http://localhost:3001");
 
+    // when recieving a new race state...
     socket.on("raceStateChanged", (raceState: RaceStateChanged) => {
       console.log("Race state changed:", raceState.newState);
 
