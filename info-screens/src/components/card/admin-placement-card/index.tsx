@@ -32,6 +32,7 @@ import { useSocket } from "@/components/socket/ClientProvider";
 export default function NewRaceDialog() {
     const [driverCount, setDriverCount] = useState(8);
     const socket = useSocket();
+    
     const onSave = () => {
         console.log("Test")
 

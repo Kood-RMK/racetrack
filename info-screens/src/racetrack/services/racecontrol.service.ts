@@ -13,10 +13,7 @@ let activeRace: ActiveRace = {
 export type RaceControlEvents = RaceStateChanged;
 export type RaceControlCommands = ChangeRaceState;
 
-// I have to change this here, and not partial pick but take all, right?
-// No, actually i think it's fine and i'll just need to create a separate export
-// where all of the  Active Race type is presented.
-// But not right now, flags are only dependent on the race state.
+// Events to communicate Race State changes
 export type ChangeRaceState = {
     type : 'changeRaceState',
     newState : RaceState,

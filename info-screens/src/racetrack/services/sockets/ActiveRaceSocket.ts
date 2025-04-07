@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ActiveRace, RaceState } from 'state';
 import { RaceStateChanged } from 'services/racecontrol.service';
 
-// This file will manage the socket connection and handle state updates
+// Custom react hook to manage the socket connection and race state change
 export const useRaceSocket = () => {
   const [activeRace, setActiveRace] = useState<ActiveRace>({
     contestants: [],
@@ -14,13 +14,14 @@ export const useRaceSocket = () => {
     timeLeft: '00:00',
   });
 
+  // Declare a socket variable, but does not initialize it yet
   let socket: Socket;
 
+  // Creates a WebSocket connection to the backend server running on port 3001
   const connectSocket = () => {
-    // Create a new socket connection
     socket = io("http://localhost:3001");
 
-    // when recieving a new race state...
+    // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
     socket.on("raceStateChanged", (raceState: RaceStateChanged) => {
       console.log("Race state changed:", raceState.newState);
 
