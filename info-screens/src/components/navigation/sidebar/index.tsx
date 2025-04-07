@@ -129,7 +129,7 @@ export default function Sidebar() {
           iconPath={mdiCarCruiseControl} 
           items={[
             <SidebarItem title="Race Control" path="/admin/race-control"/>,
-            <SidebarItem title="Lap-line Observer" path="/admin/lap-line-observer"/>
+            <SidebarItem title="Lap-line Observer" path="/display/lap-line-observer"/>
           ]}>
             Details about system requirements here
           </SidebarDisclosure>
