@@ -10,6 +10,7 @@ const raceFlags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, i
     console.log('raceFlags received:', { raceState, isHazard, isDanger, isFinishing });
 
     switch(raceState) {
+        
         case 'pending': return <RaceFlagRed />;
         
         case 'active': return isHazard ? <RaceFlagYellow /> : isDanger ? <RaceFlagRed /> : isFinishing ? <RaceFlagCheckered /> : <RaceFlagGreen />; 
