@@ -3,17 +3,17 @@
 import React from "react";
 
 interface HeaderProps {
-    className?: string;
+    trackStateLabel: string;
   }
 
-  export const Header: React.FC<HeaderProps> = ({ className = "" }) => {
+  export default function Header({ trackStateLabel }: HeaderProps) {
     return (
         <div className="bg-black text-white px-6 py-4 w-full max-w-screen-lg mx-auto">
         <div className="flex justify-between items-center">
           {/* Left Section */}
           <div className="flex flex-col items-start">
             <span className="text-sm">TRACK STATE</span>
-            <span className="font-bold text-lg">SAFE</span>
+            <span className="font-bold text-lg">{ trackStateLabel }</span>
           </div>
       
           {/* Center Section */}
