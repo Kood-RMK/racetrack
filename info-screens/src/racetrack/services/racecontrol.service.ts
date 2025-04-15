@@ -1,5 +1,6 @@
-import type { Server as IOServer } from "socket.io";
+import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRace, RaceState } from "state";
+import { RacetrackEvent, RacetrackCommand } from "types/messageTypes"
 
 let activeRace: ActiveRace = {
     contestants: [],
@@ -10,6 +11,7 @@ let activeRace: ActiveRace = {
     timeLeft: '00:00'
 }
 
+// Events to communicate Race State changes
 export type RaceControlEvents = RaceStateChanged;
 export type RaceControlCommands = ChangeRaceState;
 
@@ -25,33 +27,34 @@ export type RaceStateChanged = {
 }  & Partial<Pick<ActiveRace, 'isHazard' | 'isDanger' | 'isFinishing'>>;
 
 
-export function raceControlService(io : IOServer) {
+export function raceControlService(io : SocketIOServer) {
 
     io.on("connection", (socket) => {
-        console.log("Client connected:", socket.id);
 
         // Send the current race state only to the newly connected client
-        socket.emit("raceStateChanged", {
-            type: "raceStateChanged",
-            newState: activeRace.raceState,
-            isHazard: activeRace.isHazard,
-            isDanger: activeRace.isDanger,
-            isFinishing: activeRace.isFinishing,
-        });
+        const eventMessage: RacetrackEvent<RaceStateChanged> = {
+            message: {
+                type: "raceStateChanged",
+                newState: activeRace.raceState,
+                isHazard: activeRace.isHazard,
+                isDanger: activeRace.isDanger,
+                isFinishing: activeRace.isFinishing,
+            }
+        };
+        socket.emit("raceStateChanged", eventMessage);
 
-        // Recieve driver data from AdminPlacementCard
-        socket.on("updateDrivers", (data) => {console.log(data)});
-
+        
         // Recieve race state from RaceControlCard Buttons
-        socket.on("changeRaceState", (raceState: ChangeRaceState) => {
-            console.log(raceState.newState);
+        socket.on("changeRaceState", (command: RacetrackCommand<ChangeRaceState>) => {
+            const { senderId, message } = command;
+            console.log(message.newState);
 
             activeRace = {
                 ...activeRace, // Spread the existing properties to keep contestants, timeLeft, etc.
-                raceState: raceState.newState,
-                isHazard: raceState.isHazard ?? false,
-                isDanger: raceState.isDanger ?? false,
-                isFinishing: raceState.isFinishing ?? false
+                raceState: message.newState,
+                isHazard: message.isHazard ?? false,
+                isDanger: message.isDanger ?? false,
+                isFinishing: message.isFinishing ?? false
             };
 
             console.log('Emitting new state:');
@@ -60,13 +63,19 @@ export function raceControlService(io : IOServer) {
             console.log('isFinishing:', activeRace.isFinishing);
 
             // Send the changed race state to all connected clients
-            io.emit("raceStateChanged", {
-                type: "raceStateChanged",
-                newState: activeRace.raceState,
-                isHazard: activeRace.isHazard,
-                isDanger: activeRace.isDanger,
-                isFinishing: activeRace.isFinishing,
-            } as RaceStateChanged);
-        });
-    });
+            const responseEvent: RacetrackEvent<RaceStateChanged> = {
+                message: {
+                    type: "raceStateChanged",
+                    newState: activeRace.raceState,
+                    isHazard: activeRace.isHazard,
+                    isDanger: activeRace.isDanger,
+                    isFinishing: activeRace.isFinishing,
+                }
+            }
+
+            io.emit("raceStateChanged", responseEvent);
+        })
+    })
 }
+    
+

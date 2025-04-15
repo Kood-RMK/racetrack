@@ -36,9 +36,16 @@ export default function NewRaceDialog() {
     const onSave = () => {
         console.log("Test")
 
-        if (socket){
-            socket.emit("updateDrivers", {drivers: ["Rivo", "Mimi"]})
-
+        if (socket) {
+            socket.emit("scheduleNewRace", {
+                raceId: "0",
+                contestants: [
+                    { name: "Rivo", racecar: 1 },
+                    { name: "Mimi", racecar: 2 },
+                    { name: "Kati", racecar: 3 }
+                ],
+                raceDateTime: "13.00", // Still a string, but should ideally be a Unix timestamp string
+            });
         }
     }
 
