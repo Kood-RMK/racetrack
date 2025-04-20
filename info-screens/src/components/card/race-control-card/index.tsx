@@ -9,10 +9,10 @@ interface RaceCardProps {
   buttons?: React.ReactNode; // Accepts any button elements passed from Buttons.tsx
 }
 
-export default function ControlRaceCard({ tags, buttons }: RaceCardProps ) {
+export default function RaceControlCard({ tags, buttons }: RaceCardProps ) {
 
   return (
-<div className="bg-gray-100 w-full h-full p-8 gap-4 font-cairo">
+    <div className="bg-gray-100 w-full h-full p-8 gap-4 font-cairo">
     
       {/*Tags*/}
       <div className="tags">{tags}</div>

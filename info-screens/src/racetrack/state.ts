@@ -1,13 +1,13 @@
 export type Contestant = {
- name : String,
- racecar : Number
+ name : string,
+ racecar : number
 }
 
 export type RaceState = 'completed' | 'active' | 'canceled' | 'pending' ; // If state is 'active' we can also have a flag change triggered by ActiveRace 
 
 export type Race = {
-    raceId : String,
-    contestants : Contestant [],
+    raceId : string,
+    contestants : Contestant[],
     raceDateTime : string, //Unix Timestamp.
 }
 
