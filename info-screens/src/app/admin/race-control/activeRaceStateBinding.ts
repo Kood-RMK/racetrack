@@ -1,9 +1,17 @@
 import { useSocket } from "@/components/socket/ClientProvider";
 import { RaceStateChanged } from "@/racetrack/services/racecontrol.service";
 import { ActiveRace, RaceState } from "@/racetrack/state";
-import { useState } from "react";
+import { RacetrackCommand, RacetrackEvent } from "@/racetrack/types/messageTypes";
+import { useEffect, useState } from "react";
 
-export const useActiveRaceBinding = () => {
+
+export type ActiveRaceBinding = {
+  activeRace: ActiveRace;
+  setHazard: (isHazard: boolean) => void;
+}
+
+
+export const useActiveRaceBinding = () : ActiveRaceBinding | undefined => {
   const [activeRace, setActiveRace] = useState<ActiveRace>({
     contestants: [],
     raceState: 'pending',
@@ -16,21 +24,22 @@ export const useActiveRaceBinding = () => {
   const socket = useSocket();
 
   if (socket == null) {
-      console.error("Socket connection failed");
       return;
   }
+  
 
   // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
-  socket.on("raceStateChanged", (raceState: RaceStateChanged) => {
-    console.log("Race state changed:", raceState.newState);
+  socket.on("raceStateChanged", (data: RacetrackEvent<RaceStateChanged>) => {
 
-    const fixedRaceState = Array.isArray(raceState.newState) 
-      ? raceState.newState[0] 
-      : raceState.newState;
+    const raceState = data.message.newState;
+
+    console.log("NewState: ", raceState);
+
+ 
 
     setActiveRace({
       ...activeRace,
-      raceState: fixedRaceState as RaceState,
+      raceState: raceState,
       isHazard: raceState.isHazard ?? false,
       isDanger: raceState.isDanger ?? false,
       isFinishing: raceState.isFinishing ?? false,
@@ -44,7 +53,12 @@ export const useActiveRaceBinding = () => {
       isHazard,
     }));
 
-    socket.emit("changeRaceState", activeRace);
+    const command: RacetrackCommand<ActiveRace> = {
+      senderId: socket.id ?? "unknown", // or however you're managing sender identity
+      message: activeRace,
+    };
+
+    socket.emit("changeRaceState", command);
   }
 
   return { activeRace, setHazard };

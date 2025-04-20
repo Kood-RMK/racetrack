@@ -46,34 +46,43 @@ export function raceControlService(io : SocketIOServer) {
         
         // Recieve race state from RaceControlCard Buttons
         socket.on("changeRaceState", (command: RacetrackCommand<ChangeRaceState>) => {
-            const { senderId, message } = command;
-            console.log(message.newState);
 
-            activeRace = {
-                ...activeRace, // Spread the existing properties to keep contestants, timeLeft, etc.
-                raceState: message.newState,
-                isHazard: message.isHazard ?? false,
-                isDanger: message.isDanger ?? false,
-                isFinishing: message.isFinishing ?? false
-            };
 
-            console.log('Emitting new state:');
-            console.log('isHazard:', activeRace.isHazard);
-            console.log('isDanger:', activeRace.isDanger);
-            console.log('isFinishing:', activeRace.isFinishing);
+            try {
 
-            // Send the changed race state to all connected clients
-            const responseEvent: RacetrackEvent<RaceStateChanged> = {
-                message: {
-                    type: "raceStateChanged",
-                    newState: activeRace.raceState,
-                    isHazard: activeRace.isHazard,
-                    isDanger: activeRace.isDanger,
-                    isFinishing: activeRace.isFinishing,
+                const { senderId, message } = command;
+                console.log(command);
+
+                activeRace = {
+                    ...activeRace, // Spread the existing properties to keep contestants, timeLeft, etc.
+                    raceState: message.newState,
+                    isHazard: message.isHazard ?? false,
+                    isDanger: message.isDanger ?? false,
+                    isFinishing: message.isFinishing ?? false
+                };
+
+                console.log('Emitting new state:');
+                console.log('isHazard:', activeRace.isHazard);
+                console.log('isDanger:', activeRace.isDanger);
+                console.log('isFinishing:', activeRace.isFinishing);
+
+                // Send the changed race state to all connected clients
+                const responseEvent: RacetrackEvent<RaceStateChanged> = {
+                    message: {
+                        type: "raceStateChanged",
+                        newState: activeRace.raceState,
+                        isHazard: activeRace.isHazard,
+                        isDanger: activeRace.isDanger,
+                        isFinishing: activeRace.isFinishing,
+                    }
                 }
+
+            } catch (error) {
+                console.error("Error processing changeRaceState command:", error);
             }
 
-            io.emit("raceStateChanged", responseEvent);
+
+            // io.emit("raceStateChanged", responseEvent);
         })
     })
 }

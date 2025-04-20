@@ -1,5 +1,7 @@
 import Sidebar from "@/components/navigation/sidebar";
+import Overlay from "@/components/overlay/Overlay";
 import { Metadata } from "next";
+
 
 export const metadata: Metadata = {
   title: "Racetrack Admin",
@@ -15,11 +17,12 @@ export default function RootLayout({
     <body className="flex h-screen">
         
         <div className="w-72 flex-shrink-0">
-        <Sidebar/>
+          <Sidebar/>
         </div>
-
-        <div className="flex-1 overflow-y-auto">
-        {children}
+        <div className="flex-1 relative overflow-y-auto">
+          <Overlay>
+            {children}
+          </Overlay>
         </div>
     </body>
   );

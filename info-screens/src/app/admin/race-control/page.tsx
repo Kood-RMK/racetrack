@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RaceState } from "@/racetrack/state";
 
 import RaceCard from '@/components/card/race-control-card';
 import { RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons';
 import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
-import { useActiveRaceBinding } from "./activeRaceStateBinding";
+import { ActiveRaceBinding, useActiveRaceBinding } from "./activeRaceStateBinding";
 
 
 // Mapping between race state and components for buttons and tags
@@ -46,16 +46,15 @@ const raceButtons = (raceState: RaceState, isHazard: boolean, isDanger: boolean,
 
 export default function Page() {
 
-  // Use the custom hook to manage socket and race state
+    const activeRaceBinding = useActiveRaceBinding();
 
-  const activeRaceBinding = useActiveRaceBinding();
-
-  if (!activeRaceBinding) {
-    console.error("Socket not found.");
-    return;
-  }
+    if (!activeRaceBinding) {
+      return;
+    }
 
   const {activeRace, setHazard} = activeRaceBinding;
+
+  console.log(activeRace);
 
   // Extract values from the activeRace object
   const { raceState, isHazard, isDanger, isFinishing } = activeRace;

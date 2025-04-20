@@ -42,7 +42,6 @@ export default function RaceCard ({ race, tags, buttons}: RaceCardProps) {
             const driver = contestants[index];
             console.log("drivers:", driver);
             
-
               return (
                 <div key={index} className="text-center text-sm font-medium">
                   <p>Racecar {`${driver?.racecar ?? index + 1}`}</p>

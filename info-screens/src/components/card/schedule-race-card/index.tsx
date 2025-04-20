@@ -94,7 +94,7 @@ export default function NewRaceDialog() {
                     Schedule Race
                 </Button>
 
-                <Modal className="flex justify-center items-center fixed inset-0 bg-black/50 font-cairo">
+                <Modal className="absolute inset-0 flex justify-center items-center w-full h-full bg-black/50 font-cairo z-50">
                     <Dialog className="bg-gray-100 shadow-lg p-5 w-1/2">
                         
                         {/* Close Button */}

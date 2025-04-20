@@ -80,8 +80,6 @@ export function RacePendingButtons({ race }: { race: Race }) {
     // }
 
     return (
-    
-        
         <div aria-label="Race schedule buttons" className="flex justify-end w-full h-8 gap-2 mt-6 flex-shrink-0">
 
             <Button aria-label="Modify race" className="text-xs flex justify-center items-center bg-blue-800 text-white p-2 rounded w-28 h-8 gap-1 whitespace-nowrap"
