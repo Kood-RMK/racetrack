@@ -2,8 +2,6 @@ import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRace, RaceState } from "types/stateTypes";
 import { RacetrackEvent, RacetrackCommand } from "types/messageTypes"
 import { ActiveRaceState } from "./race-control.state";
-import { exportPages } from "next/dist/export/worker";
-
 
 // Message Types
 export enum RaceControlEvents {
@@ -66,7 +64,6 @@ export type ChangeRaceFinishing = {
 
 
 // Handlers.
-
 export class RaceControlService {
     private activeRace: ActiveRaceState;
     private socket: SocketIOServer;
