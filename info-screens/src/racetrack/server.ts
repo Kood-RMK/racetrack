@@ -1,8 +1,8 @@
 import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-// import {leaderboardService} from './services/leaderboard.service';
-// import { raceScheduleService } from './services/race-schedule.service';
+import { leaderboardService } from './services/leaderboard.service';
+import { RaceScheduleService } from './services/race-schedule/race-schedule.service';
 import { RaceControlService } from './services/race-control/race-control.service';
 
 const app = express();
@@ -18,7 +18,7 @@ const io = new Server(server, {
 
 // leaderboardService(io);
 new RaceControlService(io);
-// raceScheduleService(io);
+new RaceScheduleService(io);
 
 server.listen(3001, () => {
   console.log('server running at http://localhost:3001');
