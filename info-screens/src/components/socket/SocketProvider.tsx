@@ -1,10 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { io, Socket } from "socket.io-client";
-
-// Replace with your backend URL
-const SOCKET_SERVER_URL = "http://localhost:3001"; 
+import { io, Socket, SocketOptions } from "socket.io-client";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -12,12 +9,13 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-export const ClientProvider = ({ children }: { children: ReactNode }) => {
+export const SocketProvider = ({ socketURI, socketOptions, children }: { socketURI : string, socketOptions? : SocketOptions, children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const socketInstance = io(SOCKET_SERVER_URL, {
+    const socketInstance = io(socketURI, {
       transports: ["websocket"],
+      ...socketOptions
     });
 
     setSocket(socketInstance);

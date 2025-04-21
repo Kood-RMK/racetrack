@@ -7,59 +7,52 @@ import { ActiveRaceState } from "./race-control.state";
 export enum RaceControlEvents {
     RaceStateChanged = 'raceStateChanged',
     RaceHazardChanged = 'raceHazardChanged',
-    RaceDangerChanged = 'raceDangerChanged',
-    RaceFinishingChanged = 'raceFinishingChanged',
+    RaceIsFinishingChanged = 'raceIsFinishingChanged',
+    RaceInitialState = 'raceInitialState',
 }
 
 export enum RaceControlCommands {
     ChangeRaceState = 'changeRaceState',
     ChangeRaceHazard = 'changeRaceHazard',
-    ChangeRaceDanger = 'changeRaceDanger',
-    ChangeRaceFinishing = 'changeRaceFinishing',
+    ChangeRaceIsFinishing = 'changeRaceIsFinishing',
 }
 
+
 // Events
-export type RaceStateChanged = {
+export type ActiveRaceStateChanged = {
     type : RaceControlEvents.RaceStateChanged,
     newState : RaceState,
 };
 
-export type RaceHazardChanged = {
+export type ActiveRaceHazardChanged = {
     type : RaceControlEvents.RaceHazardChanged,
     isHazard : boolean,
 }
 
-export type RaceDangerChanged = {
-    type : RaceControlEvents.RaceDangerChanged,
-    isDanger : boolean,
-}
-
-// This is used to indicate that the race is finishing. 
-// It is displayed before the race is finished.
-// In order to finish the race the finishing has to be finished.
-export type RaceFinishingChanged = {
-    type : RaceControlEvents.RaceFinishingChanged,
+export type ActiveRaceIsFinishingChanged = {
+    type : RaceControlEvents.RaceIsFinishingChanged,
     isFinishing : boolean,
 }
 
+export type ActiveRaceInitialState = {
+    type : RaceControlEvents.RaceInitialState,
+    raceInitialState : ActiveRace
+}
+
+
 // Commands
-export type ChangeRaceState = {
+export type ChangeActiveRaceState = {
     type : RaceControlCommands.ChangeRaceState,
     newState : RaceState,
 };
 
-export type ChangeRaceHazard = {
+export type ChangeActiveRaceHazard = {
     type : RaceControlCommands.ChangeRaceHazard,
     isHazard : boolean,
 }
 
-export type ChangeRaceDanger = {
-    type : RaceControlCommands.ChangeRaceDanger,
-    isDanger : boolean,
-}
-
-export type ChangeRaceFinishing = {
-    type : RaceControlCommands.ChangeRaceFinishing,
+export type ChangeActiveRaceIsFinishing = {
+    type : RaceControlCommands.ChangeRaceIsFinishing,
     isFinishing : boolean,
 }
 
@@ -67,57 +60,101 @@ export type ChangeRaceFinishing = {
 // Handlers.
 export class RaceControlService {
     private activeRace: ActiveRaceState;
-    private socket: SocketIOServer;
+    private io: SocketIOServer;
+
+    private readonly raceControlRoom = "raceControlRoom";
+
 
     constructor(io : SocketIOServer) {
         this.activeRace = new ActiveRaceState();
-        this.socket = io;
+        this.io = io;
 
-        this.socket.on("connection", (client) => {
-            const stateMessage : RacetrackEvent<ActiveRace> =  {
-                message : this.activeRace.getActiveRace()
+        const raceControlNamespace = this.io.of("/race-control");
+
+        // Middleware to check if the user is authenticated.
+        raceControlNamespace.use((socket, next) => {
+            next();
+        })
+
+        raceControlNamespace.on("connection", (client) => {
+
+
+            console.log(`🧑 Race Control Service: New Client Connected! ID:`, client.id)
+
+            function initializeClientRooms() {
+                client.join("raceControlRoom");
+            }
+
+
+            const stateMessage : RacetrackEvent<ActiveRaceInitialState> =  {
+                message : {
+                    type: RaceControlEvents.RaceInitialState,
+                    raceInitialState: this.activeRace.activeRace,
+                }
             }
 
             // Send new client the current state.
-            client.emit(RaceControlEvents.RaceStateChanged, stateMessage)
+            client.emit(RaceControlEvents.RaceInitialState, stateMessage)
 
+            // Add new client to the raceControlRoom. 
+            // TODO: select room based on assigned role.
+            initializeClientRooms();
 
-            client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeRaceState>) => {
+            client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {
 
                 try {
+                    // TODO: Validate the command.
+                    if (!command.message) {
+                        throw new Error("message is undefined.");
+                    }
+
+                    this.activeRace.setRaceState(command.message.newState);
+                    console.log(`📩 Race Control Service: Race state changed to: ${this.activeRace.raceState}`);
+
+
+                    const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
+                        message : {
+                            type: RaceControlEvents.RaceStateChanged,
+                            newState: this.activeRace.raceState,
+                        }
+                    }
+
+                    raceControlNamespace
+                        .to(this.raceControlRoom)
+                        .emit(RaceControlEvents.RaceStateChanged, raceStateChangedMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceState} command:`, error);
                 }
-
             })
 
-
-            client.on(RaceControlCommands.ChangeRaceHazard, (command : RacetrackCommand<ChangeRaceHazard>) => {
+            client.on(RaceControlCommands.ChangeRaceHazard, (command : RacetrackCommand<ChangeActiveRaceHazard>) => {
 
                 try {
+                    // TODO: Validate the command.
+
+                    if (!command.message) {
+                        throw new Error("message is undefined.");
+                    }
+
+                    this.activeRace.setIsHazard(command.message.isHazard);
+
+                    console.log(`📩 Race Control Service: Hazard Flag set to: ${this.activeRace.isHazard}.`);
+
+
+                    const raceHazardChangedMessage : RacetrackEvent<ActiveRaceHazardChanged> = {
+                        message : {
+                            type: RaceControlEvents.RaceHazardChanged,
+                            isHazard: this.activeRace.isHazard,
+                        }
+                    }
+
+                    raceControlNamespace
+                        .to(this.raceControlRoom)
+                        .emit(RaceControlEvents.RaceHazardChanged, raceHazardChangedMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
-                }
-            });
-
-            client.on(RaceControlCommands.ChangeRaceDanger, (command : RacetrackCommand<ChangeRaceDanger>) => {
-
-                try {
-
-                } catch (error) {
-
-                    console.error(`Error processing ${RaceControlCommands.ChangeRaceDanger} command:`, error);
-                }
-            });
-
-            client.on(RaceControlCommands.ChangeRaceFinishing, (command : RacetrackCommand<ChangeRaceFinishing>) => {
-
-                try {
-
-                } catch (error) {
-                    console.error(`Error processing ${RaceControlCommands.ChangeRaceFinishing} command:`, error);
                 }
             });
         })

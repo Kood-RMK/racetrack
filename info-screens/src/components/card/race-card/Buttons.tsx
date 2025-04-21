@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { Button } from 'react-aria-components';
 import { mdiConsoleNetworkOutline, mdiDelete, mdiInvoiceTextEdit } from "@mdi/js";
 import Icon from '@mdi/react';
-import { useSocket } from "@/components/socket/ClientProvider";
+import { useSocket } from "@/components/socket/SocketProvider";
 import { RacetrackCommand } from "@/racetrack/types/messageTypes";
 import { DeleteRace, ModifyRace } from "@/racetrack/services/race-schedule.service";
 import { Race } from "@/racetrack/types/stateTypes";

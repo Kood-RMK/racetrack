@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Race } from "@/racetrack/types/stateTypes";
-import { useSocket } from "@/components/socket/ClientProvider";
+import { useSocket } from "@/components/socket/SocketProvider";
 
 
 interface RaceCardProps {

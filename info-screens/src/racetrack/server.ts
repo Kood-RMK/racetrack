@@ -16,7 +16,7 @@ const io = new Server(server, {
 });
 
 
-leaderboardService(io);
+// leaderboardService(io);
 new RaceControlService(io);
 new RaceScheduleService(io);
 

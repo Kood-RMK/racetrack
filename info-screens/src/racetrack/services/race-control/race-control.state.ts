@@ -8,74 +8,65 @@ export class RaceControlState {
         this.activeRaceState = new ActiveRaceState();
     }
 
-    getActiveRaceState() {
+    public get getActiveRaceState() {
         return this.activeRaceState;
     }
 }
 
 export class ActiveRaceState {
-    private activeRace: ActiveRace;
+    private _activeRace: ActiveRace;
 
     constructor() {
-        this.activeRace = {
+        this._activeRace = {
             contestants: [],
             raceState: 'pending',
             isHazard: false,
-            isDanger: false,
             isFinishing: false,
             timeLeft: '00:00'
         };
     }
 
-    getContestants() {
-        return this.activeRace.contestants;
+    public get contestants() {
+        return this._activeRace.contestants;
     }
 
-    getRaceState() {
-        return this.activeRace.raceState;
+    public get raceState() {
+        return this._activeRace.raceState;
     }
 
-    getIsHazard() {
-        return this.activeRace.isHazard;
+    public get isHazard() {
+        return this._activeRace.isHazard;
     }
 
-    getIsDanger() {
-        return this.activeRace.isDanger;
+    public get isFinishing() {
+        return this._activeRace.isFinishing;
     }
 
-    getIsFinishing() {
-        return this.activeRace.isFinishing;
+    public get timeLeft() {
+        return this._activeRace.timeLeft;
     }
 
-    getTimeLeft() {
-        return this.activeRace.timeLeft;
+    public get activeRace() {
+        return this._activeRace;
     }
 
-    getActiveRace() {
-        return this.activeRace;
+    public setContestants(contestants: ActiveRace['contestants']) {
+        this._activeRace.contestants = contestants;
     }
 
-    setContestants(contestants: ActiveRace['contestants']) {
-        this.activeRace.contestants = contestants;
+    public setRaceState(raceState: ActiveRace['raceState']) {
+        this._activeRace.raceState = raceState;
     }
 
-    setRaceState(raceState: ActiveRace['raceState']) {
-        this.activeRace.raceState = raceState;
+    public setIsHazard(isHazard: ActiveRace['isHazard']) {
+        this._activeRace.isHazard = isHazard;
     }
 
-    setIsHazard(isHazard: ActiveRace['isHazard']) {
-        this.activeRace.isHazard = isHazard;
+    public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
+        this._activeRace.isFinishing = isFinishing;
     }
 
-    setIsDanger(isDanger: ActiveRace['isDanger']) {
-        this.activeRace.isDanger = isDanger;
-    }
-
-    setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
-        this.activeRace.isFinishing = isFinishing;
-    }
-
-    setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
-        this.activeRace.timeLeft = timeLeft;
+    public setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
+        this._activeRace.timeLeft = timeLeft;
     }
 }

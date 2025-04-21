@@ -5,6 +5,6 @@ export interface RacetrackEvent<MessageType> {
 }
 
 export interface RacetrackCommand<MessageType> {
-    senderId : string;    
-    message : MessageType;
+    senderId? : string;    
+    message? : MessageType;
 } 
