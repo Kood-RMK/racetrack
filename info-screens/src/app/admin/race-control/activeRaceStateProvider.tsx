@@ -47,16 +47,16 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
       return;
     }
 
-    socket.on(RaceControlEvents.RaceInitialState, (data: RacetrackEvent<ActiveRaceInitialState>) => {
+    const onRaceInitialState = (data: RacetrackEvent<ActiveRaceInitialState>) => {
       const initalState = data.message.raceInitialState;
       setActiveRaceState(initalState);
 
       console.log(`[📩 Race Control]: Initial Race State Received:`, initalState);
-    })
+    }
+    socket.on(RaceControlEvents.RaceInitialState, onRaceInitialState)
 
     // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
-    socket.on(RaceControlEvents.RaceStateChanged, (data: RacetrackEvent<ActiveRaceStateChanged>) => {
-
+    const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
       console.log(activeRaceState);
 
       setActiveRaceState(prevState => ({
@@ -65,24 +65,28 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
       }));
 
       console.log(`[📩 Race Control]: Race State Changed to ${data.message.newState}`);
-    });
+    }
+    socket.on(RaceControlEvents.RaceStateChanged, onRaceStateChanged);
 
 
-    socket.on(RaceControlEvents.RaceHazardChanged, (data: RacetrackEvent<ChangeActiveRaceHazard>) => {
+    const onRaceHazardChanged = (data: RacetrackEvent<ChangeActiveRaceHazard>) => {
       setActiveRaceState(prevState => ({
         ...prevState,
         isHazard: data.message.isHazard,
       }))
 
       console.log(`[📩 Race Control]: Race Hazard Flag set to ${data.message.isHazard}.`);
-    })
+    }
+    socket.on(RaceControlEvents.RaceHazardChanged, onRaceHazardChanged);
 
-    socket.on(RaceControlEvents.RaceIsFinishingChanged, (data: RacetrackEvent<ChangeActiveRaceIsFinishing>) => {
+
+    const onRaceFinishingChanged = (data: RacetrackEvent<ChangeActiveRaceIsFinishing>) => {
       setActiveRaceState(prevState => ({
         ...prevState,
         isFinishing: data.message.isFinishing,
       }))
-    })
+    }
+    socket.on(RaceControlEvents.RaceIsFinishingChanged, onRaceFinishingChanged)
 
 
     const activeRaceStateControllers : ActiveRaceStateControllers = {
@@ -124,6 +128,14 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
     }
 
     setActiveRaceStateControllers(activeRaceStateControllers)
+
+
+    return () => {
+      socket.off(RaceControlEvents.RaceInitialState, onRaceInitialState);
+      socket.off(RaceControlEvents.RaceStateChanged, onRaceStateChanged);
+      socket.off(RaceControlEvents.RaceHazardChanged, onRaceHazardChanged);
+      socket.off(RaceControlEvents.RaceIsFinishingChanged, onRaceFinishingChanged);
+    }
   }, [socket])
 
 
