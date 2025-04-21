@@ -5,9 +5,85 @@ import Icon from '@mdi/react';
 import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
 import { useSocket } from "@/components/socket/ClientProvider";
+import { RaceState } from "@/racetrack/types/stateTypes";
+import { ActiveRaceStateBinding } from "@/app/admin/race-control/activeRaceStateBinding";
 
 
 // Race Pending Buttons
+
+
+export type RaceControlButtonsProps = {
+    currentRaceState: RaceState;
+    activeRaceStateBinding: ActiveRaceStateBinding;
+}
+
+
+export function Buttons({ currentRaceState, activeRaceStateBinding }: RaceControlButtonsProps) {
+    switch (currentRaceState) {
+
+
+
+        case 'pending':
+            return <RacePendingButtons />;
+        case 'active':
+            return <ActiveRaceButtons />;
+        case 'completed':
+            return <EndSessionButtons />;
+        case 'canceled':
+            return null;
+        default:
+            return null;
+    }
+}
+
+
+
+export function StartRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+
+    return (
+        <Button aria-label="Start race" className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+        onPress={() => {activeRaceStateBinding.tryChangeRaceState('active')}}>
+        <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
+        Start Race
+        </Button>
+    )    
+}
+
+
+export function CancelRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+
+    return (
+        <Button aria-label="Cancel race" className="text-xl flex justify-center items-center bg-red-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+        onPress={() => {activeRaceStateBinding.tryChangeRaceState('canceled')}}>
+        <Icon path={mdiDelete} className="w-6 h-6 flex-shrink-0"/>
+        Cancel Race
+        </Button>
+    )
+}
+
+export function HazardRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+
+    return (
+        <Button aria-label="Hazard" className="text-xl flex justify-center items-center bg-yellow-400 text-yellow-900 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+        onPress={() => {activeRaceStateBinding.tryChangeRaceState()}}>
+        <Icon path={mdiAlertOctagon} className="w-6 h-6 flex-shrink-0"/>
+        Hazard
+        </Button>
+    )
+}
+
+export function DangerRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+
+    return (
+        <Button aria-label="Danger" className="text-xl flex justify-center items-center bg-red-800 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+        onPress={() => {activeRaceStateBinding.tryChangeRaceState()}}>
+        <Icon path={mdiHazardLights} className="w-6 h-6 flex-shrink-0"/>
+        Danger
+        </Button>
+    )
+
+}
+
 
 export function RacePendingButtons() {
 
@@ -27,17 +103,7 @@ export function RacePendingButtons() {
 
     return (
         <div aria-label="Race pending buttons" className="flex justify-end w-full h-20 gap-4 flex-shrink-0">
-            <Button aria-label="Cancel race" className="text-xl flex justify-center items-center bg-red-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onCancel}>
-            <Icon path={mdiDelete} className="w-6 h-6 flex-shrink-0"/>
-            Cancel Race
-            </Button>
 
-            <Button aria-label="Start race" className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onStart}>
-            <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
-            Start Race
-            </Button>
         </div>
     );
 }
@@ -75,11 +141,6 @@ export function ActiveRaceButtons() {
             Finish Race
             </Button>
 
-            <Button aria-label="Hazard" className="text-xl flex justify-center items-center bg-yellow-400 text-yellow-900 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onHazard}>
-            <Icon path={mdiAlertOctagon} className="w-6 h-6 flex-shrink-0"/>
-            Hazard
-            </Button>
 
             <Button aria-label="Danger" className="text-xl flex justify-center items-center bg-red-800 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
             onPress={onDanger}>

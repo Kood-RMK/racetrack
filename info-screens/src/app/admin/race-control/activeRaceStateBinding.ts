@@ -1,17 +1,18 @@
 import { useSocket } from "@/components/socket/ClientProvider";
-import { RaceStateChanged } from "@/racetrack/services/racecontrol.service";
-import { ActiveRace, RaceState } from "@/racetrack/state";
+import { RaceStateChanged } from "@/racetrack/services/race-control/race-control.service";
+import { ActiveRace, RaceState } from "@/racetrack/types/stateTypes";
 import { RacetrackCommand, RacetrackEvent } from "@/racetrack/types/messageTypes";
 import { useEffect, useState } from "react";
 
 
-export type ActiveRaceBinding = {
+export type ActiveRaceStateBinding = {
   activeRace: ActiveRace;
-  setHazard: (isHazard: boolean) => void;
+  trySetHazard: (isHazard: boolean) => void;
+  tryChangeRaceState: (newState: RaceState) => void;
 }
 
 
-export const useActiveRaceBinding = () : ActiveRaceBinding | undefined => {
+export const useActiveRaceBinding = () : ActiveRaceStateBinding | undefined => {
   const [activeRace, setActiveRace] = useState<ActiveRace>({
     contestants: [],
     raceState: 'pending',
@@ -30,12 +31,9 @@ export const useActiveRaceBinding = () : ActiveRaceBinding | undefined => {
 
   // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
   socket.on("raceStateChanged", (data: RacetrackEvent<RaceStateChanged>) => {
-
     const raceState = data.message.newState;
 
     console.log("NewState: ", raceState);
-
- 
 
     setActiveRace({
       ...activeRace,
@@ -47,11 +45,7 @@ export const useActiveRaceBinding = () : ActiveRaceBinding | undefined => {
     });
   });
 
-  const setHazard = (isHazard: boolean) => {
-    setActiveRace((prevState) => ({
-      ...prevState,
-      isHazard,
-    }));
+  const trySetHazard = (isHazard: boolean) => {
 
     const command: RacetrackCommand<ActiveRace> = {
       senderId: socket.id ?? "unknown", // or however you're managing sender identity
@@ -61,5 +55,20 @@ export const useActiveRaceBinding = () : ActiveRaceBinding | undefined => {
     socket.emit("changeRaceState", command);
   }
 
-  return { activeRace, setHazard };
+  const trySetDanger = (isDanger: boolean) => {
+    const command: RacetrackCommand<ActiveRace> = {
+      senderId: socket.id ?? "unknown",
+    }
+  }
+
+  const tryChangeRaceState = (newState: RaceState) => {
+    const command: RacetrackCommand<ActiveRace> = {
+      senderId: socket.id ?? "unknown",
+      message: activeRace,
+    }
+      
+    socket.emit("changeRaceState", command);
+  }
+
+  return { activeRace, trySetHazard, tryChangeRaceState };
 };

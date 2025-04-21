@@ -9,7 +9,7 @@ import Icon from '@mdi/react';
 import { useSocket } from "@/components/socket/ClientProvider";
 import { RacetrackCommand } from "@/racetrack/types/messageTypes";
 import { DeleteRace, ModifyRace } from "@/racetrack/services/race-schedule.service";
-import { Race } from "@/racetrack/state";
+import { Race } from "@/racetrack/types/stateTypes";
 import ModifyRaceDialog from "../modify-race-card";
 
 // Race Pending Buttons

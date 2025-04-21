@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RaceState } from "@/racetrack/state";
+import { RaceState } from "@/racetrack/types/stateTypes";
 
 import RaceCard from '@/components/card/race-control-card';
 import { RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons';
 import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
-import { ActiveRaceBinding, useActiveRaceBinding } from "./activeRaceStateBinding";
+import { ActiveRaceStateBinding, useActiveRaceBinding } from "./activeRaceStateBinding";
 
 
 // Mapping between race state and components for buttons and tags
@@ -52,7 +52,7 @@ export default function Page() {
       return;
     }
 
-  const {activeRace, setHazard} = activeRaceBinding;
+  const {activeRace, trySetHazard: setHazard} = activeRaceBinding;
 
   console.log(activeRace);
 

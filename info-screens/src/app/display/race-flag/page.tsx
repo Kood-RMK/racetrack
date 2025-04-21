@@ -1,6 +1,6 @@
 "use client";
 
-import { RaceState } from "@/racetrack/state";
+import { RaceState } from "@/racetrack/types/stateTypes";
 import { useEffect } from "react";
 import { RaceFlagGreen, RaceFlagYellow, RaceFlagRed, RaceFlagCheckered } from "@/components/display/flags";
 import { useActiveRaceBinding } from "/src/app/admin/race-control/activeRaceStateBinding.ts";

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Race } from "@/racetrack/state";
+import { Race } from "@/racetrack/types/stateTypes";
 import { useSocket } from "@/components/socket/ClientProvider";
 
 

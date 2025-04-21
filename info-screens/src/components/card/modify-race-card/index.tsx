@@ -27,7 +27,7 @@ import {
 import { useSocket } from "@/components/socket/ClientProvider";
 import { RacetrackCommand } from "@/racetrack/types/messageTypes";
 import { RaceScheduleUpdated, ScheduleNewRace } from "@/racetrack/services/race-schedule.service";
-import { Race } from "@/racetrack/state";
+import { Race } from "@/racetrack/types/stateTypes";
 
 
 type ModifyRaceDialogProps = {

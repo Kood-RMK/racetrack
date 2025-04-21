@@ -2,8 +2,8 @@ import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import {leaderboardService} from './services/leaderboard.service';
-import { raceControlService } from './services/racecontrol.service';
 import { raceScheduleService } from './services/race-schedule.service';
+import { RaceControlService } from 'services/race-control/race-control.service';
 
 const app = express();
 const server = createServer(app);
@@ -17,7 +17,7 @@ const io = new Server(server, {
 
 
 leaderboardService(io);
-raceControlService(io);
+new RaceControlService(io);
 raceScheduleService(io);
 
 server.listen(3001, () => {

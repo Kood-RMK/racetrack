@@ -1,5 +1,5 @@
 import type { Server as SocketIOServer } from "socket.io";
-import { Race } from "state";
+import { Race } from "types/stateTypes";
 import { RacetrackCommand, RacetrackEvent } from "types/messageTypes";
 
 
