@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { RaceState } from "@/racetrack/types/stateTypes";
 
 import RaceCard from '@/components/card/race-control-card';
 import { RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons';
 import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
-import { ActiveRaceStateBinding, useActiveRaceBinding } from "./activeRaceStateBinding";
+import { useActiveRaceBinding } from "./activeRaceStateBinding";
+import { SocketProvider } from "@/components/socket/SocketProvider";
 
 
 // Mapping between race state and components for buttons and tags
@@ -44,35 +44,43 @@ const raceButtons = (raceState: RaceState, isHazard: boolean, isDanger: boolean,
 };
 
 
-export default function Page() {
+function RaceControlPage () {
 
     const activeRaceBinding = useActiveRaceBinding();
 
     if (!activeRaceBinding) {
-      return;
+      return <div>Loading...</div>;
     }
 
-  const {activeRace, trySetHazard: setHazard} = activeRaceBinding;
+    const {activeRace, trySetHazard: setHazard} = activeRaceBinding;
 
-  console.log(activeRace);
+    console.log(activeRace);
 
-  // Extract values from the activeRace object
-  const { raceState, isHazard, isDanger, isFinishing } = activeRace;
- 
-  return (
-    <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
-      
-      <p className='text-center py-12'>Race Control</p>
+    // Extract values from the activeRace object
+    const { raceState, isHazard, isDanger, isFinishing } = activeRace;
+  
+    return (
+      <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
+        
+        <p className='text-center py-12'>Race Control</p>
 
-      <div>
         <div>
+          <div>
 
-        <RaceCard 
-          tags={raceTags(raceState, isHazard, isDanger, isFinishing)}
-          buttons={raceButtons(raceState, isHazard, isDanger, isFinishing)}/>
-
+          <RaceCard 
+            tags={raceTags(raceState, isHazard, isDanger, isFinishing)}
+            buttons={raceButtons(raceState, isHazard, isDanger, isFinishing)}/>
+          </div>
         </div>
       </div>
-    </div>
+    )
+}
+
+
+export default function Page() {
+  return (
+    <SocketProvider socketURI="http://localhost:3001/race-control">
+      <RaceControlPage />
+    </SocketProvider>
   )
 }

@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import {leaderboardService} from './services/leaderboard.service';
 import { raceScheduleService } from './services/race-schedule.service';
-import { RaceControlService } from 'services/race-control/race-control.service';
+import { RaceControlService } from './services/race-control/race-control.service';
 
 const app = express();
 const server = createServer(app);

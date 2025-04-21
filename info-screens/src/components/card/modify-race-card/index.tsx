@@ -24,7 +24,7 @@ import {
     mdiMenuDown,
     mdiInvoiceTextEdit
 } from '@mdi/js';
-import { useSocket } from "@/components/socket/ClientProvider";
+import { useSocket } from "@/components/socket/SocketProvider";
 import { RacetrackCommand } from "@/racetrack/types/messageTypes";
 import { RaceScheduleUpdated, ScheduleNewRace } from "@/racetrack/services/race-schedule.service";
 import { Race } from "@/racetrack/types/stateTypes";

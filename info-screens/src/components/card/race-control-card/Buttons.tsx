@@ -4,7 +4,7 @@ import React from "react";
 import Icon from '@mdi/react';
 import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
-import { useSocket } from "@/components/socket/ClientProvider";
+import { useSocket } from "@/components/socket/SocketProvider";
 import { RaceState } from "@/racetrack/types/stateTypes";
 import { ActiveRaceStateBinding } from "@/app/admin/race-control/activeRaceStateBinding";
 
@@ -65,7 +65,7 @@ export function HazardRaceButton(activeRaceStateBinding: ActiveRaceStateBinding)
 
     return (
         <Button aria-label="Hazard" className="text-xl flex justify-center items-center bg-yellow-400 text-yellow-900 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-        onPress={() => {activeRaceStateBinding.tryChangeRaceState()}}>
+        onPress={() => {activeRaceStateBinding.trySetHazard(true)}}>
         <Icon path={mdiAlertOctagon} className="w-6 h-6 flex-shrink-0"/>
         Hazard
         </Button>

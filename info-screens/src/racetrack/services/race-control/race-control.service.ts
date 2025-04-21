@@ -1,4 +1,4 @@
-import type { Server as SocketIOServer } from "socket.io";
+import type { DefaultEventsMap, Socket, Server as SocketIOServer } from "socket.io";
 import { ActiveRace, RaceState } from "types/stateTypes";
 import { RacetrackEvent, RacetrackCommand } from "types/messageTypes"
 import { ActiveRaceState } from "./race-control.state";
@@ -66,13 +66,31 @@ export type ChangeRaceFinishing = {
 // Handlers.
 export class RaceControlService {
     private activeRace: ActiveRaceState;
-    private socket: SocketIOServer;
+    private io: SocketIOServer;
+
+    private readonly raceControlRoom = "raceControlRoom";
+
 
     constructor(io : SocketIOServer) {
         this.activeRace = new ActiveRaceState();
-        this.socket = io;
+        this.io = io;
 
-        this.socket.on("connection", (client) => {
+        const raceControlNamespace = this.io.of("/race-control");
+
+
+        // Middleware to check if the user is authenticated.
+        raceControlNamespace.use((socket, next) => {
+            next();
+        })
+
+
+        raceControlNamespace.on("connection", (client) => {
+
+            function initializeClientRooms() {
+                client.join("raceControlRoom");
+            }
+
+
             const stateMessage : RacetrackEvent<ActiveRace> =  {
                 message : this.activeRace.getActiveRace()
             }
@@ -80,21 +98,35 @@ export class RaceControlService {
             // Send new client the current state.
             client.emit(RaceControlEvents.RaceStateChanged, stateMessage)
 
+            // Add new client to the raceControlRoom. 
+            // TODO: select room based on assigned role.
+            initializeClientRooms();
 
             client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeRaceState>) => {
 
                 try {
+                    // TODO: Validate the command.
+                    this.activeRace.setRaceState(command.message.newState);
+
+                    raceControlNamespace
+                        .to(this.raceControlRoom)
+                        .emit(RaceControlEvents.RaceStateChanged, this.activeRace.getRaceState);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceState} command:`, error);
                 }
-
             })
 
 
             client.on(RaceControlCommands.ChangeRaceHazard, (command : RacetrackCommand<ChangeRaceHazard>) => {
 
                 try {
+                    // TODO: Validate the command.
+                    this.activeRace.setIsHazard(command.message.isHazard);
+
+                    raceControlNamespace
+                        .to(this.raceControlRoom)
+                        .emit(RaceControlEvents.RaceHazardChanged, this.activeRace.getIsHazard);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
@@ -104,6 +136,12 @@ export class RaceControlService {
             client.on(RaceControlCommands.ChangeRaceDanger, (command : RacetrackCommand<ChangeRaceDanger>) => {
 
                 try {
+                    // TODO: Validate the command.
+                    this.activeRace.setIsDanger(command.message.isDanger);
+
+                    raceControlNamespace
+                        .to(this.raceControlRoom)
+                        .emit(RaceControlEvents.RaceDangerChanged, this.activeRace.getIsDanger);
 
                 } catch (error) {
 
@@ -114,6 +152,12 @@ export class RaceControlService {
             client.on(RaceControlCommands.ChangeRaceFinishing, (command : RacetrackCommand<ChangeRaceFinishing>) => {
 
                 try {
+                    // TODO: Validate the command.
+                    this.activeRace.setIsFinishing(command.message.isFinishing);
+
+                    raceControlNamespace
+                        .to(this.raceControlRoom)
+                        .emit(RaceControlEvents.RaceFinishingChanged, this.activeRace.getIsFinishing);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceFinishing} command:`, error);
