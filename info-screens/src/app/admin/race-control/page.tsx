@@ -2,11 +2,11 @@
 
 import { RaceState } from "@/racetrack/types/stateTypes";
 
-import RaceCard from '@/components/card/race-control-card';
-import { RacePendingButtons, ActiveRaceButtons, ActiveRaceHazardButtons, ActiveRaceDangerButtons, EndSessionButtons } from '@/components/card/race-control-card/Buttons';
+import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
-import { useActiveRaceBinding } from "./activeRaceStateBinding";
+import { ActiveRaceStateBinding, useActiveRaceStateBinding } from "./activeRaceStateBinding";
 import { SocketProvider } from "@/components/socket/SocketProvider";
+import { CancelRaceButton, HazardRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 
 
 // Mapping between race state and components for buttons and tags
@@ -27,26 +27,32 @@ const raceTags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, is
   }
 };
 
-const raceButtons = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean) => {
-  console.log('raceButtons received:', { raceState, isHazard, isDanger, isFinishing });
-  
-  switch (raceState) {
-    case 'pending': return <RacePendingButtons />;
 
-    case 'active': return isHazard ? <ActiveRaceHazardButtons /> : isDanger ? <ActiveRaceDangerButtons /> : isFinishing ? <EndSessionButtons /> : <ActiveRaceButtons />;
-
-    case 'completed': return <RacePendingButtons />;
-
-    case 'canceled': return null;
-
-    default: return null;
-  }
-};
+function raceButtons({activeRaceStateBinding }: {activeRaceStateBinding: ActiveRaceStateBinding}) {
+    switch (activeRaceStateBinding.activeRace.raceState) {
+        case 'pending':
+            return <>
+                <CancelRaceButton activeRaceStateBinding={activeRaceStateBinding}></CancelRaceButton>
+                <StartRaceButton activeRaceStateBinding={activeRaceStateBinding}></StartRaceButton>
+            </>;
+        case 'active':
+            return <>
+                <StopRaceButton activeRaceStateBinding={activeRaceStateBinding}></StopRaceButton>
+                <HazardRaceButton activeRaceStateBinding={activeRaceStateBinding}></HazardRaceButton>
+            </>;
+        case 'completed':
+            return <></>;
+        case 'canceled':
+            return <></>;
+        default:
+            return <></>;
+    }
+}
 
 
 function RaceControlPage () {
 
-    const activeRaceBinding = useActiveRaceBinding();
+    const activeRaceBinding = useActiveRaceStateBinding();
 
     if (!activeRaceBinding) {
       return <div>Loading...</div>;
@@ -65,8 +71,8 @@ function RaceControlPage () {
           <div>
 
           <RaceCard 
-            tags={raceTags(raceState, isHazard, isDanger, isFinishing)}
-            buttons={raceButtons(raceState, isHazard, isDanger, isFinishing)}/>
+            // tags={raceTags(und)}
+            buttons={raceButtons({activeRaceStateBinding : activeRaceBinding})}/>
           </div>
         </div>
       </div>

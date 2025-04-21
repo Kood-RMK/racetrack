@@ -8,6 +8,7 @@ export enum RaceControlEvents {
     RaceStateChanged = 'raceStateChanged',
     RaceHazardChanged = 'raceHazardChanged',
     RaceIsFinishingChanged = 'raceIsFinishingChanged',
+    RaceInitialState = 'raceInitialState',
 }
 
 export enum RaceControlCommands {
@@ -16,35 +17,41 @@ export enum RaceControlCommands {
     ChangeRaceIsFinishing = 'changeRaceIsFinishing',
 }
 
+
 // Events
-export type RaceStateChanged = {
+export type ActiveRaceStateChanged = {
     type : RaceControlEvents.RaceStateChanged,
     newState : RaceState,
 };
 
-export type RaceHazardChanged = {
+export type ActiveRaceHazardChanged = {
     type : RaceControlEvents.RaceHazardChanged,
     isHazard : boolean,
 }
 
-export type RaceIsFinishingChanged = {
+export type ActiveRaceIsFinishingChanged = {
     type : RaceControlEvents.RaceIsFinishingChanged,
     isFinishing : boolean,
 }
 
+export type ActiveRaceInitialState = {
+    type : RaceControlEvents.RaceInitialState,
+    raceInitialState : ActiveRace
+}
+
 
 // Commands
-export type ChangeRaceState = {
+export type ChangeActiveRaceState = {
     type : RaceControlCommands.ChangeRaceState,
     newState : RaceState,
 };
 
-export type ChangeRaceHazard = {
+export type ChangeActiveRaceHazard = {
     type : RaceControlCommands.ChangeRaceHazard,
     isHazard : boolean,
 }
 
-export type ChangeRaceIsFinishing = {
+export type ChangeActiveRaceIsFinishing = {
     type : RaceControlCommands.ChangeRaceIsFinishing,
     isFinishing : boolean,
 }
@@ -76,18 +83,21 @@ export class RaceControlService {
             }
 
 
-            const stateMessage : RacetrackEvent<ActiveRace> =  {
-                message : this.activeRace.getActiveRace()
+            const stateMessage : RacetrackEvent<ActiveRaceInitialState> =  {
+                message : {
+                    type: RaceControlEvents.RaceInitialState,
+                    raceInitialState: this.activeRace.activeRace,
+                }
             }
 
             // Send new client the current state.
-            client.emit(RaceControlEvents.RaceStateChanged, stateMessage)
+            client.emit(RaceControlEvents.RaceInitialState, stateMessage)
 
             // Add new client to the raceControlRoom. 
             // TODO: select room based on assigned role.
             initializeClientRooms();
 
-            client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeRaceState>) => {
+            client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {
 
                 try {
                     // TODO: Validate the command.
@@ -96,17 +106,17 @@ export class RaceControlService {
                     }
 
                     this.activeRace.setRaceState(command.message.newState);
-
+                    console.log(`📩 Race Control Service: Race state changed to: ${this.activeRace.raceState}`);
                     raceControlNamespace
                         .to(this.raceControlRoom)
-                        .emit(RaceControlEvents.RaceStateChanged, this.activeRace.getRaceState);
+                        .emit(RaceControlEvents.RaceStateChanged, this.activeRace.raceState);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceState} command:`, error);
                 }
             })
 
-            client.on(RaceControlCommands.ChangeRaceHazard, (command : RacetrackCommand<ChangeRaceHazard>) => {
+            client.on(RaceControlCommands.ChangeRaceHazard, (command : RacetrackCommand<ChangeActiveRaceHazard>) => {
 
                 try {
                     // TODO: Validate the command.
@@ -117,9 +127,12 @@ export class RaceControlService {
 
                     this.activeRace.setIsHazard(command.message.isHazard);
 
+
+                    console.log(`📩 Race Control Service: Hazard Flag set to: ${this.activeRace.isHazard}.`);
+
                     raceControlNamespace
                         .to(this.raceControlRoom)
-                        .emit(RaceControlEvents.RaceHazardChanged, this.activeRace.getIsHazard);
+                        .emit(RaceControlEvents.RaceHazardChanged, this.activeRace.isHazard);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);

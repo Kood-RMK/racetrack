@@ -8,16 +8,16 @@ export class RaceControlState {
         this.activeRaceState = new ActiveRaceState();
     }
 
-    getActiveRaceState() {
+    public get getActiveRaceState() {
         return this.activeRaceState;
     }
 }
 
 export class ActiveRaceState {
-    private activeRace: ActiveRace;
+    private _activeRace: ActiveRace;
 
     constructor() {
-        this.activeRace = {
+        this._activeRace = {
             contestants: [],
             raceState: 'pending',
             isHazard: false,
@@ -26,47 +26,47 @@ export class ActiveRaceState {
         };
     }
 
-    getContestants() {
-        return this.activeRace.contestants;
+    public get contestants() {
+        return this._activeRace.contestants;
     }
 
-    getRaceState() {
-        return this.activeRace.raceState;
+    public get raceState() {
+        return this._activeRace.raceState;
     }
 
-    getIsHazard() {
-        return this.activeRace.isHazard;
+    public get isHazard() {
+        return this._activeRace.isHazard;
     }
 
-    getIsFinishing() {
-        return this.activeRace.isFinishing;
+    public get isFinishing() {
+        return this._activeRace.isFinishing;
     }
 
-    getTimeLeft() {
-        return this.activeRace.timeLeft;
+    public get timeLeft() {
+        return this._activeRace.timeLeft;
     }
 
-    getActiveRace() {
-        return this.activeRace;
+    public get activeRace() {
+        return this._activeRace;
     }
 
-    setContestants(contestants: ActiveRace['contestants']) {
-        this.activeRace.contestants = contestants;
+    public setContestants(contestants: ActiveRace['contestants']) {
+        this._activeRace.contestants = contestants;
     }
 
-    setRaceState(raceState: ActiveRace['raceState']) {
-        this.activeRace.raceState = raceState;
+    public setRaceState(raceState: ActiveRace['raceState']) {
+        this._activeRace.raceState = raceState;
     }
 
-    setIsHazard(isHazard: ActiveRace['isHazard']) {
-        this.activeRace.isHazard = isHazard;
+    public setIsHazard(isHazard: ActiveRace['isHazard']) {
+        this._activeRace.isHazard = isHazard;
     }
 
-    setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
-        this.activeRace.isFinishing = isFinishing;
+    public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
+        this._activeRace.isFinishing = isFinishing;
     }
 
-    setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
-        this.activeRace.timeLeft = timeLeft;
+    public setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
+        this._activeRace.timeLeft = timeLeft;
     }
 }
