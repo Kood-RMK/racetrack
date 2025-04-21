@@ -36,6 +36,7 @@ export type RaceDangerChanged = {
 
 // This is used to indicate that the race is finishing. 
 // It is displayed before the race is finished.
+// In order to finish the race the finishing has to be finished.
 export type RaceFinishingChanged = {
     type : RaceControlEvents.RaceFinishingChanged,
     isFinishing : boolean,
