@@ -4,9 +4,10 @@ import { RaceState } from "@/racetrack/types/stateTypes";
 
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
-import { ActiveRaceStateBinding, useActiveRaceStateBinding } from "./activeRaceStateBinding";
+import { ActiveRaceStateBinding, ActiveRaceStateProvider, useActiveRaceState } from "./activeRaceStateProvider";
 import { SocketProvider } from "@/components/socket/SocketProvider";
 import { CancelRaceButton, HazardRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
+import { useEffect } from "react";
 
 
 // Mapping between race state and components for buttons and tags
@@ -28,7 +29,7 @@ const raceTags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, is
 };
 
 
-function raceButtons({activeRaceStateBinding }: {activeRaceStateBinding: ActiveRaceStateBinding}) {
+function raceButtons({ activeRaceStateBinding }: {activeRaceStateBinding: ActiveRaceStateBinding}) {
     switch (activeRaceStateBinding.activeRace.raceState) {
         case 'pending':
             return <>
@@ -42,6 +43,12 @@ function raceButtons({activeRaceStateBinding }: {activeRaceStateBinding: ActiveR
             </>;
         case 'completed':
             return <></>;
+
+        case 'paused':
+            return <>
+                <CancelRaceButton activeRaceStateBinding={activeRaceStateBinding}></CancelRaceButton>
+                <StartRaceButton activeRaceStateBinding={activeRaceStateBinding}></StartRaceButton>
+            </>;
         case 'canceled':
             return <></>;
         default:
@@ -50,18 +57,18 @@ function raceButtons({activeRaceStateBinding }: {activeRaceStateBinding: ActiveR
 }
 
 
-function RaceControlPage () {
+function RaceControlPage() {
 
-    const activeRaceBinding = useActiveRaceStateBinding();
 
-    if (!activeRaceBinding) {
+    const activeRaceStateBinding = useActiveRaceState();
+
+    if (!activeRaceStateBinding) {
       return <div>Loading...</div>;
     }
-    const {activeRace} = activeRaceBinding;
 
     // Extract values from the activeRace object
-    const { raceState, isHazard } = activeRace;
-  
+    const { raceState, isHazard } = activeRaceStateBinding.activeRace;
+
     return (
       <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
         
@@ -72,7 +79,7 @@ function RaceControlPage () {
 
           <RaceCard 
             // tags={raceTags(und)}
-            buttons={raceButtons({activeRaceStateBinding : activeRaceBinding})}/>
+            buttons={raceButtons({activeRaceStateBinding : activeRaceStateBinding})}/>
           </div>
         </div>
       </div>
@@ -83,7 +90,9 @@ function RaceControlPage () {
 export default function Page() {
   return (
     <SocketProvider socketURI="http://localhost:3001/race-control">
-      <RaceControlPage />
+      <ActiveRaceStateProvider>
+        <RaceControlPage />
+      </ActiveRaceStateProvider>
     </SocketProvider>
   )
 }

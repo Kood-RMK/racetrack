@@ -4,7 +4,7 @@ import React from "react";
 import Icon from '@mdi/react';
 import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
-import { ActiveRaceStateBinding } from "@/app/admin/race-control/activeRaceStateBinding";
+import { ActiveRaceStateBinding } from "@/app/admin/race-control/activeRaceStateProvider";
 
 
 export function StartRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
@@ -32,10 +32,12 @@ export function CancelRaceButton({activeRaceStateBinding} : {activeRaceStateBind
 export function HazardRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
 
     return (
-        <Button aria-label="Hazard" className="text-xl flex justify-center items-center bg-yellow-400 text-yellow-900 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+        <Button
+        aria-label="Hazard"
+        className={`text-xl flex justify-center items-center ${activeRaceStateBinding.activeRace.isHazard ? 'bg-yellow-400' : 'bg-yellow-800' }  text-yellow-900 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
         onPress={() => {activeRaceStateBinding.trySetHazard(true)}}>
-        <Icon path={mdiAlertOctagon} className="w-6 h-6 flex-shrink-0"/>
-        Hazard
+            <Icon path={mdiAlertOctagon} className="w-6 h-6 flex-shrink-0"/>
+            <span>Hazard</span>
         </Button>
     )
 }
@@ -44,11 +46,11 @@ export function StopRaceButton({activeRaceStateBinding} : {activeRaceStateBindin
 
     return (
         <Button 
-            aria-label="Stop race" 
-            className="text-xl flex justify-center items-center bg-red-600 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+            aria-label="Stop race"
+            className={`text-xl flex justify-center items-center bg-red-600 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
             onPress={() => {activeRaceStateBinding.tryChangeRaceState('paused')}}>
             <Icon path={mdiPauseOctagon} className="w-6 h-6 flex-shrink-0"/>
-            Finish Race
+            Stop Race
         </Button>
     )
 }
