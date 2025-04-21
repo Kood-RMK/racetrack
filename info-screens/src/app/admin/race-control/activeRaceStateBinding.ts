@@ -1,5 +1,5 @@
 import { useSocket } from "@/components/socket/SocketProvider";
-import { ChangeRaceDanger, ChangeRaceFinishing, ChangeRaceHazard, ChangeRaceState, RaceControlCommands, RaceStateChanged } from "@/racetrack/services/race-control/race-control.service";
+import { ChangeRaceHazard, ChangeRaceIsFinishing, ChangeRaceState, RaceControlCommands, RaceControlEvents, RaceStateChanged } from "@/racetrack/services/race-control/race-control.service";
 import { ActiveRace, RaceState } from "@/racetrack/types/stateTypes";
 import { RacetrackCommand, RacetrackEvent } from "@/racetrack/types/messageTypes";
 import { useState } from "react";
@@ -8,8 +8,6 @@ import { useState } from "react";
 export type ActiveRaceStateBinding = {
   activeRace: ActiveRace;
   trySetHazard: (isHazard: boolean) => void;
-  trySetDanger: (isDanger: boolean) => void;
-  trySetFinishing: (isFinishing: boolean) => void;
   tryChangeRaceState: (newState: RaceState) => void;
 }
 
@@ -19,7 +17,6 @@ export const useActiveRaceBinding = () : ActiveRaceStateBinding | null => {
     contestants: [],
     raceState: 'pending',
     isHazard: false,
-    isDanger: false,
     isFinishing: false,
     timeLeft: '00:00',
   });
@@ -31,25 +28,23 @@ export const useActiveRaceBinding = () : ActiveRaceStateBinding | null => {
     return null;
   }
 
-
   // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
-  socket.on("raceStateChanged", (data: RacetrackEvent<RaceStateChanged>) => {
-    const raceState = data.message.newState;
-
-    console.log("NewState: ", raceState);
-
+  socket.on(RaceControlEvents.RaceStateChanged, (data: RacetrackEvent<RaceStateChanged>) => {
     setActiveRace({
       ...activeRace,
-      raceState: raceState,
-      isHazard: raceState.isHazard ?? false,
-      isDanger: raceState.isDanger ?? false,
-      isFinishing: raceState.isFinishing ?? false,
-      timeLeft: "00:00",
+      raceState : data.message.newState,
     });
   });
 
-  const trySetHazard = (isHazard: boolean) => {
 
+  socket.on(RaceControlEvents.RaceHazardChanged, (data: RacetrackEvent<ChangeRaceHazard>) => {
+    setActiveRace({
+      ...activeRace,
+      isHazard: data.message.isHazard,
+    })
+  })
+
+  const trySetHazard = (isHazard: boolean) => {
     const command: RacetrackCommand<ChangeRaceHazard> = {
       senderId: socket.id,
       message: {
@@ -63,31 +58,14 @@ export const useActiveRaceBinding = () : ActiveRaceStateBinding | null => {
     }
   }
 
-  const trySetDanger = (isDanger: boolean) => {
-    const command : RacetrackCommand<ChangeRaceDanger> = {
-      senderId: socket.id,
-      message: {
-        type: RaceControlCommands.ChangeRaceDanger,
-        isDanger: isDanger,
-      }
-    }
-
-    if (command.message?.type) { 
-      socket.emit(command.message.type, command);
-    }
-  }
 
   const trySetFinishing = (isFinishing: boolean) => {
-    const command : RacetrackCommand<ChangeRaceFinishing> = {
+    const command: RacetrackCommand<ChangeRaceIsFinishing> = { 
       senderId: socket.id,
       message : {
-        type: RaceControlCommands.ChangeRaceFinishing,
+        type: RaceControlCommands.ChangeRaceIsFinishing,
         isFinishing: isFinishing,
       }
-    }
-
-    if (command.message?.type) { 
-      socket.emit(command.message.type, command);
     }
   }
 
@@ -105,5 +83,5 @@ export const useActiveRaceBinding = () : ActiveRaceStateBinding | null => {
     }
   }
 
-  return { activeRace, trySetHazard, trySetDanger, trySetFinishing, tryChangeRaceState };
+  return { activeRace, trySetHazard, tryChangeRaceState };
 };

@@ -10,7 +10,6 @@ import { Race } from '@/racetrack/types/stateTypes';
 import { useSocket } from "@/components/socket/SocketProvider";
 import { RaceScheduleState, RaceScheduleUpdated } from '@/racetrack/services/race-schedule.service';
 import { RacetrackEvent } from '@/racetrack/types/messageTypes';
-import ModifyRaceDialog from '@/components/card/modify-race-card';
 
 
 export default function Page() {

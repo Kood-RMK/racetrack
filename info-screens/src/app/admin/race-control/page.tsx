@@ -51,13 +51,10 @@ function RaceControlPage () {
     if (!activeRaceBinding) {
       return <div>Loading...</div>;
     }
-
-    const {activeRace, trySetHazard: setHazard} = activeRaceBinding;
-
-    console.log(activeRace);
+    const {activeRace} = activeRaceBinding;
 
     // Extract values from the activeRace object
-    const { raceState, isHazard, isDanger, isFinishing } = activeRace;
+    const { raceState, isHazard } = activeRace;
   
     return (
       <div className='font-cairo min-h-full min-w-full text-5xl px-12'>

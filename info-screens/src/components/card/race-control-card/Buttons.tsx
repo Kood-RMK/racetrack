@@ -5,7 +5,6 @@ import Icon from '@mdi/react';
 import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
 import { useSocket } from "@/components/socket/SocketProvider";
-import { RaceState } from "@/racetrack/types/stateTypes";
 import { ActiveRaceStateBinding } from "@/app/admin/race-control/activeRaceStateBinding";
 
 
@@ -13,32 +12,33 @@ import { ActiveRaceStateBinding } from "@/app/admin/race-control/activeRaceState
 
 
 export type RaceControlButtonsProps = {
-    currentRaceState: RaceState;
     activeRaceStateBinding: ActiveRaceStateBinding;
 }
 
 
-export function Buttons({ currentRaceState, activeRaceStateBinding }: RaceControlButtonsProps) {
-    switch (currentRaceState) {
-
-
-
+export function Buttons( {activeRaceStateBinding }: RaceControlButtonsProps) {
+    switch (activeRaceStateBinding.activeRace.raceState) {
         case 'pending':
-            return <RacePendingButtons />;
+            return <>
+                <CancelRaceButton activeRaceStateBinding={activeRaceStateBinding}></CancelRaceButton>
+                <StartRaceButton activeRaceStateBinding={activeRaceStateBinding}></StartRaceButton>
+            </>;
         case 'active':
-            return <ActiveRaceButtons />;
+            return <>
+                <StopRaceButton activeRaceStateBinding={activeRaceStateBinding}></StopRaceButton>
+                <HazardRaceButton activeRaceStateBinding={activeRaceStateBinding}></HazardRaceButton>
+            </>;
         case 'completed':
             return <EndSessionButtons />;
         case 'canceled':
-            return null;
+            return <></>;
         default:
             return null;
     }
 }
 
 
-
-export function StartRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+export function StartRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
 
     return (
         <Button aria-label="Start race" className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
@@ -50,7 +50,7 @@ export function StartRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) 
 }
 
 
-export function CancelRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+export function CancelRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
 
     return (
         <Button aria-label="Cancel race" className="text-xl flex justify-center items-center bg-red-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
@@ -61,7 +61,7 @@ export function CancelRaceButton(activeRaceStateBinding: ActiveRaceStateBinding)
     )
 }
 
-export function HazardRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+export function HazardRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
 
     return (
         <Button aria-label="Hazard" className="text-xl flex justify-center items-center bg-yellow-400 text-yellow-900 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
@@ -72,84 +72,35 @@ export function HazardRaceButton(activeRaceStateBinding: ActiveRaceStateBinding)
     )
 }
 
-export function DangerRaceButton(activeRaceStateBinding: ActiveRaceStateBinding) {
+
+export function StopRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
 
     return (
-        <Button aria-label="Danger" className="text-xl flex justify-center items-center bg-red-800 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-        onPress={() => {activeRaceStateBinding.tryChangeRaceState()}}>
-        <Icon path={mdiHazardLights} className="w-6 h-6 flex-shrink-0"/>
-        Danger
-        </Button>
-    )
-
-}
-
-
-export function RacePendingButtons() {
-
-    const socket = useSocket(); // Retrieves the WebSocket connection
-
-    const onCancel = () => { // Race control can cancel a race while its' state is 'pending'. Flag remains red
-        if (socket) {
-            socket.emit("changeRaceState", {newState: ['canceled']})
-        }
-    }
-    
-    const onStart = () => { // Flag changes to green, timer starts counting down from 10
-        if (socket) {
-            socket.emit("changeRaceState", {newState: ['active']})
-        }
-    }
-
-    return (
-        <div aria-label="Race pending buttons" className="flex justify-end w-full h-20 gap-4 flex-shrink-0">
-
-        </div>
-    );
-}
-
-
-// Active Race Buttons
-
-export function ActiveRaceButtons() {
-
-    const socket = useSocket();
-
-    const onFinish = () => { // Flag changes to checkered, drivers return to start/finish line
-        if (socket) {
-            socket.emit("changeRaceState", {newState: ['active'], isFinishing: true})
-        }
-    }
-    
-    const onHazard = () => { // Flag changes to yellow, drive slow, time does not stop
-        if (socket) {
-            socket.emit("changeRaceState", {newState: ['active'], isHazard: true}) 
-        }
-    }
-    
-    const onDanger = () => { // Flag changes to red, cars need to stop, time stops.
-        if (socket) {
-            socket.emit("changeRaceState", {newState: ['active'], isDanger: true})
-        }
-    }
-
-    return (
-        <div aria-label="Active Race buttons" className="flex justify-end w-full h-20 gap-4 flex-shrink-0">
-            <Button aria-label="Stop race" className="text-xl flex justify-center items-center bg-red-600 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onFinish}>
+        <Button 
+            aria-label="Stop race" 
+            className="text-xl flex justify-center items-center bg-red-600 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+            onPress={() => {activeRaceStateBinding.tryChangeRaceState('paused')}}>
             <Icon path={mdiPauseOctagon} className="w-6 h-6 flex-shrink-0"/>
             Finish Race
-            </Button>
-
-
-            <Button aria-label="Danger" className="text-xl flex justify-center items-center bg-red-800 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onDanger}>
-            <Icon path={mdiHazardLights} className="w-6 h-6 flex-shrink-0"/>
-            Danger
-            </Button>
-        </div>
-    );
+        </Button>
+    )
 }
+
+
+export function EndRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
+
+    return (
+        <Button 
+            aria-label="End session" 
+            className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+            onPress={() => {activeRaceStateBinding.tryChangeRaceState('completed')}}>
+            <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
+            End Session
+        </Button>
+    )
+}
+
+
 
 // Active Race with Hazard Buttons
 
@@ -253,11 +204,6 @@ export function EndSessionButtons() {
 
     return (
         <div aria-label="End session buttons" className="flex justify-end w-full h-20 gap-2 flex-shrink-0">
-            <Button aria-label="End session" className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={onEndSession}>
-            <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
-            End Session
-            </Button>
         </div>
     );
 }

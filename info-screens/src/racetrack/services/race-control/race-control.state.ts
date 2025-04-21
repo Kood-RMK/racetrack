@@ -21,7 +21,6 @@ export class ActiveRaceState {
             contestants: [],
             raceState: 'pending',
             isHazard: false,
-            isDanger: false,
             isFinishing: false,
             timeLeft: '00:00'
         };
@@ -37,10 +36,6 @@ export class ActiveRaceState {
 
     getIsHazard() {
         return this.activeRace.isHazard;
-    }
-
-    getIsDanger() {
-        return this.activeRace.isDanger;
     }
 
     getIsFinishing() {
@@ -65,10 +60,6 @@ export class ActiveRaceState {
 
     setIsHazard(isHazard: ActiveRace['isHazard']) {
         this.activeRace.isHazard = isHazard;
-    }
-
-    setIsDanger(isDanger: ActiveRace['isDanger']) {
-        this.activeRace.isDanger = isDanger;
     }
 
     setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
