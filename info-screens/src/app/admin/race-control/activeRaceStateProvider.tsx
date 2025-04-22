@@ -111,6 +111,10 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
             isFinishing: isFinishing,
           }
         }
+
+        if (command.message?.type) { 
+          socket.emit(command.message.type, command);
+        }
       },
       tryChangeRaceState : (newState : RaceState) => {
         const command : RacetrackCommand<ChangeActiveRaceState> = {

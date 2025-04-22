@@ -40,7 +40,7 @@ export default function RaceControlCard({ tags, buttons }: RaceControlCardProps)
       </div>
 
       {/* Buttons */}
-      <div className="buttons flex justify-end pt-8">{buttons}</div>
+      <div className="buttons flex justify-end pt-8 space-x-4">{buttons}</div>
 
     </div>
   );

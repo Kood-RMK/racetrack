@@ -6,7 +6,7 @@ import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
 import { ActiveRaceStateBinding, ActiveRaceStateProvider, useActiveRaceState } from "./activeRaceStateProvider";
 import { SocketProvider } from "@/components/socket/SocketProvider";
-import { CancelRaceButton, HazardRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
+import { CancelRaceButton, FinishRaceButton, HazardRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { useEffect } from "react";
 
 
@@ -39,6 +39,7 @@ function raceButtons({ activeRaceStateBinding }: {activeRaceStateBinding: Active
         case 'active':
             return <>
                 <StopRaceButton activeRaceStateBinding={activeRaceStateBinding}></StopRaceButton>
+                <FinishRaceButton activeRaceStateBinding={activeRaceStateBinding}></FinishRaceButton>
                 <HazardRaceButton activeRaceStateBinding={activeRaceStateBinding}></HazardRaceButton>
             </>;
         case 'completed':

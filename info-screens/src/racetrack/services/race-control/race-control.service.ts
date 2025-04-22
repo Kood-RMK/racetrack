@@ -157,6 +157,33 @@ export class RaceControlService {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
                 }
             });
+
+
+            client.on(RaceControlCommands.ChangeRaceIsFinishing, (command : RacetrackCommand<ChangeActiveRaceIsFinishing>) => {
+                try {
+                    if (!command.message) {
+                        throw new Error("message is undefined.");
+                    }
+
+                    this.activeRace.setIsFinishing(command.message.isFinishing);
+
+                    console.log(`📩 Race Control Service: Finishing Flag set to: ${this.activeRace.isFinishing}.`);
+
+                    const raceIsFinishingChangedMessage : RacetrackEvent<ActiveRaceIsFinishingChanged> = {
+                        message : {
+                            type: RaceControlEvents.RaceIsFinishingChanged,
+                            isFinishing: this.activeRace.isFinishing,
+                        }
+                    }
+
+                    raceControlNamespace
+                        .to(this.raceControlRoom)
+                        .emit(RaceControlEvents.RaceIsFinishingChanged, raceIsFinishingChangedMessage);
+
+                } catch(error) {
+                    console.error(`Error processing ${RaceControlCommands.ChangeRaceIsFinishing} command:`, error);
+                }
+            })
         })
     }
 
