@@ -1,7 +1,7 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRace, RaceState } from "types/stateTypes";
 import { RacetrackEvent, RacetrackCommand } from "types/messageTypes"
-import { ActiveRaceState } from "./race-control.state";
+import { ActiveRaceState, ActiveRaceStateEvents } from "./race-control.state";
 
 // Message Types
 export enum RaceControlEvents {
@@ -76,6 +76,60 @@ export class RaceControlService {
             next();
         })
 
+
+        const onRaceStateChanged = (newState: ActiveRace['raceState']) => {
+            try {
+                const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
+                    message : {
+                        type: RaceControlEvents.RaceStateChanged,
+                        newState: newState,
+                    }
+                }
+
+                raceControlNamespace
+                    .to(this.raceControlRoom)
+                    .emit(RaceControlEvents.RaceStateChanged, raceStateChangedMessage);
+            } catch (error) {
+                console.error(`Error processing ${RaceControlEvents.RaceStateChanged} event:`, error);
+            }
+        }
+
+        const onRaceHazardChanged = (isHazard: ActiveRace['isHazard']) => {
+            try {
+                const raceHazardChangedMessage : RacetrackEvent<ActiveRaceHazardChanged> = {
+                    message : {
+                        type: RaceControlEvents.RaceHazardChanged,
+                        isHazard: isHazard,
+                    }
+                }
+
+                raceControlNamespace
+                    .to(this.raceControlRoom)
+                    .emit(RaceControlEvents.RaceHazardChanged, raceHazardChangedMessage);
+
+            } catch (error) {
+                console.error(`Error processing ${RaceControlEvents.RaceHazardChanged} event:`, error);
+            }
+        };
+
+        const onRaceIsFinishingChanged = (isFinishing: ActiveRace['isFinishing']) => {
+                const raceIsFinishingChangedMessage : RacetrackEvent<ActiveRaceIsFinishingChanged> = {
+                    message : {
+                        type: RaceControlEvents.RaceIsFinishingChanged,
+                        isFinishing: isFinishing,
+                    }
+                }
+
+                raceControlNamespace
+                    .to(this.raceControlRoom)
+                    .emit(RaceControlEvents.RaceIsFinishingChanged, raceIsFinishingChangedMessage);
+        }
+
+        this.activeRace.events.on(ActiveRaceStateEvents.RaceStateChanged, onRaceStateChanged);
+        this.activeRace.events.on(ActiveRaceStateEvents.RaceHazardChanged, onRaceHazardChanged);
+        this.activeRace.events.on(ActiveRaceStateEvents.RaceIsFinishingChanged, onRaceIsFinishingChanged);
+
+
         raceControlNamespace.on("connection", (client) => {
 
 
@@ -109,19 +163,6 @@ export class RaceControlService {
                     }
 
                     this.activeRace.setRaceState(command.message.newState);
-                    console.log(`📩 Race Control Service: Race state changed to: ${this.activeRace.raceState}`);
-
-
-                    const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
-                        message : {
-                            type: RaceControlEvents.RaceStateChanged,
-                            newState: this.activeRace.raceState,
-                        }
-                    }
-
-                    raceControlNamespace
-                        .to(this.raceControlRoom)
-                        .emit(RaceControlEvents.RaceStateChanged, raceStateChangedMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceState} command:`, error);
@@ -139,19 +180,9 @@ export class RaceControlService {
 
                     this.activeRace.setIsHazard(command.message.isHazard);
 
-                    console.log(`📩 Race Control Service: Hazard Flag set to: ${this.activeRace.isHazard}.`);
-
-
-                    const raceHazardChangedMessage : RacetrackEvent<ActiveRaceHazardChanged> = {
-                        message : {
-                            type: RaceControlEvents.RaceHazardChanged,
-                            isHazard: this.activeRace.isHazard,
-                        }
+                    if (this.activeRace.isFinishing) {
+                        this.activeRace.setIsFinishing(false);
                     }
-
-                    raceControlNamespace
-                        .to(this.raceControlRoom)
-                        .emit(RaceControlEvents.RaceHazardChanged, raceHazardChangedMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
@@ -167,18 +198,9 @@ export class RaceControlService {
 
                     this.activeRace.setIsFinishing(command.message.isFinishing);
 
-                    console.log(`📩 Race Control Service: Finishing Flag set to: ${this.activeRace.isFinishing}.`);
-
-                    const raceIsFinishingChangedMessage : RacetrackEvent<ActiveRaceIsFinishingChanged> = {
-                        message : {
-                            type: RaceControlEvents.RaceIsFinishingChanged,
-                            isFinishing: this.activeRace.isFinishing,
-                        }
+                    if (this.activeRace.isHazard) {
+                        this.activeRace.setIsHazard(false);
                     }
-
-                    raceControlNamespace
-                        .to(this.raceControlRoom)
-                        .emit(RaceControlEvents.RaceIsFinishingChanged, raceIsFinishingChangedMessage);
 
                 } catch(error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceIsFinishing} command:`, error);

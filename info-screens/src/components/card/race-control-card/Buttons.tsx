@@ -34,7 +34,7 @@ export function HazardRaceButton({activeRaceStateBinding} : {activeRaceStateBind
     return (
         <Button
         aria-label="Hazard"
-    className={`text-xl flex justify-center items-center ${activeRaceStateBinding.activeRace.isHazard ? 'bg-yellow-400 text-yellow-800' : 'bg-yellow-500 text-yellow-900 scale-95  drop-shadow-md' } duration-75 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
+    className={`text-xl flex justify-center items-center ${!activeRaceStateBinding.activeRace.isHazard ? 'bg-yellow-400 text-yellow-800 hover:shadow-sm' : 'bg-yellow-500 text-yellow-900 drop-shadow-md' } duration-75 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
         onPress={() => {activeRaceStateBinding.trySetHazard(!activeRaceStateBinding.activeRace.isHazard)}}>
             <Icon path={mdiAlertOctagon} className="w-6 h-6 flex-shrink-0"/>
             <span>Hazard</span>
@@ -48,7 +48,7 @@ export function FinishRaceButton({activeRaceStateBinding} : {activeRaceStateBind
     return (
         <Button
         aria-label="Finish"
-        className={`text-xl flex justify-center items-center ${activeRaceStateBinding.activeRace.isFinishing ? '' : 'drop-shadow-lg shadow-gray-300' }  bg-white text-black p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
+        className={`text-xl flex justify-center items-center ${!activeRaceStateBinding.activeRace.isFinishing ? 'bg-white text-black hover:shadow-sm' : 'drop-shadow-md bg-black text-white' } duration-200 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
         onPress={() => {activeRaceStateBinding.trySetFinishing(!activeRaceStateBinding.activeRace.isFinishing)}}>
             <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
             <span>Finish</span>
