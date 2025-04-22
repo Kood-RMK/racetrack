@@ -14,8 +14,6 @@ export class RaceControlState {
     }
 }
 
-
-
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
     RaceHazardChanged = 'onRaceHazardChanged',
@@ -107,13 +105,22 @@ export class ActiveRaceState {
         this._activeRace.isHazard = isHazard;
         console.log(`🔥 Race Control State: Hazard Flag set to: ${isHazard}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceHazardChanged, isHazard);
+
+        // Make sure that the isFinishing flag is not set when the hazard flag is set.
+        if (this.isHazard && this.isFinishing) {
+            this.setIsFinishing(false);
+        }
     }
 
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
         this._activeRace.isFinishing = isFinishing;
-
         console.log(`🔥 Race Control State: Finishing Flag set to: ${isFinishing}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceIsFinishingChanged, isFinishing);
+
+        // Make sure that the isHazard flag is not set when the finishing flag is set.
+        if (this.isFinishing && this.isHazard) {
+            this.setIsHazard(false);
+        }
     }
 
     public setTimeLeft(timeLeft: ActiveRace['timeLeft']) {

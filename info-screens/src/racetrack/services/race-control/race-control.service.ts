@@ -179,11 +179,6 @@ export class RaceControlService {
                     }
 
                     this.activeRace.setIsHazard(command.message.isHazard);
-
-                    if (this.activeRace.isFinishing) {
-                        this.activeRace.setIsFinishing(false);
-                    }
-
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
                 }
@@ -197,11 +192,6 @@ export class RaceControlService {
                     }
 
                     this.activeRace.setIsFinishing(command.message.isFinishing);
-
-                    if (this.activeRace.isHazard) {
-                        this.activeRace.setIsHazard(false);
-                    }
-
                 } catch(error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceIsFinishing} command:`, error);
                 }
