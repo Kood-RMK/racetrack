@@ -76,7 +76,6 @@ export class RaceControlService {
             next();
         })
 
-
         const onRaceStateChanged = (newState: ActiveRace['raceState']) => {
             try {
                 const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
@@ -132,13 +131,11 @@ export class RaceControlService {
 
         raceControlNamespace.on("connection", (client) => {
 
-
             console.log(`🧑 Race Control Service: New Client Connected! ID:`, client.id)
 
             function initializeClientRooms() {
                 client.join("raceControlRoom");
             }
-
 
             const stateMessage : RacetrackEvent<ActiveRaceInitialState> =  {
                 message : {
