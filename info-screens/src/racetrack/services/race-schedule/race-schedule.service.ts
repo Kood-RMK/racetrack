@@ -2,8 +2,6 @@ import type { Server as SocketIOServer } from "socket.io";
 import { Contestant, Race } from "types/stateTypes";
 import { RacetrackCommand, RacetrackEvent } from "types/messageTypes";
 import { RaceScheduleState, RaceState } from "./race-schedule.state";
-import { RaceControlCommands } from "services/race-control/race-control.service";
-
 
 // Message Types
 export enum RaceScheduleEvents {
@@ -56,33 +54,87 @@ export type ModifyRace = {
 
 //Handlers
 export class RaceScheduleService {
-
     private schedule: RaceScheduleState;
-    private socket: SocketIOServer;
+    private io: SocketIOServer;
+
+    private readonly raceServiceRoom = "raceServiceRoom";
 
     constructor(io: SocketIOServer) {
         this.schedule = new RaceScheduleState();
-        this.socket = io;
+        this.io = io;
 
+        const raceServiceNamespace = this.io.of("/race-service");
 
-        this.socket.on("connection", (client) => {
+        // Middleware to check if the user is authenticated.
+        raceServiceNamespace.use((socket, next) => {
+            next();
+        })
 
-            const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
-                message: {
-                    type: RaceScheduleEvents.RaceScheduleInitialState,
-                    schedule: this.schedule.getRaceScheduleState().map((value) => value.getRace())
+        // Siia kolime siis InitialState eventid ja raceScheduleUpdated eventi
+        const onRaceScheduleUpdated = (schedule: Race[]) => {
+
+            try {
+                const scheduleStateMessage: RacetrackEvent<RaceScheduleInitialState> = {
+                    message: {
+                        type: RaceScheduleEvents.RaceScheduleInitialState,
+                        schedule: this.schedule.getRaceScheduleState.map((value) => value.getRace)
+                    }
                 }
-            }
-            // Send new client the current schedule state.
-            client.emit(RaceScheduleEvents.RaceScheduleInitialState, stateMessage)
 
+                raceServiceNamespace
+                    .to(this.raceServiceRoom)
+                    .emit(RaceScheduleEvents.RaceScheduleInitialState, scheduleStateMessage);
+            } catch (error) {
+                console.error(`Error processing ${RaceScheduleEvents.RaceScheduleInitialState} event:`, error);
+            }
+        }
+            
+
+
+        // Siia jäävad kõik commandid ja kasutavad sealt ülevalt evente
+        raceServiceNamespace.on("connection", (client) => {
+
+            console.log(`👩‍💻 Race Schedule Service: New Client Connected! ID:`, client.id)
+
+            function initializeClientRooms() {
+                client.join("raceServiceRoom");
+            }
+
+            // Add new client to the raceControlRoom. 
+            // TODO: select room based on assigned role.
+            initializeClientRooms();
+
+
+            // Build and send the initial state message to this specific client
+            const onInitialRaceState = () => {
+                try {
+                    const scheduleStateMessage: RacetrackEvent<RaceScheduleInitialState> = {
+                        message: {
+                            type: RaceScheduleEvents.RaceScheduleInitialState,
+                            schedule: this.schedule.getRaceScheduleState.map((value) => value.getRace)
+                        }
+                    };
+        
+                    client.emit(RaceScheduleEvents.RaceScheduleInitialState, scheduleStateMessage);
+                } catch (error) {
+                    console.error(`Error processing ${RaceScheduleEvents.RaceScheduleInitialState} event:`, error);
+                }
+            };
+        
+            onInitialRaceState();
+            
 
             // Receive new race event
             client.on(RaceScheduleCommands.ScheduleNewRace, (command: RacetrackCommand<ScheduleNewRace>) => {
 
                 try {
 
+                    if (!command.message) {
+                        throw new Error("message is undefined.");
+                    }
+
                     const newData = command.message.data;
+
                     const newRace = newData.race;
                     const { contestants, raceDateTime, raceId, raceState } = newRace
 
@@ -101,10 +153,10 @@ export class RaceScheduleService {
                     }
 
                     // Check that there are no races with the same timeslot
-                    const existingRaces = this.schedule.getRaceScheduleState();
+                    const existingRaces = this.schedule.getRaceScheduleState;
 
                     const hasClashingRace = existingRaces.some(
-                        raceState => raceState.getRaceDateTime() === raceDateTime
+                        raceState => raceState.getRaceDateTime === raceDateTime
                     );
 
                     if (hasClashingRace) {
@@ -126,11 +178,11 @@ export class RaceScheduleService {
                     const updateMessage = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: updatedSchedule.map(raceState => raceState.getRace())
+                            schedule: updatedSchedule.map(raceState => raceState.getRace)
                         }
                     };
 
-                    this.socket.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+                    raceServiceNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
@@ -140,14 +192,17 @@ export class RaceScheduleService {
             client.on(RaceScheduleCommands.DeleteRace, (command: RacetrackCommand<DeleteRace>) => {
 
                 try {
+
+                    if (!command.message) {
+                        throw new Error("message is undefined.");
+                    }
                     
                     // Step 1: Determine the race ID to remove
                     const idToRemove = command.message.data.race.raceId;
-                    const existingRaces = this.schedule.getRaceScheduleState();
+                    const existingRaces = this.schedule.getRaceScheduleState;
                     
-
                     // Step 2: Create a new array that excludes the race with the specified ID
-                    const filteredRaces = existingRaces.filter((race) => race.getRaceId() !== idToRemove);
+                    const filteredRaces = existingRaces.filter((race) => race.getRaceId !== idToRemove);
 
                     // Step 3: Replace the contents of raceSchedule with the filtered races
                     const updatedSchedule = existingRaces.splice(0, existingRaces.length, ...filteredRaces);
@@ -163,7 +218,7 @@ export class RaceScheduleService {
                     const updated: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: updatedSchedule.map(raceState => raceState.getRace())
+                            schedule: updatedSchedule.map(raceState => raceState.getRace)
                         }
                     };
 
