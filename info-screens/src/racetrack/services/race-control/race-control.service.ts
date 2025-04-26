@@ -49,15 +49,14 @@ export class RaceControlService {
         this.socketIO = socketIO;
         this.activeRaceService = activeRaceService;
 
-        const raceControlNamespace = this.socketIO.of("/race-control");
+        const socketNamespace = this.socketIO.of("/race-control");
 
         // Middleware to check if the user is authenticated.
-        raceControlNamespace.use((socket, next) => {
+        socketNamespace.use((socket, next) => {
             next();
         })
 
-
-        raceControlNamespace.on("connection", (client) => {
+        socketNamespace.on("connection", (client) => {
             console.log(`🧑 Race Control Service: New Client Connected! ID:`, client.id)
 
             client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {

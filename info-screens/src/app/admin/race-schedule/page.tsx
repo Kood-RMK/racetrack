@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { CompletedRaceTags, RacePendingTags, ActiveRaceTags } from '@/components/card/race-card/Tags';
 import { RacePendingButtons } from '@/components/card/race-card/Buttons'
 import { Race } from '@/racetrack/types/stateTypes';
-import { SocketProvider, useSocket } from "@/components/socket/SocketProvider";
+import { SocketProvider, useSocket } from "@/app/providers/socket/socketProvider";
 import { RaceScheduleState, RaceScheduleUpdated } from '@/racetrack/services/race-schedule.service';
 import { RacetrackEvent } from '@/racetrack/types/messageTypes';
 

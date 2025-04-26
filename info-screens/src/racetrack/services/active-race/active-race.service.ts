@@ -2,8 +2,7 @@
 import type { DefaultEventsMap, Namespace, Server as SocketIOServer } from "socket.io";
 import { ActiveRace } from "types/stateTypes";
 import EventEmitter from "events";
-import { ActiveRaceHandler } from "./active-race.handler";
-
+import { ActiveRaceEvents, ActiveRaceHandler } from "./active-race.handler";
 
 
 export enum ActiveRaceServiceEvents {
@@ -43,20 +42,26 @@ export class ActiveRaceService {
 
     constructor(io: SocketIOServer) {
 
-        this.activeRaceHandler = null;
         this.socketServer = io;
-
         this.socketNamespace = this.socketServer.of("/active-race");
+
+        const mockRace : ActiveRace = {
+            raceId : "123", 
+            raceDateTime : "2023-10-01T12:00:00Z",
+            contestants : [],
+            raceState : "pending",
+            isHazard : false,
+            isFinishing : false,
+            timeLeft : "10:00",};
+        this.activeRaceHandler = new ActiveRaceHandler(mockRace , this.socketNamespace);
 
         this.socketNamespace.on("connection", (client) => {
             console.log(`New Client Connected! ID:`, client.id);
             
             if (this.activeRaceHandler) {
-                console.log(`Client joined room: ${this.activeRaceHandler.activeRaceRoom}`);
                 client.join(this.activeRaceHandler.activeRaceRoom);
             }
         });
-
 
         this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceSet, async (activeRace) => {
             const clients = await this.socketNamespace.fetchSockets();
@@ -69,8 +74,6 @@ export class ActiveRaceService {
             }
         })
     }
-
-    
 
     public get activeRace() {
         return this.activeRaceHandler;

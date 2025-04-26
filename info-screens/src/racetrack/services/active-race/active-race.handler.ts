@@ -55,14 +55,14 @@ export class ActiveRaceHandler {
         this._activeRaceState = new ActiveRaceState(this.activeRace);
         this._activeRaceRoom = `activerace_${this._activeRaceState.raceId}`;
 
-
         socketNamespace.on("connection", (client) => {
             console.log(`[🧑 Active Race (${this._activeRaceRoom})]: New Client Connected! ID:`, client.id);
 
 
             client.on("join-room", (room) => {
 
-                if (room == this._activeRaceRoom) {
+            client.emit(ActiveRaceEvents.RaceInitialState, {});
+                if (room === this._activeRaceRoom) {
 
                     const initialState : RacetrackEvent<ActiveRaceInitialState> = {
                         message : {
@@ -74,7 +74,6 @@ export class ActiveRaceHandler {
                     client.emit(ActiveRaceEvents.RaceInitialState, initialState);
                 }
 
-                console.log('Client joined room:', room);
             })
         })
 

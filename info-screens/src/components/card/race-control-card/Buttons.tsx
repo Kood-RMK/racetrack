@@ -4,7 +4,7 @@ import React from "react";
 import Icon from '@mdi/react';
 import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
-import { ActiveRaceStateBinding } from "@/app/admin/race-control/activeRaceStateProvider";
+import { ActiveRaceStateBinding } from "@/app/providers/controllers/raceControllerProvider";
 
 
 export function StartRaceButton({activeRaceStateBinding} : {activeRaceStateBinding: ActiveRaceStateBinding}) {
