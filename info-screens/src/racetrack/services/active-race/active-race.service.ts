@@ -47,7 +47,30 @@ export class ActiveRaceService {
         this.socketServer = io;
 
         this.socketNamespace = this.socketServer.of("/active-race");
+
+        this.socketNamespace.on("connection", (client) => {
+            console.log(`New Client Connected! ID:`, client.id);
+            
+            if (this.activeRaceHandler) {
+                console.log(`Client joined room: ${this.activeRaceHandler.activeRaceRoom}`);
+                client.join(this.activeRaceHandler.activeRaceRoom);
+            }
+        });
+
+
+        this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceSet, async (activeRace) => {
+            const clients = await this.socketNamespace.fetchSockets();
+            const raceHandler = this.activeRaceHandler;
+ 
+            if (raceHandler) {
+                clients.forEach((client) => {
+                    client.join(raceHandler.activeRaceRoom);
+                });
+            }
+        })
     }
+
+    
 
     public get activeRace() {
         return this.activeRaceHandler;

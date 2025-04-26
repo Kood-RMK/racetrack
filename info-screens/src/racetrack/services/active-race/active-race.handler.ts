@@ -8,6 +8,7 @@ export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
     RaceHazardChanged = 'raceHazardChanged',
     RaceIsFinishingChanged = 'raceIsFinishingChanged',
+    RaceInitialState = 'raceInitialState',
 }
 
 export enum ActiveRaceCommands {
@@ -28,6 +29,11 @@ export type ActiveRaceHazardChanged = {
 export type ActiveRaceIsFinishingChanged = {
     type : ActiveRaceEvents.RaceIsFinishingChanged,
     isFinishing : boolean,
+}
+
+export type ActiveRaceInitialState = {
+    type : ActiveRaceEvents.RaceInitialState,
+    race : ActiveRace,
 }
 
 
@@ -55,6 +61,19 @@ export class ActiveRaceHandler {
 
 
             client.on("join-room", (room) => {
+
+                if (room == this._activeRaceRoom) {
+
+                    const initialState : RacetrackEvent<ActiveRaceInitialState> = {
+                        message : {
+                            type: ActiveRaceEvents.RaceInitialState,
+                            race: this._activeRaceState.activeRace,
+                        }
+                    }
+
+                    client.emit(ActiveRaceEvents.RaceInitialState, initialState);
+                }
+
                 console.log('Client joined room:', room);
             })
         })

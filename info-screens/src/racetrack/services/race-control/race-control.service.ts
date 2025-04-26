@@ -2,6 +2,7 @@ import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRace, RaceState } from "types/stateTypes";
 import { RacetrackEvent, RacetrackCommand } from "types/messageTypes"
 import { ActiveRaceState, ActiveRaceStateEvents } from "./race-control.state";
+import { ActiveRaceService } from "services/active-race/active-race.service";
 
 // Message Types
 export enum RaceControlEvents {
@@ -15,47 +16,40 @@ export enum RaceControlCommands {
     ChangeRaceState = 'changeRaceState',
     ChangeRaceHazard = 'changeRaceHazard',
     ChangeRaceIsFinishing = 'changeRaceIsFinishing',
-    RequestRaceState = 'requestRaceState',
 }
-
-
-// Events
 
 
 // Commands
 export type ChangeActiveRaceState = {
     type : RaceControlCommands.ChangeRaceState,
+    raceId : string,
     newState : RaceState,
 };
 
 export type ChangeActiveRaceHazard = {
     type : RaceControlCommands.ChangeRaceHazard,
+    raceId : string,
     isHazard : boolean,
 }
 
 export type ChangeActiveRaceIsFinishing = {
     type : RaceControlCommands.ChangeRaceIsFinishing,
+    raceId : string,
     isFinishing : boolean,
 }
 
-export type RequestActiveRaceState = {
-    type : RaceControlCommands.RequestRaceState,
-    raceState : ActiveRace,
-}
 
 // Handlers.
 export class RaceControlService {
-    private activeRace: ActiveRaceState;
-    private io: SocketIOServer;
+    private socketIO: SocketIOServer;
+    private activeRaceService : ActiveRaceService;
 
-    private readonly raceControlRoom = "raceControlRoom";
+    constructor(socketIO : SocketIOServer, activeRaceService : ActiveRaceService) {
 
+        this.socketIO = socketIO;
+        this.activeRaceService = activeRaceService;
 
-    constructor(io : SocketIOServer) {
-        this.activeRace = new ActiveRaceState();
-        this.io = io;
-
-        const raceControlNamespace = this.io.of("/race-control");
+        const raceControlNamespace = this.socketIO.of("/race-control");
 
         // Middleware to check if the user is authenticated.
         raceControlNamespace.use((socket, next) => {
@@ -63,29 +57,8 @@ export class RaceControlService {
         })
 
 
-
-
         raceControlNamespace.on("connection", (client) => {
-
             console.log(`🧑 Race Control Service: New Client Connected! ID:`, client.id)
-
-            function initializeClientRooms() {
-                client.join("raceControlRoom");
-            }
-
-            const initialStateMessage : RacetrackEvent<ActiveRaceInitialState> =  {
-                message : {
-                    type: RaceControlEvents.RaceInitialState,
-                    raceInitialState: this.activeRace.activeRace,
-                }
-            }
-
-            // Send new client the current state.
-            client.emit(RaceControlEvents.RaceInitialState, initialStateMessage)
-
-            // Add new client to the raceControlRoom. 
-            // TODO: select room based on assigned role.
-            initializeClientRooms();
 
             client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {
 
@@ -95,7 +68,17 @@ export class RaceControlService {
                         throw new Error("message is undefined.");
                     }
 
-                    this.activeRace.setRaceState(command.message.newState);
+                    const activeRace = this.activeRaceService.activeRace?.activeRaceState;
+
+                    if (!activeRace) {
+                        throw new Error("There isn't currently an active race.")
+                    }
+
+                    if (activeRace.raceId !== command.message.raceId) {
+                        return;
+                    }
+
+                    activeRace.setRaceState(command.message.newState);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceState} command:`, error);
@@ -111,7 +94,17 @@ export class RaceControlService {
                         throw new Error("message is undefined.");
                     }
 
-                    this.activeRace.setIsHazard(command.message.isHazard);
+                    const activeRace = this.activeRaceService.activeRace?.activeRaceState;
+
+                    if (!activeRace) {
+                        throw new Error("There isn't currently an active race.")
+                    }
+
+                    if (activeRace.raceId !== command.message.raceId) {
+                        return;
+                    }
+
+                    activeRace.setIsHazard(command.message.isHazard);
                 } catch (error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
                 }
@@ -124,15 +117,22 @@ export class RaceControlService {
                         throw new Error("message is undefined.");
                     }
 
-                    this.activeRace.setIsFinishing(command.message.isFinishing);
+                    const activeRace = this.activeRaceService.activeRace?.activeRaceState;
+
+                    if (!activeRace) {
+                        throw new Error("There isn't currently an active race.")
+                    }
+
+                    if (activeRace.raceId !== command.message.raceId) {
+                        return;
+                    }
+
+
+                    activeRace.setIsFinishing(command.message.isFinishing);
                 } catch(error) {
                     console.error(`Error processing ${RaceControlCommands.ChangeRaceIsFinishing} command:`, error);
                 }
             })
         })
-    }
-
-    getActiveRace() {
-        return this.activeRace;
     }
 }
