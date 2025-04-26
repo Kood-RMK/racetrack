@@ -40,6 +40,7 @@ export class ActiveRaceService {
     private readonly _eventEmitter = new ActiveRaceServiceEventEmitter();
     private readonly socketNamespace: Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
 
+
     constructor(io: SocketIOServer) {
 
         this.socketServer = io;

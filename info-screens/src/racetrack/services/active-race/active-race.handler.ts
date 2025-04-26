@@ -55,6 +55,8 @@ export class ActiveRaceHandler {
         this._activeRaceState = new ActiveRaceState(this.activeRace);
         this._activeRaceRoom = `activerace_${this._activeRaceState.raceId}`;
 
+        //TODO: Create log of all happened events. Send a new connecting user the log of events that happend after the initial state.
+
         socketNamespace.on("connection", (client) => {
             console.log(`[🧑 Active Race (${this._activeRaceRoom})]: New Client Connected! ID:`, client.id);
 
