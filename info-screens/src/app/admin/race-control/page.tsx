@@ -3,27 +3,27 @@
 import { RaceState } from "@/racetrack/types/stateTypes";
 
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
-import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
 import { ActiveRaceStateBinding, ActiveRaceStateProvider, useActiveRaceState } from "./activeRaceStateProvider";
 import { SocketProvider } from "@/components/socket/SocketProvider";
 import { CancelRaceButton, FinishRaceButton, HazardRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { useEffect } from "react";
+import { RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
 
 
 // Mapping between race state and components for buttons and tags
-const raceTags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean) => {
-  console.log('raceTags received:', { raceState, isHazard, isDanger, isFinishing });
+const raceTags = ({ activeRaceStateBinding }: {activeRaceStateBinding: ActiveRaceStateBinding}) => {
+
+  const raceState = activeRaceStateBinding.activeRace.raceState;
 
   switch (raceState) {
-    case 'pending': return <RacePendingTags />;
+    case 'pending': {
+      return <>
+        <RacePendingTag></RacePendingTag>
+        
+      </>;
+    }
 
-    case 'active': return isHazard ? <ActiveRaceHazardTags /> : isDanger ? <ActiveRaceDangerTags /> : isFinishing ? <EndSessionTags /> : <ActiveRaceTags />; 
-
-    case 'completed': return <RacePendingTags />;
-
-    case 'canceled': return <RaceCancelledTags />;
-    
-    default: return null;
+    default : <></>
   
   }
 };
@@ -79,8 +79,8 @@ function RaceControlPage() {
           <div>
 
           <RaceCard 
-            // tags={raceTags(und)}
-            buttons={raceButtons({activeRaceStateBinding : activeRaceStateBinding})}/>
+            tags={raceTags({activeRaceStateBinding})}
+            buttons={raceButtons({activeRaceStateBinding})}/>
           </div>
         </div>
       </div>

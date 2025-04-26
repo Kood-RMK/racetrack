@@ -1,19 +1,6 @@
 import EventEmitter from "events";
 import { ActiveRace } from "types/stateTypes";
 
-
-export class RaceControlState {
-    private activeRaceState: ActiveRaceState;
-
-    constructor() {
-        this.activeRaceState = new ActiveRaceState();
-    }
-
-    public get getActiveRaceState() {
-        return this.activeRaceState;
-    }
-}
-
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
     RaceHazardChanged = 'onRaceHazardChanged',
@@ -46,20 +33,13 @@ export class ActiveRaceStateEventEmitter extends EventEmitter {
   }
 }
 
-
 export class ActiveRaceState {
     private _activeRace: ActiveRace;
     private _eventEmitter = new ActiveRaceStateEventEmitter();
 
 
-    constructor() {
-        this._activeRace = {
-            contestants: [],
-            raceState: 'pending',
-            isHazard: false,
-            isFinishing: false,
-            timeLeft: '00:00'
-        };
+    constructor(activeRace: ActiveRace) {
+        this._activeRace = activeRace;
     }
 
     public get events() {
@@ -90,18 +70,16 @@ export class ActiveRaceState {
         return this._activeRace;
     }
 
-    public setContestants(contestants: ActiveRace['contestants']) {
-        this._activeRace.contestants = contestants;
-        this._eventEmitter.emit(ActiveRaceStateEvents.ContestantsChanged, contestants);
-    }
-
     public setRaceState(raceState: ActiveRace['raceState']) {
+
         this._activeRace.raceState = raceState;
         console.log(`🔥 Race Control State: Race State set to: ${raceState}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceStateChanged, raceState);
     }
 
     public setIsHazard(isHazard: ActiveRace['isHazard']) {
+
+
         this._activeRace.isHazard = isHazard;
         console.log(`🔥 Race Control State: Hazard Flag set to: ${isHazard}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceHazardChanged, isHazard);
@@ -113,6 +91,7 @@ export class ActiveRaceState {
     }
 
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
+
         this._activeRace.isFinishing = isFinishing;
         console.log(`🔥 Race Control State: Finishing Flag set to: ${isFinishing}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceIsFinishingChanged, isFinishing);

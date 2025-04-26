@@ -15,29 +15,11 @@ export enum RaceControlCommands {
     ChangeRaceState = 'changeRaceState',
     ChangeRaceHazard = 'changeRaceHazard',
     ChangeRaceIsFinishing = 'changeRaceIsFinishing',
+    RequestRaceState = 'requestRaceState',
 }
 
 
 // Events
-export type ActiveRaceStateChanged = {
-    type : RaceControlEvents.RaceStateChanged,
-    newState : RaceState,
-};
-
-export type ActiveRaceHazardChanged = {
-    type : RaceControlEvents.RaceHazardChanged,
-    isHazard : boolean,
-}
-
-export type ActiveRaceIsFinishingChanged = {
-    type : RaceControlEvents.RaceIsFinishingChanged,
-    isFinishing : boolean,
-}
-
-export type ActiveRaceInitialState = {
-    type : RaceControlEvents.RaceInitialState,
-    raceInitialState : ActiveRace
-}
 
 
 // Commands
@@ -56,6 +38,10 @@ export type ChangeActiveRaceIsFinishing = {
     isFinishing : boolean,
 }
 
+export type RequestActiveRaceState = {
+    type : RaceControlCommands.RequestRaceState,
+    raceState : ActiveRace,
+}
 
 // Handlers.
 export class RaceControlService {
@@ -76,57 +62,7 @@ export class RaceControlService {
             next();
         })
 
-        const onRaceStateChanged = (newState: ActiveRace['raceState']) => {
-            try {
-                const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
-                    message : {
-                        type: RaceControlEvents.RaceStateChanged,
-                        newState: newState,
-                    }
-                }
 
-                raceControlNamespace
-                    .to(this.raceControlRoom)
-                    .emit(RaceControlEvents.RaceStateChanged, raceStateChangedMessage);
-            } catch (error) {
-                console.error(`Error processing ${RaceControlEvents.RaceStateChanged} event:`, error);
-            }
-        }
-
-        const onRaceHazardChanged = (isHazard: ActiveRace['isHazard']) => {
-            try {
-                const raceHazardChangedMessage : RacetrackEvent<ActiveRaceHazardChanged> = {
-                    message : {
-                        type: RaceControlEvents.RaceHazardChanged,
-                        isHazard: isHazard,
-                    }
-                }
-
-                raceControlNamespace
-                    .to(this.raceControlRoom)
-                    .emit(RaceControlEvents.RaceHazardChanged, raceHazardChangedMessage);
-
-            } catch (error) {
-                console.error(`Error processing ${RaceControlEvents.RaceHazardChanged} event:`, error);
-            }
-        };
-
-        const onRaceIsFinishingChanged = (isFinishing: ActiveRace['isFinishing']) => {
-                const raceIsFinishingChangedMessage : RacetrackEvent<ActiveRaceIsFinishingChanged> = {
-                    message : {
-                        type: RaceControlEvents.RaceIsFinishingChanged,
-                        isFinishing: isFinishing,
-                    }
-                }
-
-                raceControlNamespace
-                    .to(this.raceControlRoom)
-                    .emit(RaceControlEvents.RaceIsFinishingChanged, raceIsFinishingChangedMessage);
-        }
-
-        this.activeRace.events.on(ActiveRaceStateEvents.RaceStateChanged, onRaceStateChanged);
-        this.activeRace.events.on(ActiveRaceStateEvents.RaceHazardChanged, onRaceHazardChanged);
-        this.activeRace.events.on(ActiveRaceStateEvents.RaceIsFinishingChanged, onRaceIsFinishingChanged);
 
 
         raceControlNamespace.on("connection", (client) => {
@@ -137,7 +73,7 @@ export class RaceControlService {
                 client.join("raceControlRoom");
             }
 
-            const stateMessage : RacetrackEvent<ActiveRaceInitialState> =  {
+            const initialStateMessage : RacetrackEvent<ActiveRaceInitialState> =  {
                 message : {
                     type: RaceControlEvents.RaceInitialState,
                     raceInitialState: this.activeRace.activeRace,
@@ -145,7 +81,7 @@ export class RaceControlService {
             }
 
             // Send new client the current state.
-            client.emit(RaceControlEvents.RaceInitialState, stateMessage)
+            client.emit(RaceControlEvents.RaceInitialState, initialStateMessage)
 
             // Add new client to the raceControlRoom. 
             // TODO: select room based on assigned role.

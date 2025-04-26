@@ -23,13 +23,7 @@ const ActiveRaceStateControllersContext = createContext<ActiveRaceStateControlle
 
 export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => {
 
-  const [activeRaceState, setActiveRaceState] = useState<ActiveRace>({
-    contestants: [],
-    raceState: 'pending',
-    isHazard: false,
-    isFinishing: false,
-    timeLeft: '00:00',
-  });
+  const [activeRaceState, setActiveRaceState] = useState<ActiveRace | undefined>(undefined);
 
   const [activeRaceStateControllers, setActiveRaceStateControllers] = useState<ActiveRaceStateControllers>({
     trySetHazard: (isHazard: boolean) => {},
@@ -57,12 +51,11 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
     // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
     const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
-      console.log(activeRaceState);
 
-      setActiveRaceState(prevState => ({
+      setActiveRaceState(prevState => prevState ? {
         ...prevState,
         raceState: data.message.newState,
-      }));
+      } : undefined);
 
       console.log(`[📩 Race Control]: Race State Changed to ${data.message.newState}`);
     }
@@ -70,10 +63,10 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
 
     const onRaceHazardChanged = (data: RacetrackEvent<ChangeActiveRaceHazard>) => {
-      setActiveRaceState(prevState => ({
+      setActiveRaceState(prevState => prevState ? {
         ...prevState,
         isHazard: data.message.isHazard,
-      }))
+      } : undefined)
 
       console.log(`[📩 Race Control]: Race Hazard Flag set to ${data.message.isHazard}.`);
     }
@@ -81,10 +74,10 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
 
     const onRaceFinishingChanged = (data: RacetrackEvent<ChangeActiveRaceIsFinishing>) => {
-      setActiveRaceState(prevState => ({
+      setActiveRaceState(prevState => prevState ? {
         ...prevState,
         isFinishing: data.message.isFinishing,
-      }))
+      } : undefined);
     }
     socket.on(RaceControlEvents.RaceIsFinishingChanged, onRaceFinishingChanged)
 

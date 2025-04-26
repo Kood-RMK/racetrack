@@ -27,4 +27,4 @@ export type ActiveRace = {
     isHazard: boolean,
     isFinishing: boolean,
     timeLeft : string
-}
+} & Pick<Race, 'raceId' | 'raceDateTime'>;
