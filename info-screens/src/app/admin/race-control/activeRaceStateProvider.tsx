@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import { useSocket } from "@/components/socket/SocketProvider";
 import { ActiveRaceInitialState, ActiveRaceStateChanged, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, RaceControlEvents } from "@/racetrack/services/race-control/race-control.service";
