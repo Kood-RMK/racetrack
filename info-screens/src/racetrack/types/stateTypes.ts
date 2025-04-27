@@ -12,12 +12,12 @@ export type Race = {
     raceState : RaceState,
 }
 
-export type RaceSchedule = Race[];
+export type RaceSchedule = Record<string, Race>;
 
 export type ActiveContestant = {
     contestant : Contestant,
-    place : Number
-    lapCount : Number
+    place : number
+    lapCount : number
     fastestLap : string
 }
 

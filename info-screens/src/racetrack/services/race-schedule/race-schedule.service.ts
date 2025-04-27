@@ -6,7 +6,7 @@ import { RaceControlEvents } from "services/race-control/race-control.service";
 
 // Message Types
 export enum RaceScheduleEvents {
-    NewRaceScheduled = "newRaceScheduled",
+    // NewRaceScheduled = "newRaceScheduled",
     RaceScheduleInitialState = "raceScheduleinitialState",
     RaceScheduleUpdated = "raceScheduleUpdated",
 }
@@ -285,4 +285,5 @@ export class RaceScheduleService {
 // 2. Avoid duplicate drivers.
 // 3. Make types for events!!!
 // 4. wrap in message types
+// 5. sort by timeslot
 
