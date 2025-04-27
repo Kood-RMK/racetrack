@@ -44,7 +44,7 @@ export function RaceHazardTag() {
 
 export function RaceDangerTag() {
     return (
-        <Tag textValue="Danger" className="bg-red-100 min-w-40 h-8 text-base text-red-800 font-medium rounded flex justify-center items-center gap-1 py-1 px-6 whitespace-nowrap">
+        <Tag textValue="Danger" className="bg-red-600 min-w-40 h-8 text-base text-white font-medium rounded flex justify-center items-center gap-1 py-1 px-6 whitespace-nowrap">
             <Icon path={mdiHazardLights} className="w-4 h-4 flex-shrink-0"/>
             Danger
         </Tag>

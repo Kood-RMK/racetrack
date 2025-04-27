@@ -3,7 +3,7 @@
 import { ActiveRace, RaceState } from "@/racetrack/types/stateTypes";
 
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
-import { CancelRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
+import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { RefObject, useEffect } from "react";
 import { RaceActiveTag, RaceCancelledTag, RaceDangerTag, RaceFinishingTag, RaceHazardTag, RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
 import { ActiveRaceController, ActiveRaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
@@ -63,8 +63,11 @@ function raceButtons({ activeRace, activeRaceController }: { activeRace: ActiveR
         case 'active':
             return <>
                 <StopRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StopRaceButton>
-                <FinishRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></FinishRaceButton>
-                <HazardRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></HazardRaceButton>
+
+
+                {!activeRace.isHazard && <FinishRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></FinishRaceButton>}
+                {!activeRace.isFinishing && <HazardRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></HazardRaceButton>}
+                {activeRace.isFinishing && <EndRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></EndRaceButton>}
             </>;
         case 'completed':
             return <></>;
@@ -98,19 +101,12 @@ function RaceControlPage() {
     const { raceState, isHazard } = activeRaceState;
 
     return (
-      <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
-        
+      <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
         <p className='text-center py-12'>Race Control</p>
-
-        <div>
-          <div>
-
           <RaceCard 
             tags={raceTags({activeRace: activeRaceState})}
             buttons={raceButtons({activeRace: activeRaceState, activeRaceController: activeRaceController})}
             />
-          </div>
-        </div>
       </div>
     )
 }

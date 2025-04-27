@@ -17,7 +17,7 @@ export function StartRaceButton({activeRace, activeRaceController} : RaceButtonP
     return (
         <Button 
             aria-label="Start race" 
-            className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+            className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded xl:w-56 w-full min-w-56 h-14 gap-1 whitespace-nowrap"
             onPress={() => {activeRaceController.current.tryChangeRaceState('active')}}>
             <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
             Start Race
@@ -30,7 +30,7 @@ export function CancelRaceButton({activeRace, activeRaceController} : RaceButton
     return (
         <Button 
             aria-label="Cancel race" 
-            className="text-xl flex justify-center items-center bg-red-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+            className="text-xl flex justify-center items-center bg-red-700 text-white p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap"
             onPress={() => {activeRaceController.current.tryChangeRaceState('canceled')}}>
             <Icon path={mdiDelete} className="w-6 h-6 flex-shrink-0"/>
             Cancel Race
@@ -43,7 +43,7 @@ export function HazardRaceButton({activeRace, activeRaceController} : RaceButton
     return (
         <Button 
         aria-label="Hazard" 
-        className={`text-xl flex justify-center items-center ${!activeRace.isHazard ? 'bg-yellow-400 text-yellow-800 hover:shadow-sm' : 'bg-yellow-500 text-yellow-900 drop-shadow-md' } duration-75 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
+        className={`text-xl flex justify-center items-center ${!activeRace.isHazard ? 'bg-yellow-400 text-yellow-800 hover:shadow-sm' : 'bg-yellow-500 text-yellow-900' } duration-75 p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap`}
         onPress={() => {activeRaceController.current.trySetHazard(!activeRace.isHazard)}}>
             <Icon path={mdiAlertOctagon} className="w-6 h-6 flex-shrink-0"/>
             <span>Hazard</span>
@@ -57,7 +57,7 @@ export function FinishRaceButton({activeRace, activeRaceController} : RaceButton
     return (
         <Button
             aria-label="Finish"
-            className={`text-xl flex justify-center items-center ${!activeRace.isFinishing ? 'bg-white text-black hover:shadow-sm' : 'drop-shadow-md bg-black text-white' } duration-200 p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
+            className={`text-xl flex justify-center items-center ${!activeRace.isFinishing ? 'bg-white text-black hover:shadow-sm' : 'drop-shadow-md bg-black text-white' } duration-200 p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap`}
             onPress={() => {activeRaceController.current.trySetFinishing(!activeRace.isFinishing)}}>
             <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
             <span>Finish</span>
@@ -70,7 +70,7 @@ export function StopRaceButton({activeRace, activeRaceController} : RaceButtonPa
     return (
         <Button 
             aria-label="Stop race"
-            className={`text-xl flex justify-center items-center bg-red-600 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap`}
+            className={`text-xl flex justify-center items-center bg-red-600 text-white p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap`}
             onPress={() => {activeRaceController.current.tryChangeRaceState('paused')}}>
             <Icon path={mdiPauseOctagon} className="w-6 h-6 flex-shrink-0"/>
             Stop Race
@@ -83,7 +83,7 @@ export function EndRaceButton({activeRace, activeRaceController} : RaceButtonPar
     return (
         <Button 
             aria-label="End session" 
-            className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-56 h-14 gap-1 whitespace-nowrap"
+            className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap"
             onPress={() => {activeRaceController.current.tryChangeRaceState('completed')}}>
             <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
             End Session
