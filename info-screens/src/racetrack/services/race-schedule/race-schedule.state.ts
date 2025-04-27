@@ -53,6 +53,10 @@ export class RaceScheduleState {
     public deleteRace(id : Race['raceId']) {
         delete this._raceScheduleState[id];
     }
+
+    public modifyRace(id : Race['raceId']) {
+        
+    }
 }
 
 export enum RaceScheduleEntryEvents {
@@ -83,14 +87,14 @@ export class RaceScheduleEntryEventEmitter extends EventEmitter {
     }
 }
 
-// One race
+// One race cake recipe
 export class RaceScheduleEntry {
     private _race: Race;
     private _eventEmitter = new RaceScheduleEntryEventEmitter();
 
-    constructor(race : Race) {
+    constructor(race : Race) { // Cake ingredients
         this._race = race;
-        console.log(`☀️ Race State: Intial state set: `, race);
+        console.log(`☀️ Race State: Initial state set: `, race);
     }
     
     // Getters

@@ -6,7 +6,7 @@ import { RaceControlEvents } from "services/race-control/race-control.service";
 
 // Message Types
 export enum RaceScheduleEvents {
-    NewRaceScheduled = "newRaceScheduled",
+    // NewRaceScheduled = "newRaceScheduled",
     RaceScheduleInitialState = "raceScheduleinitialState",
     RaceScheduleUpdated = "raceScheduleUpdated",
 }
@@ -69,26 +69,6 @@ export class RaceScheduleService {
             next();
         })
 
-        // Siia kolime siis InitialState eventid ja raceScheduleUpdated eventi
-        // const onRaceScheduleUpdated = (schedule: Race[]) => {
-
-        //     try {
-        //         const scheduleStateMessage: RacetrackEvent<RaceScheduleInitialState> = {
-        //             message: {
-        //                 type: RaceScheduleEvents.RaceScheduleInitialState,
-        //                 schedule: this.schedule.raceScheduleState.map((value) => value.race)
-        //             }
-        //         }
-
-        //         raceScheduleNamespace
-        //             .to(this.raceScheduleRoom)
-        //             .emit(RaceScheduleEvents.RaceScheduleInitialState, scheduleStateMessage);
-        //     } catch (error) {
-        //         console.error(`Error processing ${RaceScheduleEvents.RaceScheduleInitialState} event:`, error);
-        //     }
-        // }
-
-
         // Siia jäävad kõik commandid ja kasutavad sealt ülevalt evente
         raceScheduleNamespace.on("connection", (client) => {
 
@@ -117,7 +97,7 @@ export class RaceScheduleService {
             initializeClientRooms();
 
 
-            // Receive new race event
+            // New Race 
             client.on(RaceScheduleCommands.ScheduleNewRace, (command: RacetrackCommand<ScheduleNewRace>) => {
 
                 try {
@@ -127,23 +107,21 @@ export class RaceScheduleService {
                     }
 
                     const newData = command.message.data;
-
                     const newRace = newData.race;
-                    const { contestants, raceDateTime, raceId, raceState } = newRace
+                    const { contestants, raceDateTime } = newRace
 
                     // Check to ensure there are no duplicate names in the new race
                     const duplicates = contestants
                         .map(contestant => contestant.name.trim().toLowerCase()) // Create a new array 'duplicates' 
                         .reduce((accumulatorArray, name, _, arr) => {
                             if (arr.indexOf(name) !== arr.lastIndexOf(name) && !accumulatorArray.includes(name)) {
-                                accumulatorArray.push(name);
+                                accumulatorArray.push(name); 
                             }
                             return accumulatorArray;
                         }, [] as string[]);
 
                     if (duplicates.length > 0) {
                         //TODO: Validation Error Event.
-
                         throw new Error(`❌ Duplicate contestant names found: ${duplicates.join(', ')}`);
                     }
 
@@ -163,35 +141,30 @@ export class RaceScheduleService {
                         throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
                     }
 
-                    // Add new race to the schedule
-                    const newRaceState = new RaceScheduleEntry({
-                        raceId,
-                        contestants,
-                        raceDateTime,
-                        raceState
-                    });
+                    // When checks are performed and there were no conflicts, add the new race to the schedule
+                    // ingredients (newRace) + recipe (RaceScheduleEntry) = cake (newRaceState)
+                    const newRaceState = new RaceScheduleEntry(newRace);
 
+                    // Call addRace method from .state to add cake to schedule
+                    this.schedule.addRace(newRaceState);
 
-                    // public addRace(entry : RaceScheduleEntry) {
-                    //     this._raceScheduleState[entry.raceId] = entry;
-                    //     return entry;
-                    // }
+                    // TODO: I' think we'll need to sort the races according to DateTimes in the schedule before i emit the updated schedule
 
-                    // Emit updated schedule to all clients
-                    const updateMessage = {
+                    const updateMessage = { // Write the message that sechedule has been updated
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: updatedSchedule.map(raceState => raceState.race)
+                            schedule: this.schedule.raceSchedule,
                         }
                     };
 
-                    raceScheduleNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+                    raceScheduleNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
                 }
             })
 
+            // Delete Race
             client.on(RaceScheduleCommands.DeleteRace, (command: RacetrackCommand<DeleteRace>) => {
 
                 try {
@@ -200,35 +173,90 @@ export class RaceScheduleService {
                         throw new Error("message is undefined.");
                     }
 
-                    // Step 1: Determine the race ID to remove
+                    // Determine the race ID to remove
                     const idToRemove = command.message.data.race.raceId;
-                    const existingRaces = this.schedule.raceSchedule;
 
-                    // Step 2: Create a new array that excludes the race with the specified ID
-                    const filteredRaces = existingRaces.filter((race) => race.raceId !== idToRemove);
-
-                    // Step 3: Replace the contents of raceSchedule with the filtered races
-                    const updatedSchedule = existingRaces.splice(0, existingRaces.length, ...filteredRaces);
-                    this.schedule.setRaceScheduleState(updatedSchedule);
-
-
+                    // Delete the race
+                    this.schedule.deleteRace(idToRemove);
                     console.log("🗑️ Race deleted:", idToRemove);
-                    console.log("📋 Updated Schedule:", existingRaces);
 
-                    this.schedule.setRaceScheduleState(updatedSchedule);
 
                     // Emit updated schedule
-                    const updated: RacetrackEvent<RaceScheduleUpdated> = {
+                    const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: updatedSchedule.map(raceState => raceState.race)
+                            schedule: this.schedule.raceSchedule
                         }
                     };
 
-                    io.emit("raceScheduleUpdated", updated);
+                    io.emit("raceScheduleUpdated", updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.DeleteRace} command:`, error);
+                }
+            })
+
+            // Modify Race
+            client.on(RaceScheduleCommands.ModifyRace, (command: RacetrackCommand<ModifyRace>) => {
+
+                try {
+
+                    if (!command.message) {
+                        throw new Error("message is undefined.");
+                    }
+
+                    const raceModificationData = command.message.data;
+                    const updatedRace = raceModificationData.race;
+                    const { contestants, raceDateTime, raceId, raceState } = updatedRace;
+
+                    
+                    // Check that the race exists in the schedule
+                    let existingSchedule = this.schedule.raceSchedule;
+
+                    if (!(raceId in existingSchedule)) {
+                        throw new Error(`A race with id: ${raceId} does not exist in the schedule and therefore cannot be modified.`);
+                    }
+
+                    //Check that the race's current state is pending - actually ui button for modfying shouldn't exist for a race in any other state
+                    if (raceState !== "pending") {
+                        throw new Error("Only races in 'pending' state can be modified.");
+                    }
+
+                    // check for timeslot conflict
+                    let timeslotTaken = false;
+
+                    for (const value of Object.values(existingSchedule)) {
+                        console.log(value.raceDateTime);
+                        if (value.raceDateTime === raceDateTime) {
+                            timeslotTaken = true;
+                        }
+                    }
+                    
+                    if (timeslotTaken) {
+                        throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
+                    }
+
+                    //overwrite the race in schedule
+                    // Create a new RaceScheduleEntry with the updated race data
+                    const updatedRaceEntry = new RaceScheduleEntry(updatedRace);
+
+                    // Overwrite the existing race entry in the schedule
+                    this.schedule.addRace(updatedRaceEntry);
+
+                    console.log(`✅ Race with ID ${raceId} modified successfully.`);
+
+                    //emit updated schedule
+                    const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
+                        message: {
+                            type: RaceScheduleEvents.RaceScheduleUpdated,
+                            schedule: this.schedule.raceSchedule
+                        }
+                    };
+
+                    io.emit("raceScheduleUpdated", updateMessage);
+
+                } catch (error) {
+                    console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);
                 }
             })
         })
@@ -257,4 +285,5 @@ export class RaceScheduleService {
 // 2. Avoid duplicate drivers.
 // 3. Make types for events!!!
 // 4. wrap in message types
+// 5. sort by timeslot
 
