@@ -1,0 +1,18 @@
+---
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_UID: $HOST_UID
+        USER_GID: $HOST_GID
+        USERNAME: $HOST_USERNAME 
+        DOCKER_GID: $HOST_DOCKER_GID
+    pull_policy: always
+    env_file:
+      - ../.env
+    command: sleep infinity
+    volumes:
+      - ../..:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker.sock

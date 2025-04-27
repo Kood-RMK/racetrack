@@ -1,0 +1,39 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Kood Dev Container",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "dockerComposeFile": "container/docker-compose.yaml",
+    "service": "devcontainer",
+	"shutdownAction": "stopCompose",
+    "workspaceFolder": "/workspace/",
+	"initializeCommand": "bash .devcontainer/scripts/host/init.sh",
+	"postCreateCommand": "sudo chown root:docker /var/run/docker.sock",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": { "bash": { "path": "/bin/bash" } }
+			},
+			"extensions": [
+				"ms-vsliveshare.vsliveshare",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"bradlc.vscode-tailwindcss",
+				"unifiedjs.vscode-mdx",
+				"vscjava.vscode-java-pack",
+				"Oracle.oracle-java",
+				"vmware.vscode-spring-boot",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+	
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "kood"
+}

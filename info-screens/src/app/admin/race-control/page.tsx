@@ -1,54 +1,56 @@
 "use client";
 
-import { RaceState } from "@/racetrack/types/stateTypes";
+import { ActiveRace, RaceState } from "@/racetrack/types/stateTypes";
 
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
-import { ActiveRaceDangerTags, ActiveRaceHazardTags, ActiveRaceTags, EndSessionTags, RaceCancelledTags, RacePendingTags } from '@/components/card/race-control-card/Tags';
-import { ActiveRaceStateBinding, ActiveRaceStateProvider, useActiveRaceState } from "./activeRaceStateProvider";
-import { SocketProvider } from "@/components/socket/SocketProvider";
-import { CancelRaceButton, FinishRaceButton, HazardRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
-import { useEffect } from "react";
+import { SocketProvider } from "@/app/providers/socket/socketProvider";
+import { CancelRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
+import { RefObject, useEffect } from "react";
+import { RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
+import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/activeRaceStateProvider";
+import { ActiveRaceController, ActiveRaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 
 
 // Mapping between race state and components for buttons and tags
-const raceTags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean) => {
-  console.log('raceTags received:', { raceState, isHazard, isDanger, isFinishing });
+// const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
 
-  switch (raceState) {
-    case 'pending': return <RacePendingTags />;
+//   const raceState = activeRace.raceState;
 
-    case 'active': return isHazard ? <ActiveRaceHazardTags /> : isDanger ? <ActiveRaceDangerTags /> : isFinishing ? <EndSessionTags /> : <ActiveRaceTags />; 
+//   switch (raceState) {
+//     case 'pending': {
+//       return <>
+//         <RacePendingTag></RacePendingTag>
+        
+//       </>;
+//     }
 
-    case 'completed': return <RacePendingTags />;
-
-    case 'canceled': return <RaceCancelledTags />;
-    
-    default: return null;
+//     default : <></>
   
-  }
-};
+//   }
+// };
 
 
-function raceButtons({ activeRaceStateBinding }: {activeRaceStateBinding: ActiveRaceStateBinding}) {
-    switch (activeRaceStateBinding.activeRace.raceState) {
+function raceButtons({ activeRace, activeRaceController }: { activeRace: ActiveRace, activeRaceController : RefObject<ActiveRaceController>}) {
+
+    switch (activeRace.raceState) {
         case 'pending':
             return <>
-                <CancelRaceButton activeRaceStateBinding={activeRaceStateBinding}></CancelRaceButton>
-                <StartRaceButton activeRaceStateBinding={activeRaceStateBinding}></StartRaceButton>
+                <CancelRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></CancelRaceButton>
+                <StartRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StartRaceButton>
             </>;
         case 'active':
             return <>
-                <StopRaceButton activeRaceStateBinding={activeRaceStateBinding}></StopRaceButton>
-                <FinishRaceButton activeRaceStateBinding={activeRaceStateBinding}></FinishRaceButton>
-                <HazardRaceButton activeRaceStateBinding={activeRaceStateBinding}></HazardRaceButton>
+                <StopRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StopRaceButton>
+                <FinishRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></FinishRaceButton>
+                <HazardRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></HazardRaceButton>
             </>;
         case 'completed':
             return <></>;
 
         case 'paused':
             return <>
-                <CancelRaceButton activeRaceStateBinding={activeRaceStateBinding}></CancelRaceButton>
-                <StartRaceButton activeRaceStateBinding={activeRaceStateBinding}></StartRaceButton>
+                <CancelRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></CancelRaceButton>
+                <StartRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StartRaceButton>
             </>;
         case 'canceled':
             return <></>;
@@ -61,14 +63,17 @@ function raceButtons({ activeRaceStateBinding }: {activeRaceStateBinding: Active
 function RaceControlPage() {
 
 
-    const activeRaceStateBinding = useActiveRaceState();
+    const activeRaceState = useActiveRaceState();
+    const activeRaceController = useActiveRaceController();
 
-    if (!activeRaceStateBinding) {
+    if (!activeRaceState || !activeRaceController) {
       return <div>Loading...</div>;
     }
 
+    
+
     // Extract values from the activeRace object
-    const { raceState, isHazard } = activeRaceStateBinding.activeRace;
+    const { raceState, isHazard } = activeRaceState;
 
     return (
       <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
@@ -79,8 +84,9 @@ function RaceControlPage() {
           <div>
 
           <RaceCard 
-            // tags={raceTags(und)}
-            buttons={raceButtons({activeRaceStateBinding : activeRaceStateBinding})}/>
+            // tags={raceTags({activeRace: activeRaceState})}
+            buttons={raceButtons({activeRace: activeRaceState, activeRaceController: activeRaceController})}
+            />
           </div>
         </div>
       </div>
@@ -90,9 +96,11 @@ function RaceControlPage() {
 
 export default function Page() {
   return (
-    <SocketProvider socketURI="http://localhost:3001/race-control">
+    <SocketProvider url="http://localhost:3001">
       <ActiveRaceStateProvider>
-        <RaceControlPage />
+        <ActiveRaceControllerProvider>
+          <RaceControlPage />
+        </ActiveRaceControllerProvider>
       </ActiveRaceStateProvider>
     </SocketProvider>
   )
