@@ -8,7 +8,7 @@ export type RaceState = 'completed' | 'active' | 'canceled' | 'pending' | 'pause
 export type Race = {
     raceId : string,
     contestants : Contestant[],
-    raceDateTime : string, //Unix Timestamp.
+    raceTimeslot : string, //Unix Timestamp.
     raceState : RaceState,
 }
 
@@ -27,4 +27,4 @@ export type ActiveRace = {
     isHazard: boolean,
     isFinishing: boolean,
     timeLeft : string
-} & Pick<Race, 'raceId' | 'raceDateTime'>;
+} & Pick<Race, 'raceId' | 'raceTimeslot'>;

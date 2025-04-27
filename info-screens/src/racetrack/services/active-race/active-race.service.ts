@@ -46,7 +46,7 @@ export class ActiveRaceService {
 
         const mockRace : ActiveRace = {
             raceId : "123", 
-            raceDateTime : "2023-10-01T12:00:00Z",
+            raceTimeslot : "10:00 - 10:15",
             contestants : [],
             raceState : "pending",
             isHazard : false,

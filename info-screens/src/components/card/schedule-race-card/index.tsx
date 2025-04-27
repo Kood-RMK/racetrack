@@ -59,7 +59,7 @@ export default function NewRaceDialog() {
 
             const newRace: Race = {
                 raceId: "abc123",
-                raceDateTime: "",
+                raceTimeslot: "",
                 contestants: contestants
             };
                   

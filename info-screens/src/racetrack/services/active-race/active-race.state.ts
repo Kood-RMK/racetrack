@@ -51,7 +51,7 @@ export class ActiveRaceState {
     }
 
     public get raceDateTime() {
-        return this._activeRace.raceDateTime;
+        return this._activeRace.raceTimeslot;
     }
 
     public get contestants() {

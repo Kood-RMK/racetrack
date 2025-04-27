@@ -71,7 +71,7 @@ export default function ModifyRaceDialog({ isOpen, onClose, initialRace }: Modif
 
             const newRace: Race = {
                 raceId: initialRace?.raceId || "abc123",
-                raceDateTime: initialRace?.raceDateTime || "",
+                raceTimeslot: initialRace?.raceTimeslot || "",
                 contestants: contestants
             };
                   
