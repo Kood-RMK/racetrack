@@ -40,13 +40,6 @@ export class ActiveRaceService {
     private readonly _eventEmitter = new ActiveRaceServiceEventEmitter();
     private readonly _socketNamespace: Namespace;
 
-
-    private onConnection(client: Socket) {
-        if (this._activeRaceHandler) {
-            client.join(this._activeRaceHandler.activeRaceRoom);
-        }
-    }
-
     constructor(io: SocketIOServer) {
         this._socketServer = io;
         this._socketNamespace = this._socketServer.of("/active-race");
@@ -63,7 +56,11 @@ export class ActiveRaceService {
         this._activeRaceHandler = new ActiveRaceHandler(mockRace , this._socketNamespace);
         this._activeRaceHandler.initialize();
 
-        this._socketNamespace.on("connection", this.onConnection);
+        this._socketNamespace.on("connection", (client) => {
+            if (this._activeRaceHandler) {
+                client.join(this._activeRaceHandler.activeRaceRoom);
+            }
+        });
 
         this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceSet, async (activeRace) => {
             const clients = await this._socketNamespace.fetchSockets();

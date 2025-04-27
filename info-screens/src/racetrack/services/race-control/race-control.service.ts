@@ -1,7 +1,6 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRace, RaceState } from "types/stateTypes";
 import { RacetrackEvent, RacetrackCommand } from "types/messageTypes"
-import { ActiveRaceState, ActiveRaceStateEvents } from "./race-control.state";
 import { ActiveRaceService } from "services/active-race/active-race.service";
 
 // Message Types

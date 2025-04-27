@@ -87,6 +87,8 @@ export class ActiveRaceHandler {
                     .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceStateChanged, raceStateChangedMessage);
 
+                console.log(`[📩 Active Race Handler]: Race State Change Broadcasted to: ${this._activeRaceRoom}`)
+
             } catch (error) {
                 console.error(`Error processing ${ActiveRaceEvents.RaceStateChanged} event:`, error);
             }

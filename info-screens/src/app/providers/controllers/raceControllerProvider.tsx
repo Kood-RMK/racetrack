@@ -3,9 +3,9 @@
 import { useActiveRaceState } from "@/app/providers/activeRaceStateProvider";
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { ChangeActiveRaceHazard, RaceControlCommands, ChangeActiveRaceIsFinishing, ChangeActiveRaceState } from "@/racetrack/services/race-control/race-control.service";
-import { RacetrackCommand, RacetrackEvent } from "@/racetrack/types/messageTypes";
+import { RacetrackCommand } from "@/racetrack/types/messageTypes";
 import { RaceState } from "@/racetrack/types/stateTypes";
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 
 export type ActiveRaceController = {
@@ -14,15 +14,15 @@ export type ActiveRaceController = {
   tryChangeRaceState: (newState: RaceState) => void;
 }
 
-const ActiveRaceStateControllerContext = createContext<ActiveRaceController | null>(null);
+const ActiveRaceStateControllerContext = createContext<RefObject<ActiveRaceController> | null>(null);
 
 
 export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}) => {
 
-  const [activeRaceStateControllers, setActiveRaceStateControllers] = useState<ActiveRaceController>({
-    trySetHazard: (isHazard: boolean) => {},
-    trySetFinishing: (isFinishing: boolean) => {},
-    tryChangeRaceState: (newState: RaceState) => {},
+  const activeRaceStateController = useRef<ActiveRaceController>({
+    trySetHazard: (isHazard: boolean) => {console.error("ActiveRaceStateController: trySetHazard not implemented.")},
+    trySetFinishing: (isFinishing: boolean) => {console.error("ActiveRaceStateController: trySetFinishing not implemented.")},
+    tryChangeRaceState: (newState: RaceState) => {console.error("ActiveRaceStateController: tryChangeRaceState not implemented.")},
   });
 
   const socket = useSocket("/race-control");
@@ -35,7 +35,7 @@ export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}
       return;
     }
 
-    const activeRaceStateControllers : ActiveRaceController = {
+    activeRaceStateController.current = {
       trySetHazard: (isHazard: boolean) => {
         const command: RacetrackCommand<ChangeActiveRaceHazard> = {
           senderId: socket.id,
@@ -80,18 +80,17 @@ export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}
       }
     }
 
-    setActiveRaceStateControllers(activeRaceStateControllers)
   }, [socket, activeRace]);
 
 
   return (
-      <ActiveRaceStateControllerContext.Provider value={ activeRaceStateControllers }>
+      <ActiveRaceStateControllerContext.Provider value={ activeRaceStateController }>
         {children}
       </ActiveRaceStateControllerContext.Provider>
   )
 };
 
-export const useActiveRaceController = () : ActiveRaceController | null => {
+export const useActiveRaceController = () : RefObject<ActiveRaceController> | null => {
 
   const activeRaceController = useContext(ActiveRaceStateControllerContext);
 

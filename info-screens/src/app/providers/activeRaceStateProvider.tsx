@@ -24,8 +24,6 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
       return;
     }
 
-    console.log(socket);
-
     const onRaceInitialState = (data: RacetrackEvent<ActiveRaceInitialState>) => {
       const initalState = data.message.race;
       setActiveRaceState(initalState);

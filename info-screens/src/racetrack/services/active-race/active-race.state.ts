@@ -81,7 +81,7 @@ export class ActiveRaceState {
     public setRaceState(raceState: ActiveRace['raceState']) {
 
         this._activeRace.raceState = raceState;
-        console.log(`🔥 Race Control State: Race State set to: ${raceState}.`);
+        console.log(`[🔥 Active Race State]: Race State set to: ${raceState}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceStateChanged, raceState);
     }
 
@@ -89,7 +89,7 @@ export class ActiveRaceState {
 
 
         this._activeRace.isHazard = isHazard;
-        console.log(`🔥 Race Control State: Hazard Flag set to: ${isHazard}.`);
+        console.log(`[🔥 Active Race State]: Hazard Flag set to: ${isHazard}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceHazardChanged, isHazard);
 
         // Make sure that the isFinishing flag is not set when the hazard flag is set.
@@ -101,7 +101,7 @@ export class ActiveRaceState {
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
 
         this._activeRace.isFinishing = isFinishing;
-        console.log(`🔥 Race Control State: Finishing Flag set to: ${isFinishing}.`);
+        console.log(`[🔥 Active Race State]: Finishing Flag set to: ${isFinishing}.`);
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceIsFinishingChanged, isFinishing);
 
         // Make sure that the isHazard flag is not set when the finishing flag is set.
