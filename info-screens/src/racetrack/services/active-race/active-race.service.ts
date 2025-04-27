@@ -1,8 +1,8 @@
 
-import type { DefaultEventsMap, Namespace, Server as SocketIOServer } from "socket.io";
+import type { Namespace, Socket, Server as SocketIOServer } from "socket.io";
 import { ActiveRace } from "types/stateTypes";
 import EventEmitter from "events";
-import { ActiveRaceEvents, ActiveRaceHandler } from "./active-race.handler";
+import { ActiveRaceHandler } from "./active-race.handler";
 
 
 export enum ActiveRaceServiceEvents {
@@ -35,16 +35,21 @@ export class ActiveRaceServiceEventEmitter extends EventEmitter {
 export class ActiveRaceService {
 
     // Either we have a active race or we don't.
-    private activeRaceHandler : ActiveRaceHandler | null = null;
-    private readonly socketServer: SocketIOServer;
+    private _activeRaceHandler : ActiveRaceHandler | null = null;
+    private readonly _socketServer: SocketIOServer;
     private readonly _eventEmitter = new ActiveRaceServiceEventEmitter();
-    private readonly socketNamespace: Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+    private readonly _socketNamespace: Namespace;
 
+
+    private onConnection(client: Socket) {
+        if (this._activeRaceHandler) {
+            client.join(this._activeRaceHandler.activeRaceRoom);
+        }
+    }
 
     constructor(io: SocketIOServer) {
-
-        this.socketServer = io;
-        this.socketNamespace = this.socketServer.of("/active-race");
+        this._socketServer = io;
+        this._socketNamespace = this._socketServer.of("/active-race");
 
         const mockRace : ActiveRace = {
             raceId : "123", 
@@ -54,19 +59,15 @@ export class ActiveRaceService {
             isHazard : false,
             isFinishing : false,
             timeLeft : "10:00",};
-        this.activeRaceHandler = new ActiveRaceHandler(mockRace , this.socketNamespace);
 
-        this.socketNamespace.on("connection", (client) => {
-            console.log(`New Client Connected! ID:`, client.id);
-            
-            if (this.activeRaceHandler) {
-                client.join(this.activeRaceHandler.activeRaceRoom);
-            }
-        });
+        this._activeRaceHandler = new ActiveRaceHandler(mockRace , this._socketNamespace);
+        this._activeRaceHandler.initialize();
+
+        this._socketNamespace.on("connection", this.onConnection);
 
         this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceSet, async (activeRace) => {
-            const clients = await this.socketNamespace.fetchSockets();
-            const raceHandler = this.activeRaceHandler;
+            const clients = await this._socketNamespace.fetchSockets();
+            const raceHandler = this._activeRaceHandler;
  
             if (raceHandler) {
                 clients.forEach((client) => {
@@ -77,7 +78,7 @@ export class ActiveRaceService {
     }
 
     public get activeRace() {
-        return this.activeRaceHandler;
+        return this._activeRaceHandler;
     }
 
     public get events() {
@@ -85,14 +86,16 @@ export class ActiveRaceService {
     }
 
     public setActiveRace(activeRace: ActiveRace) {
-        this.activeRaceHandler = new ActiveRaceHandler(activeRace, this.socketNamespace);
+        this._activeRaceHandler = new ActiveRaceHandler(activeRace, this._socketNamespace);
+        this._activeRaceHandler.initialize();
         this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceSet, activeRace);
     }
 
     public removeActiveRace() {
-        if (this.activeRaceHandler) {
-            this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceRemoved, this.activeRaceHandler.activeRaceState.activeRace);
-            this.activeRaceHandler = null;
+        if (this._activeRaceHandler) {
+            this._activeRaceHandler.destroy();
+            this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceRemoved, this._activeRaceHandler.activeRaceState.activeRace);
+            this._activeRaceHandler = null;
         }
     }
 }

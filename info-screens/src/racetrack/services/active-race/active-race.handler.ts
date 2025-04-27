@@ -1,8 +1,7 @@
 import { ActiveRace, RaceState } from "types/stateTypes";
 import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
-import { DefaultEventsMap, Namespace } from "socket.io";
+import { Namespace, Socket } from "socket.io";
 import { RacetrackEvent } from "types/messageTypes";
-
 
 export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
@@ -41,6 +40,7 @@ export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _activeRaceRoom : string;
+    private readonly _socketNamespace : Namespace;
 
     public get activeRaceState() {
         return this._activeRaceState;
@@ -50,37 +50,31 @@ export class ActiveRaceHandler {
         return this._activeRaceRoom;
     }
 
-    constructor(private activeRace : ActiveRace, socketNamespace : Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
 
-        this._activeRaceState = new ActiveRaceState(this.activeRace);
+    private onConnection : (client: Socket) => void;
+    private onRaceStateChanged : (newState: ActiveRace['raceState']) => void;
+    private onRaceHazardChanged : (isHazard: ActiveRace['isHazard']) => void;
+    private onRaceIsFinishingChanged : (isFinishing: ActiveRace['isFinishing']) => void;
+
+    constructor(private activeRace : ActiveRace, socketNamespace : Namespace) {
+        this._activeRaceState = new ActiveRaceState(activeRace);
         this._activeRaceRoom = `activerace_${this._activeRaceState.raceId}`;
+        this._socketNamespace = socketNamespace;
 
-        //TODO: Create log of all happened events. Send a new connecting user the log of events that happend after the initial state.
-
-        socketNamespace.on("connection", (client) => {
+        this.onConnection = (client : Socket) => {
             console.log(`[🧑 Active Race (${this._activeRaceRoom})]: New Client Connected! ID:`, client.id);
 
-
-            client.on("join-room", (room) => {
-
-            client.emit(ActiveRaceEvents.RaceInitialState, {});
-                if (room === this._activeRaceRoom) {
-
-                    const initialState : RacetrackEvent<ActiveRaceInitialState> = {
-                        message : {
-                            type: ActiveRaceEvents.RaceInitialState,
-                            race: this._activeRaceState.activeRace,
-                        }
-                    }
-
-                    client.emit(ActiveRaceEvents.RaceInitialState, initialState);
+            const initialStateMessage : RacetrackEvent<ActiveRaceInitialState> = {
+                message : {
+                    type: ActiveRaceEvents.RaceInitialState,
+                    race : this.activeRaceState.activeRace,
                 }
+            }
 
-            })
-        })
+            client.emit(ActiveRaceEvents.RaceInitialState, initialStateMessage);
+        }
 
-
-        const onRaceStateChanged = (newState: ActiveRace['raceState']) => {
+        this.onRaceStateChanged = (newState: ActiveRace['raceState']) => {
             try {
                 const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
                     message : {
@@ -89,15 +83,16 @@ export class ActiveRaceHandler {
                     }
                 }
 
-                socketNamespace
+                this._socketNamespace
                     .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceStateChanged, raceStateChangedMessage);
+
             } catch (error) {
                 console.error(`Error processing ${ActiveRaceEvents.RaceStateChanged} event:`, error);
             }
         }
 
-        const onRaceHazardChanged = (isHazard: ActiveRace['isHazard']) => {
+        this.onRaceHazardChanged = (isHazard: ActiveRace['isHazard']) => {
             try {
                 const raceHazardChangedMessage : RacetrackEvent<ActiveRaceHazardChanged> = {
                     message : {
@@ -106,17 +101,16 @@ export class ActiveRaceHandler {
                     }
                 }
 
-                socketNamespace
+                this._socketNamespace
                     .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceHazardChanged, raceHazardChangedMessage);
 
             } catch (error) {
                 console.error(`Error processing ${ActiveRaceEvents.RaceHazardChanged} event:`, error);
             }
-        };
+        }
 
-        const onRaceIsFinishingChanged = (isFinishing: ActiveRace['isFinishing']) => {
-
+        this.onRaceIsFinishingChanged = (isFinishing: ActiveRace['isFinishing']) => {
             try {
                 const raceIsFinishingChangedMessage : RacetrackEvent<ActiveRaceIsFinishingChanged> = {
                     message : {
@@ -125,18 +119,36 @@ export class ActiveRaceHandler {
                     }
                 }
 
-                socketNamespace
+                this._socketNamespace
                     .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceIsFinishingChanged, raceIsFinishingChangedMessage);
             } catch (error) {
                 console.error(`Error processing ${ActiveRaceEvents.RaceIsFinishingChanged} event:`, error);
             }
         }
+    }
 
+    public initialize() {
         const activeRaceStateEvents = this._activeRaceState.events;
 
-        activeRaceStateEvents.on(ActiveRaceStateEvents.RaceStateChanged, onRaceStateChanged);
-        activeRaceStateEvents.on(ActiveRaceStateEvents.RaceHazardChanged, onRaceHazardChanged);
-        activeRaceStateEvents.on(ActiveRaceStateEvents.RaceIsFinishingChanged, onRaceIsFinishingChanged);
+        this._socketNamespace.on("connection", this.onConnection);
+
+        activeRaceStateEvents.on(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
+        activeRaceStateEvents.on(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
+        activeRaceStateEvents.on(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+
+        console.log(`[Active Race Handler (${this.activeRace.raceId})]: Initialized!`);
+    }
+
+    public destroy() {
+        const activeRaceStateEvents = this._activeRaceState.events;
+
+        activeRaceStateEvents.off(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
+        activeRaceStateEvents.off(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
+        activeRaceStateEvents.off(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+
+        this._socketNamespace.off("connection", this.onConnection);
+
+        console.log(`[Active Race Handler (${this.activeRace.raceId})]: Destroyed!`);
     }
 }
