@@ -1,5 +1,5 @@
 
-import type { Namespace, Socket, Server as SocketIOServer } from "socket.io";
+import type { DefaultEventsMap, Namespace, RemoteSocket, Socket, Server as SocketIOServer } from "socket.io";
 import { ActiveRace } from "types/stateTypes";
 import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
@@ -45,7 +45,7 @@ export class ActiveRaceService {
         this._socketNamespace = this._socketServer.of("/active-race");
 
         const mockRace : ActiveRace = {
-            id : "123", 
+            raceId : "123", 
             raceStartDateTime : "10:00 - 10:15",
             contestants : [],
             raceState : "pending",
@@ -62,16 +62,46 @@ export class ActiveRaceService {
             }
         });
 
+        // When there is a new race, we need to add all clients to the correct rooms depending on their data requirements.
         this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceSet, async (activeRace) => {
             const clients = await this._socketNamespace.fetchSockets();
             const raceHandler = this._activeRaceHandler;
  
             if (raceHandler) {
                 clients.forEach((client) => {
-                    client.join(raceHandler.activeRaceRoom);
+                    this.addClientToActiveRaceRooms(client, raceHandler);
                 });
             }
         })
+
+        this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceRemoved, async () => {
+            const clients = await this._socketNamespace.fetchSockets();
+            clients.forEach((client) => {
+                if (this._activeRaceHandler) {
+                    this.removeClientFromActiveRaceRooms(client, this._activeRaceHandler);
+                }
+            });
+        });
+    }
+
+    private addClientToActiveRaceRooms(client: RemoteSocket<DefaultEventsMap, any>, activeRaceHandler: ActiveRaceHandler) {
+
+        // Add client to the active race room, to get updates about the race state.
+        client.join(activeRaceHandler.activeRaceRoom);
+
+        // Add client to all contestant rooms, to get updates about their state.
+        activeRaceHandler.activeRaceContestants.forEach((contestant) => {
+            client.join(contestant.contestantRoom);
+        });
+    }
+
+    private removeClientFromActiveRaceRooms(client: RemoteSocket<DefaultEventsMap, any>, activeRaceHandler: ActiveRaceHandler) {
+        // Remove client from the active race room.
+        client.leave(activeRaceHandler.activeRaceRoom);
+        // Remove client from all contestant rooms.
+        activeRaceHandler.activeRaceContestants.forEach((contestant) => {
+            client.leave(contestant.contestantRoom);
+        });
     }
 
     public get activeRace() {

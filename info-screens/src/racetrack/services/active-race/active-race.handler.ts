@@ -51,6 +51,14 @@ export class ActiveRaceHandler {
         return this._activeRaceState;
     }
 
+    public get activeRaceContestants() {
+        return Object.entries (this._activeRaceContestantHandlers).map(([contestantId, contestantHandler]) => {return contestantHandler});
+    }
+
+    public getActiveRaceContestantById(contestantId: RaceContestantId) {
+        return this._activeRaceContestantHandlers[contestantId];
+    }
+
     public get activeRaceRoom() {
         return this._activeRaceRoom;
     }
@@ -67,7 +75,7 @@ export class ActiveRaceHandler {
 
         // Create a handler for each active contestant.
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
-            contestantHandlers[contestantState.contestant.contestantId] = new ActiveRaceContestantHandler(contestantState);
+            contestantHandlers[contestantState.contestant.contestantId] = new ActiveRaceContestantHandler(contestantState, socketNamespace);
             return contestantHandlers;
         }, {} as ActiveContestantHandlers);
 
@@ -147,11 +155,17 @@ export class ActiveRaceHandler {
     public initialize() {
         const activeRaceStateEvents = this._activeRaceState.events;
 
-        this._socketNamespace.on("connection", this.onConnection);
+
+        Object.entries(this._activeRaceContestantHandlers).forEach(([contestantId, contestantHandler]) => {
+            contestantHandler.initialize();
+        });
 
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+
+
+        this._socketNamespace.on("connection", this.onConnection);
 
         console.log(`[Active Race Handler (${this.activeRace.raceId})]: Initialized!`);
     }
@@ -162,6 +176,10 @@ export class ActiveRaceHandler {
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+
+        Object.entries(this._activeRaceContestantHandlers).forEach(([contestantId, contestantHandler]) => {
+            contestantHandler.destroy();
+        });
 
         this._socketNamespace.off("connection", this.onConnection);
 

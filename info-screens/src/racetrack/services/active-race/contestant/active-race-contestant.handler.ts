@@ -4,7 +4,6 @@ import { Namespace } from "socket.io";
 import { RacetrackEvent } from "types/messageTypes";
 
 
-
 export enum ActiveRaceContestantEvents {
     ContestantPlaceChanged = 'ContestantPlaceChanged',
     ContestantLapCountChanged = 'ContestantLapCountChanged',
@@ -45,6 +44,10 @@ export class ActiveRaceContestantHandler {
     private onContestantLapCountChanged : (lapCount: ActiveRaceContestant['lapCount']) => void;
     private onContestantFastestLapChanged : (fastestLap: ActiveRaceContestant['fastestLap']) => void;
     private onContestantLapStopwatchTick : (lapTime: ActiveRaceContestant['currentLapStopwatchTime']) => void;
+
+    public get contestantRoom() {
+        return this._contestantRoom;
+    }
 
     constructor(contestantState: ActiveRaceContestantState, socketNamespace : Namespace) {
         this._contestantState = contestantState;
