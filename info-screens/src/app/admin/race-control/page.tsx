@@ -3,31 +3,53 @@
 import { ActiveRace, RaceState } from "@/racetrack/types/stateTypes";
 
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
-import { SocketProvider } from "@/app/providers/socket/socketProvider";
-import { CancelRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
+import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { RefObject, useEffect } from "react";
-import { RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
-import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/activeRaceStateProvider";
+import { RaceActiveTag, RaceCancelledTag, RaceDangerTag, RaceFinishingTag, RaceHazardTag, RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
 import { ActiveRaceController, ActiveRaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
+import { SocketProvider } from "@providers/socket/socketProvider";
+import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 
 
 // Mapping between race state and components for buttons and tags
-// const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
+const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
 
-//   const raceState = activeRace.raceState;
+  const raceState = activeRace.raceState;
 
-//   switch (raceState) {
-//     case 'pending': {
-//       return <>
-//         <RacePendingTag></RacePendingTag>
-        
-//       </>;
-//     }
+  switch (raceState) {
+    case 'pending': {
+      return <>
+        <RacePendingTag></RacePendingTag>
+        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+      </>;
+    }
 
-//     default : <></>
+    case 'active' : {
+      return <>
+        <RaceActiveTag></RaceActiveTag>
+        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+        {activeRace.isHazard && <RaceHazardTag></RaceHazardTag>}
+        {activeRace.isFinishing && <RaceFinishingTag></RaceFinishingTag>}
+      </>;
+    }
+    case 'paused' : {
+      return <>
+        <RaceActiveTag></RaceActiveTag>
+        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+        <RaceDangerTag></RaceDangerTag>
+      </>;
+    }
+    case 'canceled' : {
+      return <>
+        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+        <RaceCancelledTag></RaceCancelledTag>
+      </>;
+    }
+
+    default : <></>
   
-//   }
-// };
+  }
+};
 
 
 function raceButtons({ activeRace, activeRaceController }: { activeRace: ActiveRace, activeRaceController : RefObject<ActiveRaceController>}) {
@@ -41,8 +63,11 @@ function raceButtons({ activeRace, activeRaceController }: { activeRace: ActiveR
         case 'active':
             return <>
                 <StopRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StopRaceButton>
-                <FinishRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></FinishRaceButton>
-                <HazardRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></HazardRaceButton>
+
+
+                {!activeRace.isHazard && <FinishRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></FinishRaceButton>}
+                {!activeRace.isFinishing && <HazardRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></HazardRaceButton>}
+                {activeRace.isFinishing && <EndRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></EndRaceButton>}
             </>;
         case 'completed':
             return <></>;
@@ -76,19 +101,12 @@ function RaceControlPage() {
     const { raceState, isHazard } = activeRaceState;
 
     return (
-      <div className='font-cairo min-h-full min-w-full text-5xl px-12'>
-        
+      <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
         <p className='text-center py-12'>Race Control</p>
-
-        <div>
-          <div>
-
           <RaceCard 
-            // tags={raceTags({activeRace: activeRaceState})}
+            tags={raceTags({activeRace: activeRaceState})}
             buttons={raceButtons({activeRace: activeRaceState, activeRaceController: activeRaceController})}
             />
-          </div>
-        </div>
       </div>
     )
 }

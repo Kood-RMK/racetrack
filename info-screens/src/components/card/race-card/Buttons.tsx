@@ -36,7 +36,7 @@ export function RacePendingButtons({ race }: { race: Race }) {
                     data: {
                         race: {
                             raceId: race.raceId, // this should come from the component's props
-                            raceDateTime: race.raceDateTime,
+                            raceDateTime: race.raceTimeslot,
                             contestants: race.contestants,
                         }
                     }

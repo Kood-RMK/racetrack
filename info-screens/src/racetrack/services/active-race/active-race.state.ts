@@ -1,21 +1,19 @@
 import EventEmitter from "events";
-import { ActiveRace } from "types/stateTypes";
+import { ActiveRace, ActiveRaceContestant } from "types/stateTypes";
+import { ActiveRaceContestantState } from "./contestant/active-race-contestant.state";
 
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
     RaceHazardChanged = 'onRaceHazardChanged',
     RaceIsFinishingChanged = 'onRaceIsFinishingChanged',
     TimeLeftChanged = 'onTimeLeftChanged',
-    ContestantsChanged = 'onContestantsChanged',
 }
-
 
 export interface ActiveRaceStateCallbacks {
     [ActiveRaceStateEvents.RaceStateChanged] : (newState: ActiveRace['raceState']) => void;
     [ActiveRaceStateEvents.RaceHazardChanged] : (isHazard: ActiveRace['isHazard']) => void;
     [ActiveRaceStateEvents.RaceIsFinishingChanged] : (isFinishing: ActiveRace['isFinishing']) => void;
     [ActiveRaceStateEvents.TimeLeftChanged] : (timeLeft: ActiveRace['timeLeft']) => void;
-    [ActiveRaceStateEvents.ContestantsChanged] : (contestants: ActiveRace['contestants']) => void;
 }
 
 export class ActiveRaceStateEventEmitter extends EventEmitter {
@@ -35,11 +33,15 @@ export class ActiveRaceStateEventEmitter extends EventEmitter {
 
 export class ActiveRaceState {
     private _activeRace: ActiveRace;
+    private _activeRaceContestantsState: ActiveRaceContestantState[];
     private _eventEmitter = new ActiveRaceStateEventEmitter();
 
 
     constructor(activeRace: ActiveRace) {
         this._activeRace = activeRace;
+        this._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
+            return new ActiveRaceContestantState(contestant);
+        });
     }
 
     public get events() {
@@ -51,11 +53,11 @@ export class ActiveRaceState {
     }
 
     public get raceDateTime() {
-        return this._activeRace.raceDateTime;
+        return this._activeRace.raceStartDateTime;
     }
 
     public get contestants() {
-        return this._activeRace.contestants;
+        return this._activeRaceContestantsState;
     }
 
     public get raceState() {
@@ -86,7 +88,6 @@ export class ActiveRaceState {
     }
 
     public setIsHazard(isHazard: ActiveRace['isHazard']) {
-
 
         this._activeRace.isHazard = isHazard;
         console.log(`[🔥 Active Race State]: Hazard Flag set to: ${isHazard}.`);

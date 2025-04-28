@@ -1,11 +1,11 @@
 "use client";
 
-import { useActiveRaceState } from "@/app/providers/activeRaceStateProvider";
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { ChangeActiveRaceHazard, RaceControlCommands, ChangeActiveRaceIsFinishing, ChangeActiveRaceState } from "@/racetrack/services/race-control/race-control.service";
 import { RacetrackCommand } from "@/racetrack/types/messageTypes";
 import { RaceState } from "@/racetrack/types/stateTypes";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
+import { useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 
 
 export type ActiveRaceController = {

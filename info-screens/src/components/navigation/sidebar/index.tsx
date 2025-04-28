@@ -102,42 +102,42 @@ export default function Sidebar() {
           defaultExpandedKeys={['admin', 'display']}
           className="w-full pt-6 flex flex-1 flex-col items-center">
             <SidebarDisclosure 
-            id="admin" 
-            title="Front Desk" 
-            iconPath={mdiOfficeBuildingCog} 
-            items={[
-              <SidebarItem title="Race Schedule" path="/admin/race-schedule"/>
-            ]}
-            >
+              id="admin" 
+              title="Front Desk" 
+              iconPath={mdiOfficeBuildingCog} 
+              items={[
+                <SidebarItem title="Race Schedule" path="/admin/race-schedule"/>
+              ]}
+              >
             </SidebarDisclosure>
             <SidebarDisclosure 
-            id="display" 
-            title="Race Display" 
-            iconPath={mdiDivingScubaFlag} 
-            items={[
-              <SidebarItem title="Leaderboard" path="/display/race-leaderboard"/>,
-              <SidebarItem title="Timer" path="/display/race-timer"/>,
-              <SidebarItem title="Race Flag" path="/display/race-flag"/>,
-              <SidebarItem title="Announcements" path="/display/race-announcements"/>
-            ]}>
+              id="display" 
+              title="Race Display" 
+              iconPath={mdiDivingScubaFlag} 
+              items={[
+                <SidebarItem title="Leaderboard" path="/display/race-leaderboard"/>,
+                <SidebarItem title="Timer" path="/display/race-timer"/>,
+                <SidebarItem title="Race Flag" path="/display/race-flag"/>,
+                <SidebarItem title="Announcements" path="/display/race-announcements"/>
+              ]}>
               Details about system requirements here
           </SidebarDisclosure>
 
           <SidebarDisclosure 
-          id="display1" 
-          title="Race Control" 
-          iconPath={mdiCarCruiseControl} 
-          items={[
-            <SidebarItem title="Race Control" path="/admin/race-control"/>,
-            <SidebarItem title="Lap-line Observer" path="/display/lap-line-observer"/>
-          ]}>
+            id="display1" 
+            title="Race Control" 
+            iconPath={mdiCarCruiseControl} 
+            items={[
+              <SidebarItem title="Race Control" path="/admin/race-control"/>,
+              <SidebarItem title="Lap-line Observer" path="/display/lap-line-observer"/>
+            ]}>
             Details about system requirements here
           </SidebarDisclosure>
         </DisclosureGroup>
 
         {/* USER MENU */}
-        <SidebarUserManagement>
-        </SidebarUserManagement>
+        {/* <SidebarUserManagement>
+        </SidebarUserManagement> */}
       </nav>
     </header>
   );

@@ -1,7 +1,8 @@
-import { ActiveRace, RaceState } from "types/stateTypes";
+import { ActiveRace, ActiveRaceId, RaceContestantId, RaceState } from "types/stateTypes";
 import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { Namespace, Socket } from "socket.io";
 import { RacetrackEvent } from "types/messageTypes";
+import { ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
 
 export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
@@ -14,7 +15,7 @@ export enum ActiveRaceCommands {
     RequestActiveRaceState = 'requestActiveRaceState',
 }
 
-// Events
+//External Events
 export type ActiveRaceStateChanged = {
     type : ActiveRaceEvents.RaceStateChanged,
     newState : RaceState,
@@ -36,14 +37,26 @@ export type ActiveRaceInitialState = {
 }
 
 
+type ActiveContestantHandlers = Record<RaceContestantId, ActiveRaceContestantHandler>;
+
 export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _activeRaceRoom : string;
     private readonly _socketNamespace : Namespace;
 
+    private readonly _activeRaceContestantHandlers: ActiveContestantHandlers;
+
     public get activeRaceState() {
         return this._activeRaceState;
+    }
+
+    public get activeRaceContestants() {
+        return Object.entries (this._activeRaceContestantHandlers).map(([contestantId, contestantHandler]) => {return contestantHandler});
+    }
+
+    public getActiveRaceContestantById(contestantId: RaceContestantId) {
+        return this._activeRaceContestantHandlers[contestantId];
     }
 
     public get activeRaceRoom() {
@@ -58,7 +71,16 @@ export class ActiveRaceHandler {
 
     constructor(private activeRace : ActiveRace, socketNamespace : Namespace) {
         this._activeRaceState = new ActiveRaceState(activeRace);
-        this._activeRaceRoom = `activerace_${this._activeRaceState.raceId}`;
+
+
+        // Create a handler for each active contestant.
+        this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
+            contestantHandlers[contestantState.contestant.contestantId] = new ActiveRaceContestantHandler(contestantState, socketNamespace);
+            return contestantHandlers;
+        }, {} as ActiveContestantHandlers);
+
+
+        this._activeRaceRoom = `active-race-${this._activeRaceState.raceId}`;
         this._socketNamespace = socketNamespace;
 
         this.onConnection = (client : Socket) => {
@@ -133,11 +155,17 @@ export class ActiveRaceHandler {
     public initialize() {
         const activeRaceStateEvents = this._activeRaceState.events;
 
-        this._socketNamespace.on("connection", this.onConnection);
+
+        Object.entries(this._activeRaceContestantHandlers).forEach(([contestantId, contestantHandler]) => {
+            contestantHandler.initialize();
+        });
 
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+
+
+        this._socketNamespace.on("connection", this.onConnection);
 
         console.log(`[Active Race Handler (${this.activeRace.raceId})]: Initialized!`);
     }
@@ -148,6 +176,10 @@ export class ActiveRaceHandler {
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+
+        Object.entries(this._activeRaceContestantHandlers).forEach(([contestantId, contestantHandler]) => {
+            contestantHandler.destroy();
+        });
 
         this._socketNamespace.off("connection", this.onConnection);
 

@@ -45,6 +45,36 @@ export default function NewRaceDialog() {
         setDriverNames(updatedNames);
     };
 
+        if (socket) {
+
+            const contestants = driverNames
+                .filter(name => name.trim() !== "") // filter out any empty fields
+                .map((name, index) => ({
+                    name,
+                    racecar: index + 1 // default racecar numbers: 1, 2, 3...
+                }));
+
+            const newRace: Race = {
+                raceId: "abc123",
+                raceTimeslot: "",
+                contestants: contestants
+            };
+                  
+            const commandMessage: RacetrackCommand<ScheduleNewRace> = {
+            senderId: "1",
+            message: {
+                type: "scheduleNewRace",
+                data: {
+                race: newRace,
+                }
+            }
+            };
+                          
+            console.log("Command message:", commandMessage);
+            
+            // Send out the new race info to the server
+            socket.emit("scheduleNewRace", commandMessage);
+
     const onSave = () => {
         // Create the new race object (you can adjust the logic for the race data as needed)
         const newRace: Race = {

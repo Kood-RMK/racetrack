@@ -1,30 +1,39 @@
-export type Contestant = {
- name : string,
- racecar : number
+
+export type RaceContestantId = string;
+export type RaceContestant = {
+    contestantId : RaceContestantId,
+    name : string,
+    racecar : number
 }
 
 export type RaceState = 'completed' | 'active' | 'canceled' | 'pending' | 'paused' ;
 
-export type Race = {
-    raceId : string,
-    contestants : Contestant[],
-    raceDateTime : string, //Unix Timestamp.
+export type ScheduledRaceId = string;
+export type ScheduledRace = {
+    raceId : ScheduledRaceId,
+    contestants : RaceContestant[],
+    raceStartDateTime : string // Unix timestamp.
     raceState : RaceState,
 }
 
-export type RaceSchedule = Record<string, Race>;
+export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
 
-export type ActiveContestant = {
-    contestant : Contestant,
-    place : number
-    lapCount : number
-    fastestLap : string
+export type ActiveRaceContestant = {
+    contestant : RaceContestant,
+    place : number,
+    lapCount : number,
+    fastestLap : string,
+    currentLapStopwatchTime : string,
 }
 
+export type ActiveRaceId = string;
+export type ActiveRaceContestants = Record<RaceContestantId, ActiveRaceContestant>;
 export type ActiveRace = {
-    contestants : ActiveContestant[],
+    raceId : ActiveRaceId,
+    raceStartDateTime : string // Unix timestamp.
+    contestants : ActiveRaceContestants,
     raceState : RaceState,
     isHazard: boolean,
     isFinishing: boolean,
-    timeLeft : string
-} & Pick<Race, 'raceId' | 'raceDateTime'>;
+    timeLeft : string // in milliseconds.
+};
