@@ -1,0 +1,20 @@
+{
+  "name": "racetrack-backend",
+  "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.3",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1",
+    "typescript": "^5.8.3"
+  },
+  "exports" : {
+    "./types" : "./dist/types/index.js",
+    "./types/*" : "./dist/types/*",
+    "./services" : "./dist/services/index.js",
+    "./services/*" : "./dist/services/*"
+  },
+  "scripts": {
+    "dev": "tsc -p tsconfig.json --watch & nodemon ./dist/server.js"
+  }
+}
