@@ -8,7 +8,7 @@
     "packages/frontend"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev" : "npm run dev --workspace packages/frontend & npm run dev --workspace packages/backend"
   },
   "repository": {
     "type": "git",
