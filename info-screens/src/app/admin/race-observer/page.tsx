@@ -5,6 +5,7 @@ import { SocketProvider } from "@/app/providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/state/activeRaceStateProvider";
 import { useEffect } from "react";
 import { Button } from "react-aria-components";
+import { millisecondsToMinutes } from "@/utils/timeConverter"
 
 
 
@@ -53,8 +54,8 @@ function RaceObserverPage() {
                                 <div className="absolute bottom-0 left-0 right-0 h-1/3 flex flex-col justify-end pb-8 items-center">
                                     <RaceObserverCardTag title="Place" value={contestant.place.toString()}></RaceObserverCardTag>
                                     <RaceObserverCardTag title="Lap" value={contestant.lapCount.toString()}></RaceObserverCardTag>
-                                    <RaceObserverCardTag title="Fastest Lap" value={contestant.fastestLap.toString()}></RaceObserverCardTag>
-                                    <RaceObserverCardTag title="Lap Time" value={contestant.lapStopwatchTime.toString()}></RaceObserverCardTag>
+                                    <RaceObserverCardTag title="Fastest Lap" value={millisecondsToMinutes(contestant.fastestLap)}></RaceObserverCardTag>
+                                    <RaceObserverCardTag title="Lap Time" value={millisecondsToMinutes(contestant.lapStopwatchTime)}></RaceObserverCardTag>
                                 </div>
                             </div>
                             
