@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import { RaceScheduleService } from './services/race-schedule/race-schedule.service';
 import { RaceControlService } from './services/race-control/race-control.service';
 import { ActiveRaceService } from './services/active-race/active-race.service';
+import { RaceObserverService } from 'services/race-observer/race-observer.service';
 
 const app = express();
 const server = createServer(app);
@@ -19,6 +20,7 @@ const io = new Server(server, {
 // leaderboardService(io);
 const activeRaceService = new ActiveRaceService(io);
 const raceControlService = new RaceControlService(io, activeRaceService);
+const raceObserverService = new RaceObserverService(io, activeRaceService);
 // new RaceScheduleService(io);
 
 server.listen(3001, () => {

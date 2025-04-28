@@ -14,7 +14,6 @@ export enum RaceObserverCommands {
     HandleLineCrossed = "HandleLineCrossed",
 }
 
-
 // Commands
 export type HandleLineCrossed = {
     type : RaceObserverCommands.HandleLineCrossed,
@@ -31,14 +30,16 @@ export type LineCrossingHandeledEvent = {
 
 export class RaceObserverService {
 
-    private _socketIO: SocketIOServer;
-    private _activeRaceService : ActiveRaceService;
+    private readonly _socketIO: SocketIOServer;
+    private readonly _activeRaceService : ActiveRaceService;
+    private readonly _raceObserverRoom : string;
 
     constructor(socketIO : SocketIOServer, activeRaceService : ActiveRaceService) {
         this._socketIO = socketIO;
         this._activeRaceService = activeRaceService;
 
         const socketNamespace = this._socketIO.of("/race-observer");
+        this._raceObserverRoom = "race-observer-room";
 
         // Middleware to check if the user is authenticated.
         socketNamespace.use((socket, next) => {
@@ -46,6 +47,8 @@ export class RaceObserverService {
         })
 
         socketNamespace.on("connection", (client) => {
+            console.log(`[🔭 Race Observer Service] : New Client Connected ID: ${client.id}`)
+
             client.on(RaceObserverCommands.HandleLineCrossed, (command : RacetrackCommand<HandleLineCrossed>) => {
                 try {
 
@@ -62,11 +65,23 @@ export class RaceObserverService {
 
                     const contestant = this._activeRaceService.activeRace?.getActiveRaceContestantById(contestantId);
 
-                } catch (error) {
+                    if (!contestant) {
+                        throw new Error("Contestant not found.");
+                    }
 
+                    contestant.lineCrossed();
+
+                    const event: LineCrossingHandeledEvent = {
+                        type: RaceObserverEvents.LineCrossingHandled,
+                        raceId: raceId,
+                        contestantId: contestantId,
+                    }
+
+                    socketIO.to(this._raceObserverRoom).emit(event.type, event);
+                } catch (error) {
+                    console.error(`Error processing ${RaceObserverCommands.HandleLineCrossed} command:`, error);
                 }
             })
         });
     }
-
 }

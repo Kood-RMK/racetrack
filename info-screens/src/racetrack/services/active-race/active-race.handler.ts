@@ -70,8 +70,24 @@ export class ActiveRaceHandler {
     private onRaceHazardChanged : (isHazard: ActiveRace['isHazard']) => void;
     private onRaceIsFinishingChanged : (isFinishing: ActiveRace['isFinishing']) => void;
 
-    private refreshContestantPlacement() {
+    private refreshContestantPlacement(contestantHandlers : ActiveContestantHandlers) {
+        const contestants = Object.entries(contestantHandlers).map(([contestantId, contestantHandler]) => {
+            return contestantHandler.contestantState;
+        });
 
+        // Sort the contestants by lap count and fastest lap time.
+        contestants.sort((a, b) => {
+            if (a.lapCount !== b.lapCount) {
+                return b.lapCount - a.lapCount;
+            } else {
+                return a.fastestLap - b.fastestLap;
+            }
+        });
+
+        // Update the placement of each contestant.
+        contestants.forEach((contestant, index) => {
+            contestant.setPlace(index + 1);
+        });
     }
 
     constructor(private activeRace : ActiveRace, socketNamespace : Namespace) {
@@ -82,8 +98,9 @@ export class ActiveRaceHandler {
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
             const contestantHandler  = new ActiveRaceContestantHandler(contestantState, socketNamespace);
 
-            contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantLapCountChanged, (lapCount: ActiveRaceContestant['lapCount']) => {
-                
+            // When a contestant crosses the line, we need to recalculate the placement of all contestants.
+            contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantLapCountChanged, (contestant, preValue) => {
+                this.refreshContestantPlacement(this._activeRaceContestantHandlers);
             });
 
             contestantHandlers[contestantState.contestant.contestantId] = contestantHandler;
