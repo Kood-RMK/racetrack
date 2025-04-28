@@ -64,6 +64,7 @@ export class ActiveRaceContestantHandler {
             const activeContestantPlaceChangedMessage : RacetrackEvent<ActiveContestantPlaceChanged> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantPlaceChanged,
+                    contestantId: this._contestantState.contestant.contestantId,
                     place: place,
                 }
             }
@@ -78,6 +79,7 @@ export class ActiveRaceContestantHandler {
             const activeContestantLapCountChangedMessage : RacetrackEvent<ActiveContestantLapCountChanged> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantLapCountChanged,
+                    contestantId: this._contestantState.contestant.contestantId,
                     lapCount: lapCount,
                 }
             }
@@ -92,6 +94,7 @@ export class ActiveRaceContestantHandler {
             const activeContestantFastestLapChangedMessage : RacetrackEvent<ActiveContestantFastestLapChanged> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantFastestLapChanged,
+                    contestantId: this._contestantState.contestant.contestantId,
                     fastestLap: fastestLap,
                 }
             }
@@ -106,6 +109,7 @@ export class ActiveRaceContestantHandler {
             const activeContestantLapStopwatchTickMessage : RacetrackEvent<ActiveContestantLapStopwatchTick> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantLapStopwatchTick,
+                    contestantId: this._contestantState.contestant.contestantId,
                     stopwatchTime: lapTime,
                 }
             }

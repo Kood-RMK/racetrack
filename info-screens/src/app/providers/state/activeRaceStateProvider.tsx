@@ -30,7 +30,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
       const initalState = data.message.race;
       setActiveRaceState(initalState);
 
-      console.log(`[📩 Race Control]: Initial Race State Received:`, initalState);
+      console.log(`[📩 Active Race State]: Initial Race State Received:`, initalState);
     }
     socket.on(RaceControlEvents.RaceInitialState, onRaceInitialState)
 
@@ -42,7 +42,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
         raceState: data.message.newState,
       } : null);
 
-      console.log(`[📩 Race Control]: Race State Changed to ${data.message.newState}`);
+      console.log(`[📩 Active Race State]: Race State Changed to ${data.message.newState}`);
     }
     socket.on(RaceControlEvents.RaceStateChanged, onRaceStateChanged);
 
@@ -54,7 +54,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
         isHazard: data.message.isHazard,
       } : null)
 
-      console.log(`[📩 Race Control]: Race Hazard Flag set to ${data.message.isHazard}.`);
+      console.log(`[📩 Active Race State]: Race Hazard Flag set to ${data.message.isHazard}.`);
     }
     socket.on(RaceControlEvents.RaceHazardChanged, onRaceHazardChanged);
 
@@ -65,9 +65,11 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
         ...prevState,
         isFinishing: data.message.isFinishing,
       } : null);
+
+
+      console.log(`[📩 Active Race State]: Race Finishing Flag set to ${data.message.isFinishing}.`);
     }
     socket.on(RaceControlEvents.RaceIsFinishingChanged, onRaceFinishingChanged)
-
 
     // Listens for contestant place changes.
     const onContestantPlaceChanged = (data: RacetrackEvent<ActiveContestantPlaceChanged>) => {
@@ -81,6 +83,8 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
           }
         }
       } : null);
+
+      console.log(`[📩 Active Race State]: Race Contestant ${data.message.contestantId} placement changed to ${data.message.place}.`);
     }
     socket.on(ActiveRaceContestantEvents.ContestantPlaceChanged, onContestantPlaceChanged);
 
@@ -96,6 +100,8 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
           }
         }
       } : null);
+
+      console.log(`[📩 Active Race State]: Race Contestant ${data.message.contestantId} lap count changed to ${data.message.lapCount}.`);
     }
     socket.on(ActiveRaceContestantEvents.ContestantLapCountChanged, onContestantLapCountChanged);
 
@@ -112,6 +118,8 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
           }
         }
       } : null);
+
+      console.log(`[📩 Active Race State]: Race Contestant ${data.message.contestantId} fastest lap changed to ${data.message.fastestLap}.`);
     }
     socket.on(ActiveRaceContestantEvents.ContestantFastestLapChanged, onContestantFastestLapChanged);
 
@@ -132,7 +140,6 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
     }
 
     socket.on(ActiveRaceContestantEvents.ContestantLapStopwatchTick, onContestantLapStopwatchTick);
-
 
 
     // Cleanup function to remove the listeners when the component unmounts.
