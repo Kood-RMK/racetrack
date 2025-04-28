@@ -96,7 +96,7 @@ export class ActiveRaceHandler {
 
         // Create a handler for each active contestant.
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
-            const contestantHandler  = new ActiveRaceContestantHandler(contestantState, socketNamespace);
+            const contestantHandler  = new ActiveRaceContestantHandler(contestantState, this._activeRaceState, socketNamespace);
 
             // When a contestant crosses the line, we need to recalculate the placement of all contestants.
             contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantLapCountChanged, (contestant, preValue) => {

@@ -53,8 +53,8 @@ export class ActiveRaceService {
                     },
                     place : 1,
                     lapCount : 5,
-                    fastestLap : 10,
-                    lapStopwatchTime : 1000,
+                    fastestLap : 1000000,
+                    lapStopwatchTime : 0,
                 },
                 "2" : {
                     contestant : {
@@ -64,8 +64,8 @@ export class ActiveRaceService {
                     },
                     place : 2,
                     lapCount : 4,
-                    fastestLap : 11,
-                    lapStopwatchTime : 1000,
+                    fastestLap : 1100000,
+                    lapStopwatchTime : 0,
                 },
             },
             raceState : "pending",

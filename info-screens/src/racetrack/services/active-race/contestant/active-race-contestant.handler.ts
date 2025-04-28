@@ -2,6 +2,8 @@ import { ActiveRaceContestant } from "types/stateTypes";
 import { ActiveRaceContestantState, ActiveRaceContestantStateCallbacks, ActiveRaceContestantStateEvents } from "./active-race-contestant.state";
 import { Namespace } from "socket.io";
 import { RacetrackEvent } from "types/messageTypes";
+import { ActiveRaceState, ActiveRaceStateEvents } from "../active-race.state";
+import { Stopwatch, StopwatchEvents } from "../../../utils/stopwatch";
 
 
 export enum ActiveRaceContestantEvents {
@@ -43,6 +45,8 @@ export class ActiveRaceContestantHandler {
     private readonly _contestantState: ActiveRaceContestantState;
     private readonly _socketNamespace: Namespace;
     private readonly _contestantRoom : string;
+    private readonly _activeRaceState: ActiveRaceState;
+    private readonly _stopwatch : Stopwatch;
 
     private onContestantPlaceChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantPlaceChanged];
     private onContestantLapCountChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantLapCountChanged];
@@ -57,7 +61,7 @@ export class ActiveRaceContestantHandler {
         return this._contestantState;
     }
 
-    public lineCrossed() {
+    public onLineCrossed() {
         this._contestantState.setLapCount(this._contestantState.lapCount + 1);
         const lapTime = this._contestantState.lapStopwatchTime;
 
@@ -65,14 +69,30 @@ export class ActiveRaceContestantHandler {
             this._contestantState.setFastestLap(lapTime);
         }
 
-        this._contestantState.setLapStopwatchTime (0);
+        const stopwatchTime = this._stopwatch.reset();
+        this._contestantState.setLapStopwatchTime(stopwatchTime);
     }
 
-    constructor(contestantState: ActiveRaceContestantState, socketNamespace : Namespace) {
+    constructor(contestantState: ActiveRaceContestantState, activeRaceState : ActiveRaceState, socketNamespace : Namespace) {
         this._contestantState = contestantState;
         this._socketNamespace = socketNamespace;
-
+        this._activeRaceState = activeRaceState;
+        this._stopwatch = new Stopwatch(10);
         this._contestantRoom = `active-contestant-${this._contestantState.contestant.contestantId}`;
+
+
+        activeRaceState.events.on(ActiveRaceStateEvents.RaceStateChanged, (newState) => {
+
+            if (newState === 'active') {
+                this._stopwatch.start();
+            } else {
+                this._stopwatch.stop();
+            }
+        });
+
+        this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
+            this._contestantState.setLapStopwatchTime(elapsed);
+        });
 
         this.onContestantPlaceChanged = (contestant, prevValue) => {
 

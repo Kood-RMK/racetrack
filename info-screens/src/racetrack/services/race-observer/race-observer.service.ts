@@ -69,7 +69,7 @@ export class RaceObserverService {
                         throw new Error("Contestant not found.");
                     }
 
-                    contestant.lineCrossed();
+                    contestant.onLineCrossed();
 
                     const event: LineCrossingHandeledEvent = {
                         type: RaceObserverEvents.LineCrossingHandled,

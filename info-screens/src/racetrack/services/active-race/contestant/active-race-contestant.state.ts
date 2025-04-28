@@ -5,7 +5,7 @@ export enum ActiveRaceContestantStateEvents {
     ContestantPlaceChanged = 'onContestantPlaceChanged',
     ContestantLapCountChanged = 'onContestantLapCountChanged',
     ContestantFastestLapChanged = 'onContestantFastestLapChanged',
-    ContestantLapStopwatchTime = 'onContestantLapStopwatchTick',
+    ContestantLapStopwatchTime = 'onContestantLapStopwatchTime',
 }
 
 export interface ActiveRaceContestantStateCallbacks {

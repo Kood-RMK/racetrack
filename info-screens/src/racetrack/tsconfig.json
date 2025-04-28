@@ -15,8 +15,10 @@
     "baseUrl": "./", 
     "plugins": [],
     "paths": {
+      "@racetrack/*": ["./*"],
     }
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules", "dist"]
+
 }
