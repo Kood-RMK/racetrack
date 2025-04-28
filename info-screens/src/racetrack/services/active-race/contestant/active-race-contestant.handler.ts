@@ -77,7 +77,7 @@ export class ActiveRaceContestantHandler {
         this._contestantState = contestantState;
         this._socketNamespace = socketNamespace;
         this._activeRaceState = activeRaceState;
-        this._stopwatch = new Stopwatch(10);
+        this._stopwatch = new Stopwatch(100);
         this._contestantRoom = `active-contestant-${this._contestantState.contestant.contestantId}`;
 
 

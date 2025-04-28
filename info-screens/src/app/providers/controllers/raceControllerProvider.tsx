@@ -25,11 +25,13 @@ export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}
     tryChangeRaceState: (newState: RaceState) => {console.error("ActiveRaceStateController: tryChangeRaceState not implemented.")},
   });
 
-  const socket = useSocket("/race-control");
+  const socketRef = useSocket("/race-control");
   const activeRace = useActiveRaceState();
 
   // useEffect to only mount the socket once and unhook listeners when the component unmounts.
   useEffect(() => {
+
+    const socket = socketRef.current;
 
     if (!socket || !activeRace) {
       return;
@@ -80,7 +82,7 @@ export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}
       }
     }
 
-  }, [socket, activeRace]);
+  }, [socketRef, activeRace]);
 
 
   return (

@@ -95,8 +95,6 @@ function RaceControlPage() {
       return <div>Loading...</div>;
     }
 
-    
-
     // Extract values from the activeRace object
     const { raceState, isHazard } = activeRaceState;
 

@@ -19,10 +19,11 @@ export const RaceObserverControllerProvider = ({children} : {children : React.Re
     });
 
 
-    const socket = useSocket("/race-observer");
+    const socketRef = useSocket("/race-observer");
     const activeRace = useActiveRaceState();
 
     useEffect(() => {
+        const socket = socketRef.current;
 
         if (!socket || !activeRace) {
             return;
@@ -45,7 +46,7 @@ export const RaceObserverControllerProvider = ({children} : {children : React.Re
             }
         };
 
-    }, [socket, activeRace]);
+    }, [socketRef, activeRace]);
 
 
   return (

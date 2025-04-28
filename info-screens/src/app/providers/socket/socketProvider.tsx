@@ -1,13 +1,9 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useRef, ReactNode, RefObject } from 'react';
 import { io, Socket, ManagerOptions, SocketOptions } from 'socket.io-client';
 
-// Define context value shape
 interface SocketContextValue {
-  /**
-   * Returns an existing or new Socket instance connected to the given namespace
-   */
   getSocket: (namespace?: string) => Socket;
 }
 
@@ -20,9 +16,7 @@ const SocketContext = createContext<SocketContextValue>({
 
 // Props for SocketProvider
 interface SocketProviderProps {
-  /** Base URL of the Socket.IO server */
   url: string;
-  /** Default socket.io-client options for all namespaces */
   options?: Partial<ManagerOptions & SocketOptions>;
   children: ReactNode;
 }
@@ -42,6 +36,7 @@ export function SocketProvider({ url, options = {}, children }: SocketProviderPr
     const nsKey = namespace.startsWith('/') ? namespace : `/${namespace}`;
     if (!socketsRef.current.has(nsKey)) {
       const socket = io(`${url}${nsKey}`, options);
+      console.log(`[📩 Socket]: Socket initialized for namespace: ${namespace}`);
       socketsRef.current.set(nsKey, socket);
     }
     // Non-null assertion is safe because we just set it if missing
@@ -70,25 +65,18 @@ export function SocketProvider({ url, options = {}, children }: SocketProviderPr
  * @param namespace string (defaults to '/')
  * @returns Socket instance
  */
-export function useSocket(namespace: string = '/'): Socket {
+export function useSocket(namespace: string = '/'): RefObject<Socket | null> {
   const { getSocket } = useContext(SocketContext);
   const socketRef = useRef<Socket | null>(null);
 
   // Retrieve or initialize socket
-  socketRef.current = getSocket(namespace.startsWith('/') ? namespace : `/${namespace}`);
 
   useEffect(() => {
 
+    socketRef.current = getSocket(namespace.startsWith('/') ? namespace : `/${namespace}`);
     return () => {
-      // Remove all listeners added in this component
-      socketRef.current?.off();
-      // Note: we don't disconnect the socket here to allow shared usage
     };
   }, []);
 
-  if (!socketRef.current) {
-    // Should never happen after first render
-    throw new Error(`Unable to get socket for namespace ${namespace}`);
-  }
-  return socketRef.current;
+  return socketRef;
 }

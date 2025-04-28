@@ -21,9 +21,11 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
         tryDeleteRace: () => { console.error("RaceScheduleControllerProvider: tryDeleteRace not implemented.") },
     })
 
-    const socket = useSocket("/race-schedule");
+    const socketRef = useSocket("/race-schedule");
 
     useEffect(() => {
+
+        const socket = socketRef.current;
 
         if (!socket) {
             // Socket is not yet available.
@@ -84,7 +86,7 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
             },
         };
 
-    }, [socket])
+    }, [socketRef])
 
     return (
         <RaceScheduleControllerContext.Provider value={scheduleController}>
