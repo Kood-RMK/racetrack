@@ -22,8 +22,8 @@ export type ActiveRaceContestant = {
     contestant : RaceContestant,
     place : number,
     lapCount : number,
-    fastestLap : string,
-    currentLapStopwatchTime : string,
+    fastestLap : number // in milliseconds.
+    lapStopwatchTime : number // in milliseconds.
 }
 
 export type ActiveRaceId = string;
@@ -35,5 +35,5 @@ export type ActiveRace = {
     raceState : RaceState,
     isHazard: boolean,
     isFinishing: boolean,
-    timeLeft : string // in milliseconds.
+    timeLeft : number // in milliseconds.
 };

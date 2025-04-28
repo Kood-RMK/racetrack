@@ -23,6 +23,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@pages/*" : ["./src/pages/*"],
+      "@racetrack/*" : ["./src/racetrack/*"],
       "@components/*" : ["./src/components/*"],
       "@providers/*" : ["./src/app/providers/*"],
     }

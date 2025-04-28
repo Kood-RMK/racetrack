@@ -1,5 +1,5 @@
 import { ActiveRaceContestant } from "types/stateTypes";
-import { ActiveRaceContestantState, ActiveRaceContestantStateEvents } from "./active-race-contestant.state";
+import { ActiveRaceContestantState, ActiveRaceContestantStateCallbacks, ActiveRaceContestantStateEvents } from "./active-race-contestant.state";
 import { Namespace } from "socket.io";
 import { RacetrackEvent } from "types/messageTypes";
 
@@ -34,7 +34,7 @@ export type ActiveContestantFastestLapChanged = {
 export type ActiveContestantLapStopwatchTick = {
     type : ActiveRaceContestantEvents.ContestantLapStopwatchTick,
     contestantId : ActiveRaceContestant['contestant']['contestantId'],
-    stopwatchTime : ActiveRaceContestant['currentLapStopwatchTime'],
+    stopwatchTime : ActiveRaceContestant['lapStopwatchTime'],
 }
 
 
@@ -44,13 +44,28 @@ export class ActiveRaceContestantHandler {
     private readonly _socketNamespace: Namespace;
     private readonly _contestantRoom : string;
 
-    private onContestantPlaceChanged : (place: ActiveRaceContestant['place']) => void;
-    private onContestantLapCountChanged : (lapCount: ActiveRaceContestant['lapCount']) => void;
-    private onContestantFastestLapChanged : (fastestLap: ActiveRaceContestant['fastestLap']) => void;
-    private onContestantLapStopwatchTick : (lapTime: ActiveRaceContestant['currentLapStopwatchTime']) => void;
+    private onContestantPlaceChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantPlaceChanged];
+    private onContestantLapCountChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantLapCountChanged];
+    private onContestantFastestLapChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantFastestLapChanged];
+    private onContestantLapStopwatchTick : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantLapStopwatchTime];
 
     public get contestantRoom() {
         return this._contestantRoom;
+    }
+
+    public get contestantState() {
+        return this._contestantState;
+    }
+
+    public lineCrossed() {
+        this._contestantState.setLapCount(this._contestantState.lapCount + 1);
+        const lapTime = this._contestantState.lapStopwatchTime;
+
+        if (lapTime < this._contestantState.fastestLap) {
+            this._contestantState.setFastestLap(lapTime);
+        }
+
+        this._contestantState.setLapStopwatchTime (0);
     }
 
     constructor(contestantState: ActiveRaceContestantState, socketNamespace : Namespace) {
@@ -59,13 +74,13 @@ export class ActiveRaceContestantHandler {
 
         this._contestantRoom = `active-contestant-${this._contestantState.contestant.contestantId}`;
 
-        this.onContestantPlaceChanged = (place: ActiveRaceContestant['place']) => {
+        this.onContestantPlaceChanged = (contestant, prevValue) => {
 
             const activeContestantPlaceChangedMessage : RacetrackEvent<ActiveContestantPlaceChanged> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantPlaceChanged,
                     contestantId: this._contestantState.contestant.contestantId,
-                    place: place,
+                    place: contestant.place,
                 }
             }
 
@@ -74,13 +89,13 @@ export class ActiveRaceContestantHandler {
             .emit(ActiveRaceContestantEvents.ContestantPlaceChanged, activeContestantPlaceChangedMessage);
         }
 
-        this.onContestantLapCountChanged = (lapCount: ActiveRaceContestant['lapCount']) => {
+        this.onContestantLapCountChanged = (contestant, prevValue) => {
 
             const activeContestantLapCountChangedMessage : RacetrackEvent<ActiveContestantLapCountChanged> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantLapCountChanged,
                     contestantId: this._contestantState.contestant.contestantId,
-                    lapCount: lapCount,
+                    lapCount: contestant.lapCount,
                 }
             }
 
@@ -89,13 +104,13 @@ export class ActiveRaceContestantHandler {
             .emit(ActiveRaceContestantEvents.ContestantLapCountChanged, activeContestantLapCountChangedMessage);
         }
 
-        this.onContestantFastestLapChanged = (fastestLap: ActiveRaceContestant['fastestLap']) => {
+        this.onContestantFastestLapChanged = (contestant, prevValue) => {
 
             const activeContestantFastestLapChangedMessage : RacetrackEvent<ActiveContestantFastestLapChanged> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantFastestLapChanged,
                     contestantId: this._contestantState.contestant.contestantId,
-                    fastestLap: fastestLap,
+                    fastestLap: contestant.fastestLap,
                 }
             }
 
@@ -104,13 +119,13 @@ export class ActiveRaceContestantHandler {
             .emit(ActiveRaceContestantEvents.ContestantFastestLapChanged, activeContestantFastestLapChangedMessage);
         }
 
-        this.onContestantLapStopwatchTick = (lapTime: ActiveRaceContestant['currentLapStopwatchTime']) => {
+        this.onContestantLapStopwatchTick = (contestant, prevValue) => {
 
             const activeContestantLapStopwatchTickMessage : RacetrackEvent<ActiveContestantLapStopwatchTick> = {
                 message : {
                     type: ActiveRaceContestantEvents.ContestantLapStopwatchTick,
                     contestantId: this._contestantState.contestant.contestantId,
-                    stopwatchTime: lapTime,
+                    stopwatchTime: contestant.lapStopwatchTime,
                 }
             }
 
@@ -127,7 +142,7 @@ export class ActiveRaceContestantHandler {
         activeRaceContestantStateEvents.on(ActiveRaceContestantStateEvents.ContestantPlaceChanged, this.onContestantPlaceChanged);
         activeRaceContestantStateEvents.on(ActiveRaceContestantStateEvents.ContestantLapCountChanged, this.onContestantLapCountChanged);
         activeRaceContestantStateEvents.on(ActiveRaceContestantStateEvents.ContestantFastestLapChanged, this.onContestantFastestLapChanged);
-        activeRaceContestantStateEvents.on(ActiveRaceContestantStateEvents.ContestantLapStopwatchTick, this.onContestantLapStopwatchTick);
+        activeRaceContestantStateEvents.on(ActiveRaceContestantStateEvents.ContestantLapStopwatchTime, this.onContestantLapStopwatchTick);
 
 
         console.log(`[Active Race Handler (${this._contestantState.contestant.contestantId})]: Initialized!`);
@@ -139,7 +154,7 @@ export class ActiveRaceContestantHandler {
         activeRaceContestantStateEvents.off(ActiveRaceContestantStateEvents.ContestantPlaceChanged, this.onContestantPlaceChanged);
         activeRaceContestantStateEvents.off(ActiveRaceContestantStateEvents.ContestantLapCountChanged, this.onContestantLapCountChanged);
         activeRaceContestantStateEvents.off(ActiveRaceContestantStateEvents.ContestantFastestLapChanged, this.onContestantFastestLapChanged);
-        activeRaceContestantStateEvents.off(ActiveRaceContestantStateEvents.ContestantLapStopwatchTick, this.onContestantLapStopwatchTick);
+        activeRaceContestantStateEvents.off(ActiveRaceContestantStateEvents.ContestantLapStopwatchTime, this.onContestantLapStopwatchTick);
         
 
         console.log(`[Active Race Handler (${this._contestantState.contestant.contestantId}]: Destroyed!`);

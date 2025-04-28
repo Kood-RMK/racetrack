@@ -133,7 +133,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
           ...prevState.contestants,
           [data.message.contestantId]: {
             ...prevState.contestants[data.message.contestantId],
-            currentLapStopwatchTime: data.message.stopwatchTime,
+            lapStopwatchTime: data.message.stopwatchTime,
           }
         }
       } : null);

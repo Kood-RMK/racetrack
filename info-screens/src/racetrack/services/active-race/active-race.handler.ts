@@ -1,8 +1,9 @@
-import { ActiveRace, ActiveRaceId, RaceContestantId, RaceState } from "types/stateTypes";
+import { ActiveRace, ActiveRaceContestant, ActiveRaceId, RaceContestantId, RaceState } from "types/stateTypes";
 import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { Namespace, Socket } from "socket.io";
 import { RacetrackEvent } from "types/messageTypes";
-import { ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
+import { ActiveRaceContestantEvents, ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
+import { ActiveRaceContestantStateEvents } from "./contestant/active-race-contestant.state";
 
 export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
@@ -69,13 +70,24 @@ export class ActiveRaceHandler {
     private onRaceHazardChanged : (isHazard: ActiveRace['isHazard']) => void;
     private onRaceIsFinishingChanged : (isFinishing: ActiveRace['isFinishing']) => void;
 
+    private refreshContestantPlacement() {
+
+    }
+
     constructor(private activeRace : ActiveRace, socketNamespace : Namespace) {
         this._activeRaceState = new ActiveRaceState(activeRace);
 
 
         // Create a handler for each active contestant.
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
-            contestantHandlers[contestantState.contestant.contestantId] = new ActiveRaceContestantHandler(contestantState, socketNamespace);
+            const contestantHandler  = new ActiveRaceContestantHandler(contestantState, socketNamespace);
+
+            contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantLapCountChanged, (lapCount: ActiveRaceContestant['lapCount']) => {
+                
+            });
+
+            contestantHandlers[contestantState.contestant.contestantId] = contestantHandler;
+
             return contestantHandlers;
         }, {} as ActiveContestantHandlers);
 
