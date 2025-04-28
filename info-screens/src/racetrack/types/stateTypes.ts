@@ -27,10 +27,11 @@ export type ActiveRaceContestant = {
 }
 
 export type ActiveRaceId = string;
+export type ActiveRaceContestants = Record<RaceContestantId, ActiveRaceContestant>;
 export type ActiveRace = {
     raceId : ActiveRaceId,
     raceStartDateTime : string // Unix timestamp.
-    contestants : ActiveRaceContestant[],
+    contestants : ActiveRaceContestants,
     raceState : RaceState,
     isHazard: boolean,
     isFinishing: boolean,

@@ -4,18 +4,15 @@ import { ActiveRace } from "types/stateTypes";
 import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
 
-
 export enum ActiveRaceServiceEvents {
     ActiveRaceSet = 'activeRaceSet',
     ActiveRaceRemoved = 'activeRaceRemoved',
 }
 
-
 export interface ActiveRaceServiceCallbacks {
     [ActiveRaceServiceEvents.ActiveRaceSet] : (activeRace: ActiveRace) => void;
     [ActiveRaceServiceEvents.ActiveRaceRemoved] : (activeRace : ActiveRace) => void;
 }
-
 
 export class ActiveRaceServiceEventEmitter extends EventEmitter {
 
@@ -47,7 +44,7 @@ export class ActiveRaceService {
         const mockRace : ActiveRace = {
             raceId : "123", 
             raceStartDateTime : "10:00 - 10:15",
-            contestants : [],
+            contestants : {},
             raceState : "pending",
             isHazard : false,
             isFinishing : false,

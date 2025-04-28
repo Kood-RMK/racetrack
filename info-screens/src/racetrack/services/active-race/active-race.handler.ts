@@ -80,7 +80,7 @@ export class ActiveRaceHandler {
         }, {} as ActiveContestantHandlers);
 
 
-        this._activeRaceRoom = `activerace_${this._activeRaceState.raceId}`;
+        this._activeRaceRoom = `active-race-${this._activeRaceState.raceId}`;
         this._socketNamespace = socketNamespace;
 
         this.onConnection = (client : Socket) => {

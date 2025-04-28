@@ -39,9 +39,9 @@ export class ActiveRaceState {
 
     constructor(activeRace: ActiveRace) {
         this._activeRace = activeRace;
-        this._activeRaceContestantsState = activeRace.contestants.map((contestant) => {
+        this._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
             return new ActiveRaceContestantState(contestant);
-        })
+        });
     }
 
     public get events() {
@@ -49,7 +49,7 @@ export class ActiveRaceState {
     }
 
     public get raceId() {
-        return this._activeRace.id;
+        return this._activeRace.raceId;
     }
 
     public get raceDateTime() {

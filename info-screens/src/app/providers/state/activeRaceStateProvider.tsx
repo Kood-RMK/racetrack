@@ -2,6 +2,7 @@
 
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { ActiveRaceInitialState, ActiveRaceStateChanged } from "@/racetrack/services/active-race/active-race.handler";
+import { ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveContestantPlaceChanged, ActiveRaceContestantEvents } from "@/racetrack/services/active-race/contestant/active-race-contestant.handler";
 import { RaceControlEvents, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing } from "@/racetrack/services/race-control/race-control.service";
 import { RacetrackEvent } from "@/racetrack/types/messageTypes";
 import { ActiveRace } from "@/racetrack/types/stateTypes";
@@ -24,6 +25,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
       return;
     }
 
+    // Listens for initial state.
     const onRaceInitialState = (data: RacetrackEvent<ActiveRaceInitialState>) => {
       const initalState = data.message.race;
       setActiveRaceState(initalState);
@@ -45,6 +47,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
     socket.on(RaceControlEvents.RaceStateChanged, onRaceStateChanged);
 
 
+    // Listens for isHazard flag changes.
     const onRaceHazardChanged = (data: RacetrackEvent<ChangeActiveRaceHazard>) => {
       setActiveRaceState(prevState => prevState ? {
         ...prevState,
@@ -56,6 +59,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
     socket.on(RaceControlEvents.RaceHazardChanged, onRaceHazardChanged);
 
 
+    // Listens for isFinishing flag changes.
     const onRaceFinishingChanged = (data: RacetrackEvent<ChangeActiveRaceIsFinishing>) => {
       setActiveRaceState(prevState => prevState ? {
         ...prevState,
@@ -64,12 +68,84 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
     }
     socket.on(RaceControlEvents.RaceIsFinishingChanged, onRaceFinishingChanged)
 
+
+    // Listens for contestant place changes.
+    const onContestantPlaceChanged = (data: RacetrackEvent<ActiveContestantPlaceChanged>) => {
+      setActiveRaceState(prevState => prevState ? {
+        ...prevState,
+        contestants: {
+          ...prevState.contestants,
+          [data.message.contestantId]: {
+            ...prevState.contestants[data.message.contestantId],
+            place: data.message.place,
+          }
+        }
+      } : null);
+    }
+    socket.on(ActiveRaceContestantEvents.ContestantPlaceChanged, onContestantPlaceChanged);
+
+    // Listens for contestant lap count changes.
+    const onContestantLapCountChanged = (data: RacetrackEvent<ActiveContestantLapCountChanged>) => {
+      setActiveRaceState(prevState => prevState ? {
+        ...prevState,
+        contestants: {
+          ...prevState.contestants,
+          [data.message.contestantId]: {
+            ...prevState.contestants[data.message.contestantId],
+            lapCount: data.message.lapCount,
+          }
+        }
+      } : null);
+    }
+    socket.on(ActiveRaceContestantEvents.ContestantLapCountChanged, onContestantLapCountChanged);
+
+
+    // Listens for contestant fastest lap changes.
+    const onContestantFastestLapChanged = (data: RacetrackEvent<ActiveContestantFastestLapChanged>) => {
+      setActiveRaceState(prevState => prevState ? {
+        ...prevState,
+        contestants: {
+          ...prevState.contestants,
+          [data.message.contestantId]: {
+            ...prevState.contestants[data.message.contestantId],
+            fastestLap: data.message.fastestLap,
+          }
+        }
+      } : null);
+    }
+    socket.on(ActiveRaceContestantEvents.ContestantFastestLapChanged, onContestantFastestLapChanged);
+
+
+    // Listens for contestant lap stopwatch tick changes.
+
+    const onContestantLapStopwatchTick = (data: RacetrackEvent<ActiveContestantLapStopwatchTick>) => {
+      setActiveRaceState(prevState => prevState ? {
+        ...prevState,
+        contestants: {
+          ...prevState.contestants,
+          [data.message.contestantId]: {
+            ...prevState.contestants[data.message.contestantId],
+            currentLapStopwatchTime: data.message.stopwatchTime,
+          }
+        }
+      } : null);
+    }
+
+    socket.on(ActiveRaceContestantEvents.ContestantLapStopwatchTick, onContestantLapStopwatchTick);
+
+
+
     // Cleanup function to remove the listeners when the component unmounts.
     return () => {
       socket.off(RaceControlEvents.RaceInitialState, onRaceInitialState);
       socket.off(RaceControlEvents.RaceStateChanged, onRaceStateChanged);
       socket.off(RaceControlEvents.RaceHazardChanged, onRaceHazardChanged);
       socket.off(RaceControlEvents.RaceIsFinishingChanged, onRaceFinishingChanged);
+
+      socket.off(ActiveRaceContestantEvents.ContestantPlaceChanged, onContestantPlaceChanged);
+      socket.off(ActiveRaceContestantEvents.ContestantLapCountChanged, onContestantLapCountChanged);
+      socket.off(ActiveRaceContestantEvents.ContestantFastestLapChanged, onContestantFastestLapChanged);
+      socket.off(ActiveRaceContestantEvents.ContestantLapStopwatchTick, onContestantLapStopwatchTick);
     }
   }, [socket])
 
