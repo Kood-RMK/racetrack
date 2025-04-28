@@ -1,7 +1,8 @@
-import { ActiveRace, RaceState } from "types/stateTypes";
+import { ActiveRace, ActiveRaceId, RaceContestantId, RaceState } from "types/stateTypes";
 import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { Namespace, Socket } from "socket.io";
 import { RacetrackEvent } from "types/messageTypes";
+import { ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
 
 export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
@@ -14,7 +15,7 @@ export enum ActiveRaceCommands {
     RequestActiveRaceState = 'requestActiveRaceState',
 }
 
-// Events
+//External Events
 export type ActiveRaceStateChanged = {
     type : ActiveRaceEvents.RaceStateChanged,
     newState : RaceState,
@@ -36,11 +37,15 @@ export type ActiveRaceInitialState = {
 }
 
 
+type ActiveContestantHandlers = Record<RaceContestantId, ActiveRaceContestantHandler>;
+
 export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _activeRaceRoom : string;
     private readonly _socketNamespace : Namespace;
+
+    private readonly _activeRaceContestantHandlers: ActiveContestantHandlers;
 
     public get activeRaceState() {
         return this._activeRaceState;
@@ -58,6 +63,15 @@ export class ActiveRaceHandler {
 
     constructor(private activeRace : ActiveRace, socketNamespace : Namespace) {
         this._activeRaceState = new ActiveRaceState(activeRace);
+
+
+        // Create a handler for each active contestant.
+        this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
+            contestantHandlers[contestantState.contestant.contestantId] = new ActiveRaceContestantHandler(contestantState);
+            return contestantHandlers;
+        }, {} as ActiveContestantHandlers);
+
+
         this._activeRaceRoom = `activerace_${this._activeRaceState.raceId}`;
         this._socketNamespace = socketNamespace;
 

@@ -45,8 +45,8 @@ export class ActiveRaceService {
         this._socketNamespace = this._socketServer.of("/active-race");
 
         const mockRace : ActiveRace = {
-            raceId : "123", 
-            raceTimeslot : "10:00 - 10:15",
+            id : "123", 
+            raceStartDateTime : "10:00 - 10:15",
             contestants : [],
             raceState : "pending",
             isHazard : false,

@@ -1,5 +1,5 @@
 import type { Server as SocketIOServer } from "socket.io";
-import { Contestant, Race } from "types/stateTypes";
+import { RaceContestant, ScheduledRace } from "types/stateTypes";
 import { RacetrackCommand, RacetrackEvent } from "types/messageTypes";
 import { RaceScheduleState, RaceScheduleEntry, RaceScheduleEntries } from "./race-schedule.state";
 import { RaceControlEvents } from "services/race-control/race-control.service";
@@ -33,21 +33,21 @@ export type RaceScheduleUpdated = {
 export type ScheduleNewRace = {
     type: RaceScheduleCommands.ScheduleNewRace,
     data: {
-        race: Race
+        race: ScheduledRace
     }
 };
 
 export type DeleteRace = {
     type: RaceScheduleCommands.DeleteRace
     data: {
-        race: Race
+        race: ScheduledRace
     }
 }
 
 export type ModifyRace = {
     type: RaceScheduleCommands.ModifyRace
     data: {
-        race: Race
+        race: ScheduledRace
     }
 }
 
@@ -108,7 +108,7 @@ export class RaceScheduleService {
 
                     const newData = command.message.data;
                     const newRace = newData.race;
-                    const { contestants, raceTimeslot: raceDateTime } = newRace
+                    const { contestants, raceStartDateTime: raceDateTime } = newRace
 
                     // Check to ensure there are no duplicate names in the new race
                     const duplicates = contestants
@@ -132,7 +132,7 @@ export class RaceScheduleService {
 
                     for (const value of Object.values(existingRaces)) {
                         console.log(value.raceDateTime);
-                        if (value.raceDateTime === newData.race.raceTimeslot) {
+                        if (value.raceDateTime === newData.race.raceStartDateTime) {
                             timeslotTaken = true;
                         }
                     }
@@ -174,7 +174,7 @@ export class RaceScheduleService {
                     }
 
                     // Determine the race ID to remove
-                    const idToRemove = command.message.data.race.raceId;
+                    const idToRemove = command.message.data.race.id;
 
                     // Delete the race
                     this.schedule.deleteRace(idToRemove);
@@ -207,7 +207,7 @@ export class RaceScheduleService {
 
                     const raceModificationData = command.message.data;
                     const updatedRace = raceModificationData.race;
-                    const { contestants, raceTimeslot: raceDateTime, raceId, raceState } = updatedRace;
+                    const { contestants, raceStartDateTime: raceDateTime, id: raceId, raceState } = updatedRace;
 
                     
                     // Check that the race exists in the schedule

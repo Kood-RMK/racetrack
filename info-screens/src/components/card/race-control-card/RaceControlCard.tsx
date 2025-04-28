@@ -14,7 +14,7 @@ export type RaceControlCardProps = {
 export default function RaceControlCard({ tags, buttons }: RaceControlCardProps) {
 
   return (
-    <div className="bg-gray-100 w-full max-w-[1200px] p-8 mb-14 font-cairo">
+    <div className="bg-gray-100 w-full max-w-[1200px] p-8 mb-14 font-cairo rounded-sm">
       {/* Race Tags */}
       {
         tags && 
@@ -32,11 +32,11 @@ export default function RaceControlCard({ tags, buttons }: RaceControlCardProps)
               Drivers 8/8
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-4 xl:grid-cols-4 xl:grid-rows-2 gap-y-6 md:gap-y-12 gap-x-2 w-full h-full justify-center items-center py-6 md:py-14">
+          <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-4 xl:grid-cols-4 xl:grid-rows-2 gap-y-6 md:gap-y-12 gap-x-2 w-full h-full justify-center items-center py-6 md:py-20">
             {Array(8)
               .fill(0)
               .map((_, index) => (
-                <div key={index} className="text-center text-xl lg:text-2xl font-medium">
+                <div key={index} className="flex flex-col items-center text-center text-xl lg:text-2xl font-medium">
                   <p>Racecar {index + 1}</p>
                   <p className="text-black font-medium text-2xl lg:text-3xl max-w-xs md:max-w-sm">Test Driver</p>
                 </div>
