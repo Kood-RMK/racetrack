@@ -102,7 +102,7 @@ function RaceControlPage() {
 
     return (
       <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
-        <p className='text-center py-12'>Race Control</p>
+        <h1 className='text-center py-12'>Race Control</h1>
           <RaceCard 
             tags={raceTags({activeRace: activeRaceState})}
             buttons={raceButtons({activeRace: activeRaceState, activeRaceController: activeRaceController})}

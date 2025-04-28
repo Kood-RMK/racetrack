@@ -1,5 +1,5 @@
 import { RaceContestantId } from "@/racetrack/types/stateTypes"
-import { createContext, RefObject, use, useEffect, useRef } from "react";
+import { createContext, RefObject, use, useContext, useEffect, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
 import { RacetrackCommand } from "@racetrack/types/messageTypes";
 import {useActiveRaceState} from "@providers/state/activeRaceStateProvider";
@@ -54,3 +54,14 @@ export const RaceObserverControllerProvider = ({children} : {children : React.Re
       </RaceObserverControllerContext.Provider>
   )
 }
+
+export const useRaceObserverController = () : RefObject<RaceObserverController> | null => {
+
+  const raceObserverController = useContext(RaceObserverControllerContext);
+
+  if (raceObserverController === undefined) {
+    throw new Error("useRaceObserverController must be used within an RaceObserverControllerProvider");
+  }
+
+    return raceObserverController
+};

@@ -87,6 +87,8 @@ export class ActiveRaceContestantHandler {
             this._socketNamespace
             .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantPlaceChanged, activeContestantPlaceChangedMessage);
+
+            console.log(`[Active Contestant Handler] : Broadcasted contestant ${contestant.contestant.contestantId} place change to ${this._contestantRoom}.`);
         }
 
         this.onContestantLapCountChanged = (contestant, prevValue) => {
@@ -102,6 +104,8 @@ export class ActiveRaceContestantHandler {
             this._socketNamespace
             .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantLapCountChanged, activeContestantLapCountChangedMessage);
+
+            console.log(`[Active Contestant Handler] : Broadcasted contestant ${contestant.contestant.contestantId} lap count change to ${this._contestantRoom}.`);
         }
 
         this.onContestantFastestLapChanged = (contestant, prevValue) => {

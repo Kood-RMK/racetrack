@@ -44,18 +44,41 @@ export class ActiveRaceService {
         const mockRace : ActiveRace = {
             raceId : "123", 
             raceStartDateTime : "10:00 - 10:15",
-            contestants : {},
+            contestants : {
+                "1" : {
+                    contestant : {
+                        contestantId : "1",
+                        name : "Contestant 1",
+                        racecarNumber : 1,
+                    },
+                    place : 1,
+                    lapCount : 5,
+                    fastestLap : 10,
+                    lapStopwatchTime : 1000,
+                },
+                "2" : {
+                    contestant : {
+                        contestantId : "2",
+                        name : "Contestant 2",
+                        racecarNumber : 2,
+                    },
+                    place : 2,
+                    lapCount : 4,
+                    fastestLap : 11,
+                    lapStopwatchTime : 1000,
+                },
+            },
             raceState : "pending",
             isHazard : false,
             isFinishing : false,
-            timeLeft : "10:00",};
+            timeLeft : 1000,};
 
         this._activeRaceHandler = new ActiveRaceHandler(mockRace , this._socketNamespace);
         this._activeRaceHandler.initialize();
 
         this._socketNamespace.on("connection", (client) => {
             if (this._activeRaceHandler) {
-                client.join(this._activeRaceHandler.activeRaceRoom);
+                this.addClientToActiveRaceRooms(client, this._activeRaceHandler);
             }
         });
 
@@ -81,7 +104,7 @@ export class ActiveRaceService {
         });
     }
 
-    private addClientToActiveRaceRooms(client: RemoteSocket<DefaultEventsMap, any>, activeRaceHandler: ActiveRaceHandler) {
+    private addClientToActiveRaceRooms(client: RemoteSocket<DefaultEventsMap, any> | Socket, activeRaceHandler: ActiveRaceHandler) {
 
         // Add client to the active race room, to get updates about the race state.
         client.join(activeRaceHandler.activeRaceRoom);

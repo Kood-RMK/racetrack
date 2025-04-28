@@ -3,7 +3,7 @@ export type RaceContestantId = string;
 export type RaceContestant = {
     contestantId : RaceContestantId,
     name : string,
-    racecar : number
+    racecarNumber : number
 }
 
 export type RaceState = 'completed' | 'active' | 'canceled' | 'pending' | 'paused' ;
