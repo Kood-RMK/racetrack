@@ -5,7 +5,7 @@ import { Race } from "@/racetrack/types/stateTypes";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 
-export type RaceScheduleController = { // The actions the provider will offer
+export type RaceScheduleController = { 
     tryAddRace: (newRace: Race) => void;
     tryModifyRace: (raceId: string, updatedRace: Partial<Race>) => void;
     tryDeleteRace: (raceId: string) => void;
@@ -17,8 +17,8 @@ const RaceScheduleControllerContext = createContext<RefObject<RaceScheduleContro
 export const RaceScheduleControllerProvider = ({ children }: { children: ReactNode}) => {
     const scheduleController = useRef<RaceScheduleController>({
         tryAddRace: () => { console.error("RaceScheduleControllerProvider: tryAddRace not implemented.") },
-        tryModifyRace: () => { },
-        tryDeleteRace: () => { },
+        tryModifyRace: () => { console.error("RaceScheduleControllerProvider: tryModifyRace not implemented.") },
+        tryDeleteRace: () => { console.error("RaceScheduleControllerProvider: tryDeleteRace not implemented.") },
     })
 
     const socket = useSocket("/race-schedule");
