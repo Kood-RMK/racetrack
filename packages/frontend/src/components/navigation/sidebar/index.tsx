@@ -3,7 +3,7 @@
 import {Button, Disclosure, DisclosureGroup, DisclosurePanel, DisclosureProps, Heading, Label, ListBox, ListBoxItem, Popover, Select, SelectValue} from 'react-aria-components';
 import React, { Key, ReactNode, useEffect } from 'react';
 import Icon from '@mdi/react';
-import { mdiAccountOutline, mdiCarCruiseControl, mdiChevronDown, mdiChevronUp, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline, mdiPowerStandby } from '@mdi/js';
+import { mdiAccountOutline, mdiArrowLeft, mdiBookOpenOutline, mdiCarCruiseControl, mdiChevronDown, mdiChevronUp, mdiCloseBoxOutline, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiMenu, mdiMenuClose, mdiMenuOpen, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline, mdiPowerStandby } from '@mdi/js';
 import Link from 'next/link';
 
 interface SidebarDisclosureProps extends Omit<DisclosureProps, 'children'> {
@@ -59,7 +59,6 @@ function SidebarDisclosure({title, iconPath, items, children, ...props}: Sidebar
   )
 }
 
-
 function SidebarUserManagement() {
 
 
@@ -87,58 +86,72 @@ function SidebarUserManagement() {
 
 export default function Sidebar() {
 
+  const [isSidebarOpen, setIsSidebarOpen ] = React.useState(false);
+
   return (
-    <header className="w-72 h-full flex flex-col bg-primary font-cairo items-center overflow-auto">
-      <div className="flex w-full py-6 flex-row justify-center border-b-2 border-bg-secondary gap-1">
-        <Icon className="rotate-12 w-7 min-w-7 text-yellow-400" path={mdiLightningBoltOutline}/>
-        <h1 className="text-xl text-white font-semibold">Racetrack Control</h1>
-        <Icon className="rotate-12 w-7 min-w-7 text-yellow-400" path={mdiLightningBoltOutline}/>
+    <header className="h-full relative flex flex-row font-cairo overflow-auto">
+
+        <div className={`bg-primary px-6 h-full transform  transition-transform duration-200 ${isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full fixed'}`}>
+          <div className="flex w-full py-6 items-center flex-col justify-center border-b-2 border-bg-secondary gap-1">
+            <h1 className="text-2xl text-white font-semibold">Racetrack Control</h1>
+            <h1 className="text-md text-gray-100 font-semibold">ACME Corp.</h1>
+          </div>
+          <nav className="flex flex-col w-64">
+            {/* NAV MENU */}
+            <DisclosureGroup
+              allowsMultipleExpanded  
+              defaultExpandedKeys={['admin', 'display']}
+              className="w-full pt-6 flex flex-1 flex-col items-center">
+                <SidebarDisclosure 
+                  id="admin" 
+                  title="Front Desk" 
+                  iconPath={mdiOfficeBuildingCog} 
+                  items={[
+                    <SidebarItem title="Race Schedule" path="/admin/race-schedule"/>
+                  ]}
+                  >
+                </SidebarDisclosure>
+                <SidebarDisclosure 
+                  id="display" 
+                  title="Race Display" 
+                  iconPath={mdiDivingScubaFlag} 
+                  items={[
+                    <SidebarItem title="Leaderboard" path="/display/race-leaderboard"/>,
+                    <SidebarItem title="Timer" path="/display/race-timer"/>,
+                    <SidebarItem title="Race Flag" path="/display/race-flag"/>,
+                    <SidebarItem title="Announcements" path="/display/race-announcements"/>
+                  ]}>
+                  Details about system requirements here
+              </SidebarDisclosure>
+
+              <SidebarDisclosure 
+                id="display1" 
+                title="Race Control" 
+                iconPath={mdiCarCruiseControl} 
+                items={[
+                  <SidebarItem title="Race Control" path="/admin/race-control"/>,
+                  <SidebarItem title="Lap-line Observer" path="/display/lap-line-observer"/>
+                ]}>
+                Details about system requirements here
+              </SidebarDisclosure>
+            </DisclosureGroup>
+
+            {/* USER MENU */}
+            {/* <SidebarUserManagement>
+            </SidebarUserManagement> */}
+          </nav>
+        </div>
+      <div className='h-full'>
+          <Button 
+          className={`ml-2 mt-4`}
+          onPress={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            <div 
+              className='p-2 hover:bg-gray-200/50 rounded-md duration-100 ease-in-out'>
+              <Icon className="w-8 h-auto text-black " path={ isSidebarOpen ? mdiMenuOpen : mdiMenu} />
+            </div>
+          </Button>
       </div>
-      <nav className="flex flex-col w-64 h-full">
-
-        {/* NAV MENU */}
-        <DisclosureGroup
-          allowsMultipleExpanded  
-          defaultExpandedKeys={['admin', 'display']}
-          className="w-full pt-6 flex flex-1 flex-col items-center">
-            <SidebarDisclosure 
-              id="admin" 
-              title="Front Desk" 
-              iconPath={mdiOfficeBuildingCog} 
-              items={[
-                <SidebarItem title="Race Schedule" path="/admin/race-schedule"/>
-              ]}
-              >
-            </SidebarDisclosure>
-            <SidebarDisclosure 
-              id="display" 
-              title="Race Display" 
-              iconPath={mdiDivingScubaFlag} 
-              items={[
-                <SidebarItem title="Leaderboard" path="/display/race-leaderboard"/>,
-                <SidebarItem title="Timer" path="/display/race-timer"/>,
-                <SidebarItem title="Race Flag" path="/display/race-flag"/>,
-                <SidebarItem title="Announcements" path="/display/race-announcements"/>
-              ]}>
-              Details about system requirements here
-          </SidebarDisclosure>
-
-          <SidebarDisclosure 
-            id="display1" 
-            title="Race Control" 
-            iconPath={mdiCarCruiseControl} 
-            items={[
-              <SidebarItem title="Race Control" path="/admin/race-control"/>,
-              <SidebarItem title="Lap-line Observer" path="/display/lap-line-observer"/>
-            ]}>
-            Details about system requirements here
-          </SidebarDisclosure>
-        </DisclosureGroup>
-
-        {/* USER MENU */}
-        {/* <SidebarUserManagement>
-        </SidebarUserManagement> */}
-      </nav>
     </header>
   );
 }
