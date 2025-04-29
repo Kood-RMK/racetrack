@@ -3,6 +3,7 @@ import type { DefaultEventsMap, Namespace, RemoteSocket, Socket, Server as Socke
 import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
 import { ActiveRace } from "@racetrack/types";
+import { Logger } from "pino";
 
 export enum ActiveRaceServiceEvents {
     ActiveRaceSet = 'activeRaceSet',
@@ -36,10 +37,13 @@ export class ActiveRaceService {
     private readonly _socketServer: SocketIOServer;
     private readonly _eventEmitter = new ActiveRaceServiceEventEmitter();
     private readonly _socketNamespace: Namespace;
+    private readonly logger : Logger;
 
-    constructor(io: SocketIOServer) {
+    constructor(io: SocketIOServer, parentLogger : Logger) {
         this._socketServer = io;
         this._socketNamespace = this._socketServer.of("/active-race");
+        const logger = parentLogger.child({serviceName: this.constructor.name});
+        this.logger = logger;
 
         const mockRace : ActiveRace = {
             raceId : "123", 
@@ -73,7 +77,7 @@ export class ActiveRaceService {
             isFinishing : false,
             timeLeft : 1000,};
 
-        this._activeRaceHandler = new ActiveRaceHandler(mockRace , this._socketNamespace);
+        this._activeRaceHandler = new ActiveRaceHandler(mockRace, this._socketNamespace, this.logger);
         this._activeRaceHandler.initialize();
 
         this._socketNamespace.on("connection", (client) => {
@@ -88,6 +92,7 @@ export class ActiveRaceService {
             const raceHandler = this._activeRaceHandler;
  
             if (raceHandler) {
+                logger.info(`New race added, adding clients to active race room.`)
                 clients.forEach((client) => {
                     this.addClientToActiveRaceRooms(client, raceHandler);
                 });
@@ -96,6 +101,8 @@ export class ActiveRaceService {
 
         this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceRemoved, async () => {
             const clients = await this._socketNamespace.fetchSockets();
+
+            logger.info(`Race ended, removing clients from the active race room.`)
             clients.forEach((client) => {
                 if (this._activeRaceHandler) {
                     this.removeClientFromActiveRaceRooms(client, this._activeRaceHandler);
@@ -133,7 +140,7 @@ export class ActiveRaceService {
     }
 
     public setActiveRace(activeRace: ActiveRace) {
-        this._activeRaceHandler = new ActiveRaceHandler(activeRace, this._socketNamespace);
+        this._activeRaceHandler = new ActiveRaceHandler(activeRace, this._socketNamespace, this.logger);
         this._activeRaceHandler.initialize();
         this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceSet, activeRace);
     }

@@ -3,6 +3,7 @@ import { Namespace } from "socket.io";
 import { ActiveRaceState, ActiveRaceStateEvents } from "../active-race.state";
 import { Stopwatch, StopwatchEvents } from "../../../utils/stopwatch";
 import { ActiveRaceContestant, RacetrackEvent } from "@racetrack/types";
+import { Logger } from "pino";
 
 
 export enum ActiveRaceContestantEvents {
@@ -46,6 +47,7 @@ export class ActiveRaceContestantHandler {
     private readonly _contestantRoom : string;
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _stopwatch : Stopwatch;
+    private readonly logger : Logger;
 
     private onContestantPlaceChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantPlaceChanged];
     private onContestantLapCountChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantLapCountChanged];
@@ -72,10 +74,11 @@ export class ActiveRaceContestantHandler {
         this._contestantState.setLapStopwatchTime(stopwatchTime);
     }
 
-    constructor(contestantState: ActiveRaceContestantState, activeRaceState : ActiveRaceState, socketNamespace : Namespace) {
+    constructor(contestantState: ActiveRaceContestantState, activeRaceState : ActiveRaceState, socketNamespace : Namespace, parentLogger : Logger) {
         this._contestantState = contestantState;
         this._socketNamespace = socketNamespace;
         this._activeRaceState = activeRaceState;
+        this.logger = parentLogger.child({ handlerName : this.constructor.name });
         this._stopwatch = new Stopwatch(100);
         this._contestantRoom = `active-contestant-${this._contestantState.contestant.contestantId}`;
 
@@ -87,6 +90,7 @@ export class ActiveRaceContestantHandler {
             } else {
                 this._stopwatch.stop();
             }
+
         });
 
         this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
@@ -107,7 +111,7 @@ export class ActiveRaceContestantHandler {
             .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantPlaceChanged, activeContestantPlaceChangedMessage);
 
-            console.log(`[Active Contestant Handler] : Broadcasted contestant ${contestant.contestant.contestantId} place change to ${this._contestantRoom}.`);
+            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} place change to ${this._contestantRoom}.`)
         }
 
         this.onContestantLapCountChanged = (contestant, prevValue) => {

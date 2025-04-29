@@ -3,6 +3,7 @@ import { Namespace, Socket } from "socket.io";
 import { ActiveRaceContestantEvents, ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
 import { ActiveRaceContestantStateEvents } from "./contestant/active-race-contestant.state";
 import { ActiveRace, RaceContestantId, RaceState, RacetrackEvent } from "@racetrack/types";
+import { Logger } from "pino";
 
 export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
@@ -44,6 +45,7 @@ export class ActiveRaceHandler {
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _activeRaceRoom : string;
     private readonly _socketNamespace : Namespace;
+    private readonly logger : Logger;
 
     private readonly _activeRaceContestantHandlers: ActiveContestantHandlers;
 
@@ -62,7 +64,6 @@ export class ActiveRaceHandler {
     public get activeRaceRoom() {
         return this._activeRaceRoom;
     }
-
 
     private onConnection : (client: Socket) => void;
     private onRaceStateChanged : (newState: ActiveRace['raceState']) => void;
@@ -89,13 +90,17 @@ export class ActiveRaceHandler {
         });
     }
 
-    constructor(private activeRace : ActiveRace, socketNamespace : Namespace) {
+    constructor(private activeRace : ActiveRace, socketNamespace : Namespace, baseLogger : Logger) {
         this._activeRaceState = new ActiveRaceState(activeRace);
-
+        this.logger = baseLogger.child(
+            {
+                handlerName: this.constructor.name
+            }
+        );
 
         // Create a handler for each active contestant.
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
-            const contestantHandler  = new ActiveRaceContestantHandler(contestantState, this._activeRaceState, socketNamespace);
+            const contestantHandler  = new ActiveRaceContestantHandler(contestantState, this._activeRaceState, socketNamespace, baseLogger);
 
             // When a contestant crosses the line, we need to recalculate the placement of all contestants.
             contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantLapCountChanged, (contestant, preValue) => {
@@ -107,12 +112,12 @@ export class ActiveRaceHandler {
             return contestantHandlers;
         }, {} as ActiveContestantHandlers);
 
-
+        // Create a room for the active race.
         this._activeRaceRoom = `active-race-${this._activeRaceState.raceId}`;
         this._socketNamespace = socketNamespace;
 
         this.onConnection = (client : Socket) => {
-            console.log(`[🧑 Active Race (${this._activeRaceRoom})]: New Client Connected! ID:`, client.id);
+            this.logger.info(`New Connection! Client: ${client.id}`);
 
             const initialStateMessage : RacetrackEvent<ActiveRaceInitialState> = {
                 message : {
@@ -137,10 +142,10 @@ export class ActiveRaceHandler {
                     .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceStateChanged, raceStateChangedMessage);
 
-                console.log(`[📩 Active Race Handler]: Race State Change Broadcasted to: ${this._activeRaceRoom}`)
+                this.logger.info(raceStateChangedMessage, `Race state change broadcasted to: ${this._activeRaceRoom}.`);
 
             } catch (error) {
-                console.error(`Error processing ${ActiveRaceEvents.RaceStateChanged} event:`, error);
+                baseLogger.error(error);
             }
         }
 
@@ -157,8 +162,11 @@ export class ActiveRaceHandler {
                     .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceHazardChanged, raceHazardChangedMessage);
 
+
+                this.logger.info(raceHazardChangedMessage, `Race flag change broadcasted to: ${this._activeRaceRoom}.`);
+
             } catch (error) {
-                console.error(`Error processing ${ActiveRaceEvents.RaceHazardChanged} event:`, error);
+                baseLogger.error(error);
             }
         }
 
@@ -174,8 +182,11 @@ export class ActiveRaceHandler {
                 this._socketNamespace
                     .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceIsFinishingChanged, raceIsFinishingChangedMessage);
+
+
+                this.logger.info(raceIsFinishingChangedMessage, `Race flag change broadcasted to: ${this._activeRaceRoom}.`);
             } catch (error) {
-                console.error(`Error processing ${ActiveRaceEvents.RaceIsFinishingChanged} event:`, error);
+                baseLogger.error(error);
             }
         }
     }
@@ -195,7 +206,8 @@ export class ActiveRaceHandler {
 
         this._socketNamespace.on("connection", this.onConnection);
 
-        console.log(`[Active Race Handler (${this.activeRace.raceId})]: Initialized!`);
+
+        this.logger.info(`Initialized!`)
     }
 
     public destroy() {
@@ -211,6 +223,6 @@ export class ActiveRaceHandler {
 
         this._socketNamespace.off("connection", this.onConnection);
 
-        console.log(`[Active Race Handler (${this.activeRace.raceId})]: Destroyed!`);
+        this.logger.info(`Destroyed!`);
     }
 }
