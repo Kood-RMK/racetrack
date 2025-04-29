@@ -1,4 +1,4 @@
-import Sidebar from "@/components/navigation/sidebar";
+import Sidebar from "@/components/navigation/sidebar/sidebar";
 import Overlay from "@/components/overlay/Overlay";
 import { Metadata } from "next";
 
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <body className="flex h-screen">
         
-        <div className="w-72 flex-shrink-0">
+        <div className="flex-shrink-0">
           <Sidebar/>
         </div>
         <div className="flex-1 relative overflow-y-auto">

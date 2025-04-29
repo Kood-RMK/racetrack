@@ -148,7 +148,7 @@ export default function Sidebar() {
           >
             <div 
               className='p-2 hover:bg-gray-200/50 rounded-md duration-100 ease-in-out'>
-              <Icon className="w-8 h-auto text-black " path={ isSidebarOpen ? mdiMenuOpen : mdiMenu} />
+              <Icon className="w-8 h-auto text-black" path={ isSidebarOpen ? mdiMenuOpen : mdiMenu} />
             </div>
           </Button>
       </div>

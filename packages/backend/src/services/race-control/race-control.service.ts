@@ -60,7 +60,6 @@ export class RaceControlService {
 
         socketNamespace.on("connection", (client) => {
 
-
             this.logger.info(`New client connected!, ID`, client.id)
 
             client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {

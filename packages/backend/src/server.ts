@@ -19,7 +19,6 @@ const io = new Server(server, {
   }
 });
 
-
 const logStream = pretty({
   colorize: true,
   ignore: 'handlerName,serviceName',
@@ -38,8 +37,8 @@ const logger = pino(
 
 // leaderboardService(io);
 const activeRaceService = new ActiveRaceService(io, logger);
-const raceControlService = new RaceControlService(io, activeRaceService);
-const raceObserverService = new RaceObserverService(io, activeRaceService);
+const raceControlService = new RaceControlService(io, activeRaceService, logger);
+const raceObserverService = new RaceObserverService(io, activeRaceService, logger);
 // new RaceScheduleService(io);
 
 server.listen(3001, () => {
