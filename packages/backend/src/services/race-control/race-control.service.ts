@@ -1,6 +1,7 @@
 import { RaceState, RacetrackCommand } from "@racetrack/types";
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRaceService } from "../active-race/active-race.service";
+import { Logger } from "pino";
 
 // Message Types
 export enum RaceControlEvents {
@@ -39,13 +40,16 @@ export type ChangeActiveRaceIsFinishing = {
 
 // Handlers.
 export class RaceControlService {
-    private socketIO: SocketIOServer;
-    private activeRaceService : ActiveRaceService;
+    private readonly socketIO: SocketIOServer;
+    private readonly activeRaceService : ActiveRaceService;
+    private readonly logger : Logger;
 
-    constructor(socketIO : SocketIOServer, activeRaceService : ActiveRaceService) {
+    constructor(socketIO : SocketIOServer, activeRaceService : ActiveRaceService, parentLogger : Logger) {
 
         this.socketIO = socketIO;
         this.activeRaceService = activeRaceService;
+        const logger = parentLogger.child({serviceName : this.constructor.name})
+        this.logger = logger;
 
         const socketNamespace = this.socketIO.of("/race-control");
 
@@ -55,7 +59,9 @@ export class RaceControlService {
         })
 
         socketNamespace.on("connection", (client) => {
-            console.log(`🧑 Race Control Service: New Client Connected! ID:`, client.id)
+
+
+            this.logger.info(`New client connected!, ID`, client.id)
 
             client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {
 
@@ -78,7 +84,7 @@ export class RaceControlService {
                     activeRace.setRaceState(command.message.newState);
 
                 } catch (error) {
-                    console.error(`Error processing ${RaceControlCommands.ChangeRaceState} command:`, error);
+                    this.logger.error(`Error processing ${RaceControlCommands.ChangeRaceState} command:`, error)
                 }
             })
 
@@ -103,7 +109,7 @@ export class RaceControlService {
 
                     activeRace.setIsHazard(command.message.isHazard);
                 } catch (error) {
-                    console.error(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
+                    this.logger.info(`Error processing ${RaceControlCommands.ChangeRaceHazard} command:`, error);
                 }
             });
 
@@ -127,7 +133,7 @@ export class RaceControlService {
 
                     activeRace.setIsFinishing(command.message.isFinishing);
                 } catch(error) {
-                    console.error(`Error processing ${RaceControlCommands.ChangeRaceIsFinishing} command:`, error);
+                    this.logger.info(`Error processing ${RaceControlCommands.ChangeRaceIsFinishing} command:`, error)
                 }
             })
         })

@@ -1,6 +1,7 @@
 import { ActiveRaceId, RaceContestantId, RacetrackCommand } from "@racetrack/types";
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRaceService } from "../active-race/active-race.service";
+import { Logger } from "pino";
 
 
 // Message Types
@@ -32,10 +33,13 @@ export class RaceObserverService {
     private readonly _socketIO: SocketIOServer;
     private readonly _activeRaceService : ActiveRaceService;
     private readonly _raceObserverRoom : string;
+    private readonly logger : Logger;
 
-    constructor(socketIO : SocketIOServer, activeRaceService : ActiveRaceService) {
+    constructor(socketIO : SocketIOServer, activeRaceService : ActiveRaceService, parentLogger : Logger) {
         this._socketIO = socketIO;
         this._activeRaceService = activeRaceService;
+        const logger = parentLogger.child({serviceName : this.constructor.name})
+        this.logger = logger;
 
         const socketNamespace = this._socketIO.of("/race-observer");
         this._raceObserverRoom = "race-observer-room";
@@ -46,8 +50,8 @@ export class RaceObserverService {
         })
 
         socketNamespace.on("connection", (client) => {
-            console.log(`[🔭 Race Observer Service] : New Client Connected ID: ${client.id}`)
 
+            this.logger.info(`New Client Connected ID: ${client.id}`)
             client.on(RaceObserverCommands.HandleLineCrossed, (command : RacetrackCommand<HandleLineCrossed>) => {
                 try {
 
@@ -78,7 +82,7 @@ export class RaceObserverService {
 
                     socketIO.to(this._raceObserverRoom).emit(event.type, event);
                 } catch (error) {
-                    console.error(`Error processing ${RaceObserverCommands.HandleLineCrossed} command:`, error);
+                    this.logger.error(`Error processing ${RaceObserverCommands.HandleLineCrossed}.`, error)
                 }
             })
         });

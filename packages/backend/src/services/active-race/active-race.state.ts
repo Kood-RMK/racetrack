@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 import { ActiveRaceContestantState } from "./contestant/active-race-contestant.state";
 import { ActiveRace } from "@racetrack/types";
+import { Logger } from "pino";
 
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
@@ -34,13 +35,15 @@ export class ActiveRaceStateEventEmitter extends EventEmitter {
 export class ActiveRaceState {
     private _activeRace: ActiveRace;
     private _activeRaceContestantsState: ActiveRaceContestantState[];
+    private readonly logger : Logger;
     private _eventEmitter = new ActiveRaceStateEventEmitter();
 
-
-    constructor(activeRace: ActiveRace) {
+    constructor(activeRace: ActiveRace, baseLogger : Logger) {
         this._activeRace = activeRace;
+        this.logger = baseLogger.child({handlerName : this.constructor.name})
+
         this._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
-            return new ActiveRaceContestantState(contestant);
+            return new ActiveRaceContestantState(contestant, this.logger);
         });
     }
 
@@ -83,14 +86,14 @@ export class ActiveRaceState {
     public setRaceState(raceState: ActiveRace['raceState']) {
 
         this._activeRace.raceState = raceState;
-        console.log(`[🔥 Active Race State]: Race State set to: ${raceState}.`);
+        this.logger.info(`Race state set to: ${raceState}.`)
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceStateChanged, raceState);
     }
 
     public setIsHazard(isHazard: ActiveRace['isHazard']) {
 
         this._activeRace.isHazard = isHazard;
-        console.log(`[🔥 Active Race State]: Hazard Flag set to: ${isHazard}.`);
+        this.logger.info(`Hazard flag set to : ${isHazard}.`)
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceHazardChanged, isHazard);
 
         // Make sure that the isFinishing flag is not set when the hazard flag is set.
@@ -102,7 +105,7 @@ export class ActiveRaceState {
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
 
         this._activeRace.isFinishing = isFinishing;
-        console.log(`[🔥 Active Race State]: Finishing Flag set to: ${isFinishing}.`);
+        this.logger.info(`Is finishing flag set to : ${isFinishing}.`)
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceIsFinishingChanged, isFinishing);
 
         // Make sure that the isHazard flag is not set when the finishing flag is set.

@@ -1,5 +1,6 @@
 import { ActiveRaceContestant } from "@racetrack/types";
 import EventEmitter from "events";
+import { Logger } from "pino";
 export enum ActiveRaceContestantStateEvents {
     ContestantPlaceChanged = 'onContestantPlaceChanged',
     ContestantLapCountChanged = 'onContestantLapCountChanged',
@@ -32,9 +33,11 @@ export class ActiveRaceContestantStateEventEmitter extends EventEmitter {
 export class ActiveRaceContestantState {
     private _contestant: ActiveRaceContestant;
     private _eventEmitter = new ActiveRaceContestantStateEventEmitter();
+    private readonly logger : Logger;
 
-    constructor(contestant: ActiveRaceContestant) {
+    constructor(contestant: ActiveRaceContestant, parentLogger : Logger) {
         this._contestant = contestant;
+        this.logger = parentLogger.child({handlerName : this.constructor.name})
     }
 
     public get events() {
@@ -62,19 +65,19 @@ export class ActiveRaceContestantState {
     }
 
     public setPlace(newPlace: ActiveRaceContestant['place']) {
-        console.log(`Contestant ${this._contestant.contestant.name} place changed to ${newPlace}`);
+        this.logger.info(`Contestant ${this._contestant.contestant.name} place changed to ${newPlace}.`)
         const prevPlace = this._contestant.place;
         this._contestant.place = newPlace;
         this._eventEmitter.emit(ActiveRaceContestantStateEvents.ContestantPlaceChanged, this, prevPlace);
     }
     public setLapCount(newLapCount: ActiveRaceContestant['lapCount']) {
-        console.log(`Contestant ${this._contestant.contestant.name} lap count changed to ${newLapCount}`);
+        this.logger.info(`Contestant ${this._contestant.contestant.name} lap count changed to ${newLapCount}.`)
         const prevLapCount = this._contestant.lapCount;
         this._contestant.lapCount = newLapCount;
         this._eventEmitter.emit(ActiveRaceContestantStateEvents.ContestantLapCountChanged, this, prevLapCount);
     }
     public setFastestLap(newFastestLap: ActiveRaceContestant['fastestLap']) {
-        console.log(`Contestant ${this._contestant.contestant.name} fastest lap changed to ${newFastestLap}`);
+        this.logger.info(`Contestant ${this._contestant.contestant.name} lap count changed to ${newFastestLap}.`)
         const prevFastestLap = this._contestant.fastestLap;
         this._contestant.fastestLap = newFastestLap;
         this._eventEmitter.emit(ActiveRaceContestantStateEvents.ContestantFastestLapChanged, this, prevFastestLap);

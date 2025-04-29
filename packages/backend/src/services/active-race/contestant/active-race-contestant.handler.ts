@@ -13,7 +13,6 @@ export enum ActiveRaceContestantEvents {
     ContestantLapStopwatchTick = 'ContestantLapStopwatchTick',
 }
 
-
 //External Events
 export type ActiveContestantPlaceChanged = {
     type : ActiveRaceContestantEvents.ContestantPlaceChanged,
@@ -38,7 +37,6 @@ export type ActiveContestantLapStopwatchTick = {
     contestantId : ActiveRaceContestant['contestant']['contestantId'],
     stopwatchTime : ActiveRaceContestant['lapStopwatchTime'],
 }
-
 
 export class ActiveRaceContestantHandler {
 
@@ -128,7 +126,8 @@ export class ActiveRaceContestantHandler {
             .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantLapCountChanged, activeContestantLapCountChangedMessage);
 
-            console.log(`[Active Contestant Handler] : Broadcasted contestant ${contestant.contestant.contestantId} lap count change to ${this._contestantRoom}.`);
+
+            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} lap count change to ${this._contestantRoom}.`)            
         }
 
         this.onContestantFastestLapChanged = (contestant, prevValue) => {
@@ -144,6 +143,8 @@ export class ActiveRaceContestantHandler {
             this._socketNamespace
             .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantFastestLapChanged, activeContestantFastestLapChangedMessage);
+
+            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} fastest lap change to ${this._contestantRoom}.`)            
         }
 
         this.onContestantLapStopwatchTick = (contestant, prevValue) => {
@@ -161,7 +162,6 @@ export class ActiveRaceContestantHandler {
             .emit(ActiveRaceContestantEvents.ContestantLapStopwatchTick, activeContestantLapStopwatchTickMessage);
         }
     }
-
 
     public initialize() {
         const activeRaceContestantStateEvents = this._contestantState.events;

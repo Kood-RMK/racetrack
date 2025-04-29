@@ -90,13 +90,14 @@ export class ActiveRaceHandler {
         });
     }
 
-    constructor(private activeRace : ActiveRace, socketNamespace : Namespace, baseLogger : Logger) {
-        this._activeRaceState = new ActiveRaceState(activeRace);
+    constructor(activeRace : ActiveRace, socketNamespace : Namespace, baseLogger : Logger) {
         this.logger = baseLogger.child(
             {
                 handlerName: this.constructor.name
             }
         );
+
+        this._activeRaceState = new ActiveRaceState(activeRace, this.logger);
 
         // Create a handler for each active contestant.
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
@@ -145,7 +146,7 @@ export class ActiveRaceHandler {
                 this.logger.info(raceStateChangedMessage, `Race state change broadcasted to: ${this._activeRaceRoom}.`);
 
             } catch (error) {
-                baseLogger.error(error);
+                this.logger.error(error);
             }
         }
 
@@ -164,9 +165,8 @@ export class ActiveRaceHandler {
 
 
                 this.logger.info(raceHazardChangedMessage, `Race flag change broadcasted to: ${this._activeRaceRoom}.`);
-
             } catch (error) {
-                baseLogger.error(error);
+                this.logger.error(error);
             }
         }
 
@@ -186,14 +186,13 @@ export class ActiveRaceHandler {
 
                 this.logger.info(raceIsFinishingChangedMessage, `Race flag change broadcasted to: ${this._activeRaceRoom}.`);
             } catch (error) {
-                baseLogger.error(error);
+                this.logger.error(error);
             }
         }
     }
 
     public initialize() {
         const activeRaceStateEvents = this._activeRaceState.events;
-
 
         Object.entries(this._activeRaceContestantHandlers).forEach(([contestantId, contestantHandler]) => {
             contestantHandler.initialize();
@@ -205,8 +204,6 @@ export class ActiveRaceHandler {
 
 
         this._socketNamespace.on("connection", this.onConnection);
-
-
         this.logger.info(`Initialized!`)
     }
 
@@ -222,7 +219,6 @@ export class ActiveRaceHandler {
         });
 
         this._socketNamespace.off("connection", this.onConnection);
-
         this.logger.info(`Destroyed!`);
     }
 }
