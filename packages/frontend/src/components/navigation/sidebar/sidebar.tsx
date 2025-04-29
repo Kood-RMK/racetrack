@@ -89,8 +89,7 @@ export default function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen ] = React.useState(false);
 
   return (
-    <header className="h-full relative flex flex-row font-cairo overflow-auto">
-
+    <header className={` h-full ${isSidebarOpen ? 'fixed md:relative' : 'fixed'  } z-10 left-0 top-0 flex flex-row font-cairo overflow-auto `}>
         <div className={`bg-primary px-6 h-full transform  transition-transform duration-200 ${isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full fixed'}`}>
           <div className="flex w-full py-6 items-center flex-col justify-center border-b-2 border-bg-secondary gap-1">
             <h1 className="text-2xl text-white font-semibold">Racetrack Control</h1>
