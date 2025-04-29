@@ -1,40 +1,40 @@
 "use client";
 
-import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, ScheduleNewRace } from "@/racetrack/services/race-schedule/race-schedule.service";
 import { ReactNode, useEffect, useState, createContext, useContext, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
 import { RaceSchedule, RacetrackEvent } from "racetrack-backend/types";
+import { RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated } from "racetrack-backend/services";
+import { RaceScheduleEntries } from "racetrack-backend/services/race-schedule/race-schedule.state.js";
 
 
 // Contexts
-const RaceScheduleContext = createContext<RaceSchedule | null>(null);
+const RaceScheduleContext = createContext<RaceScheduleEntries | null>(null);
 
 
 // Provider
 export const RaceScheduleStateProvider = ({ children }: { children: ReactNode }) => {
 
-    //  You are creating a piece of state called scheduleState that starts as an empty array [], 
+    // You are creating a piece of state called scheduleState that starts as an empty array [], 
     // and it must match the type RaceSchedule.
-    const [scheduleState, setScheduleState] = useState<RaceSchedule>({});
+    const [scheduleState, setScheduleState] = useState<RaceScheduleEntries>({});
 
     const socket = useSocket("/race-schedule");
 
     // useEffect to only mount the socket once and unhooklisteners when the component unmounts.
     useEffect(() => {
 
-        if (!socket) {
-            // Socket is not yet available.
+        if (!socket.current) {
             return;
         }
 
         // receive the initial schedule state for new client
         const onScheduleInitialState = (data: RacetrackEvent<RaceScheduleInitialState>) => {
-            const initalSchedule = data.message.schedule;
-            setScheduleState(initalSchedule);
+            const initialSchedule = data.message.schedule; // mis sisse tuleb?
+            setScheduleState(initialSchedule); // mis v'lja peab minema?
 
-            console.log(`[📩 Race Schedule]: Initial Schedule State Received:`, initalSchedule);
+            console.log(`[📩 Race Schedule]: Initial Schedule State Received:`, initialSchedule);
         }
-        socket.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
+        socket.current.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
 
 
         const onRaceScheduleUpdated = (data: RacetrackEvent<RaceScheduleUpdated>) => {
@@ -43,11 +43,11 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 
             console.log(`[📩 Race Schedule]: Race Schedule update received:`, updatedSchedule);
         }
-        socket.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
+        socket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
 
         return () => {
-            socket.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
-            socket.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
+            socket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
+            socket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
         };
     }, [socket]);
 
@@ -59,7 +59,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 };
 
 // Hook to access the context easily
-export const useRaceScheduleState = (): RaceSchedule | null => {
+export const useRaceScheduleState = (): RaceScheduleEntries | null => {
     const schedule = useContext(RaceScheduleContext);
 
     if (schedule === undefined) {

@@ -1,5 +1,6 @@
+import { ScheduledRace } from "@racetrack/types/stateTypes";
 import EventEmitter from "events";
-import { ScheduledRace } from "@racetrack/src/types/stateTypes";
+
 
 
 export enum RaceScheduleEvents {
@@ -26,7 +27,7 @@ export class RaceScheduleEventEmitter extends EventEmitter {
     }
 }
 
-export type RaceScheduleEntries = Record<ScheduledRace['id'], RaceScheduleEntry>;
+export type RaceScheduleEntries = Record<ScheduledRace['raceId'], RaceScheduleEntry>;
 
 // Get for all races in race schedule
 export class RaceScheduleState {
@@ -41,7 +42,7 @@ export class RaceScheduleState {
         return this._eventEmitter;
     }
 
-    public getRaceById(id : ScheduledRace['id']) {
+    public getRaceById(id : ScheduledRace['raceId']) {
         return this._raceScheduleState[id];
     }
 
@@ -50,11 +51,11 @@ export class RaceScheduleState {
         return entry;
     }
 
-    public deleteRace(id : ScheduledRace['id']) {
+    public deleteRace(id : ScheduledRace['raceId']) {
         delete this._raceScheduleState[id];
     }
 
-    public modifyRace(id : ScheduledRace['id']) {
+    public modifyRace(id : ScheduledRace['raceId']) {
         
     }
 }
@@ -67,7 +68,7 @@ export enum RaceScheduleEntryEvents {
 }
 
 export interface RaceScheduleEntryCallbacks {
-    [RaceScheduleEntryEvents.RaceIdChanged] : (raceId: ScheduledRace['id']) => void;
+    [RaceScheduleEntryEvents.RaceIdChanged] : (raceId: ScheduledRace['raceId']) => void;
     [RaceScheduleEntryEvents.ContestantsChanged] : (contestants: ScheduledRace['contestants']) => void;
     [RaceScheduleEntryEvents.RaceDateTimeChanged] : (raceDateTime: ScheduledRace['raceStartDateTime']) => void;
     [RaceScheduleEntryEvents.RaceStateChanged] : (newState: ScheduledRace['raceState']) => void;
@@ -103,7 +104,7 @@ export class RaceScheduleEntry {
     }
 
     public get raceId() {
-        return this._race.id;
+        return this._race.raceId;
     }
 
     public get contestants() {
@@ -123,8 +124,8 @@ export class RaceScheduleEntry {
     }
 
     // Setters
-    public setRaceId(raceId: ScheduledRace['id']) {
-        this._race.id = raceId;
+    public setRaceId(raceId: ScheduledRace['raceId']) {
+        this._race.raceId = raceId;
         console.log(`☀️ Race State: Race Id set to: ${raceId}.`);
         this._eventEmitter.emit(RaceScheduleEntryEvents.RaceIdChanged, raceId);
     }

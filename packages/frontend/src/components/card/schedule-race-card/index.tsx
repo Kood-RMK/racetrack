@@ -25,8 +25,10 @@ import {
     mdiInvoiceTextEdit
 } from '@mdi/js';
 
-import { Race } from "@/racetrack/types/stateTypes";
+
 import { useRaceScheduleController } from "@/app/providers/controllers/raceScheduleControllerProvider";
+import { ScheduledRace } from "racetrack-backend/types";
+
 
 
 
@@ -45,39 +47,27 @@ export default function NewRaceDialog() {
         setDriverNames(updatedNames);
     };
 
-        if (socket) {
 
-            const contestants = driverNames
-                .filter(name => name.trim() !== "") // filter out any empty fields
-                .map((name, index) => ({
-                    name,
-                    racecar: index + 1 // default racecar numbers: 1, 2, 3...
-                }));
 
-            const newRace: Race = {
-                raceId: "abc123",
-                raceTimeslot: "",
-                contestants: contestants
-            };
-                  
-            const commandMessage: RacetrackCommand<ScheduleNewRace> = {
-            senderId: "1",
-            message: {
-                type: "scheduleNewRace",
-                data: {
-                race: newRace,
-                }
-            }
-            };
-                          
-            console.log("Command message:", commandMessage);
-            
-            // Send out the new race info to the server
-            socket.emit("scheduleNewRace", commandMessage);
+    const contestants = driverNames
+        .filter(name => name.trim() !== "") // filter out any empty fields
+        .map((name, index) => ({
+            name,
+            racecar: index + 1 // default racecar numbers: 1, 2, 3...
+        }));
+
+    const newRace: ScheduledRace = {
+        raceId: "abc123",
+        raceStartDateTime: "",
+        contestants: contestants,
+        raceState: RaceState,
+    };
+
+
 
     const onSave = () => {
         // Create the new race object (you can adjust the logic for the race data as needed)
-        const newRace: Race = {
+        const newRace: ScheduledRace = {
             raceId: `race-${Date.now()}`, // Generate a unique race ID (this could be more sophisticated)
             contestants: driverNames.map((name, index) => ({
                 name: name,

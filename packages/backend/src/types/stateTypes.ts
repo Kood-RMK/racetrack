@@ -1,3 +1,4 @@
+import { RaceScheduleEntries } from "@racetrack/services/race-schedule/race-schedule.state";
 
 export type RaceContestantId = string;
 export type RaceContestant = {
@@ -9,6 +10,7 @@ export type RaceContestant = {
 export type RaceState = 'completed' | 'active' | 'canceled' | 'pending' | 'paused' ;
 
 export type ScheduledRaceId = string;
+
 export type ScheduledRace = {
     raceId : ScheduledRaceId,
     contestants : RaceContestant[],
@@ -16,7 +18,9 @@ export type ScheduledRace = {
     raceState : RaceState,
 }
 
-export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
+export type RaceSchedule = RaceScheduleEntries;
+
+// export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
 
 export type ActiveRaceContestant = {
     contestant : RaceContestant,

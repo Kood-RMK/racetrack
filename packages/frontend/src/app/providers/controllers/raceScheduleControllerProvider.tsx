@@ -1,6 +1,6 @@
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { DeleteRace, ModifyRace, RaceScheduleCommands, ScheduleNewRace } from "racetrack-backend/services";
-import {  RacetrackCommand, ScheduledRace } from "racetrack-backend/types";
+import { RacetrackCommand, ScheduledRace } from "racetrack-backend/types";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 
@@ -49,7 +49,7 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
 
                 socket.emit(command.message.type, command);
             },
-            tryModifyRace: (raceId: string, updatedRace: Partial<Race>) => {
+            tryModifyRace: (raceId: string, updatedRace: Partial<ScheduledRace>) => {
                 const command: RacetrackCommand<ModifyRace> = {
                     senderId: socket.id,
                     message: {

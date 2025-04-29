@@ -7,7 +7,9 @@ import { RacePendingButtons } from '@/components/card/race-card/Buttons'
 import { RaceScheduleControllerProvider, useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
-import { Race } from '@/racetrack/types/stateTypes';
+import { ScheduledRace } from 'racetrack-backend/types';
+import { RaceScheduleEntries, RaceScheduleEntry } from 'racetrack-backend/services/race-schedule/race-schedule.state.js';
+
 
 
 function RaceSchedulePage() {
@@ -18,22 +20,22 @@ function RaceSchedulePage() {
   if (!scheduleState || !scheduleController) {
     return <div>Loading...</div>;
   }
-  
+
   // Sort the races by the raceDateTime (timeslot)
   //TODO: Write sorting logic.
   const sortedRaces = scheduleState;
-  
-  
+
+
 
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
       <p className='text-center py-10'>Race Schedule</p>
 
       <div className='grid grid-cols-1 lg:grid-cols-3 w-full h-full pl-10 pt-10 gap-10 items-start'>
-        
+
         <NewRaceDialog />
 
-        {Object.entries(sortedRaces).map(([raceId, race]: [string, Race]) => (
+        {Object.entries(sortedRaces).map(([raceId, race]: [string, RaceScheduleEntry]) => (
           <RaceCard
             key={raceId}
             race={race}
@@ -44,7 +46,7 @@ function RaceSchedulePage() {
 
       </div>
     </div>
-    );
+  );
 }
 
 export default function Page() {
@@ -53,11 +55,10 @@ export default function Page() {
     <SocketProvider url="http://localhost:3001">
       <RaceScheduleStateProvider>
         <RaceScheduleControllerProvider>
-          <RaceSchedulePage/>
+          <RaceSchedulePage />
         </RaceScheduleControllerProvider>
       </RaceScheduleStateProvider>
     </SocketProvider>
 
   )
 }
-    
