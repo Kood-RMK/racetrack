@@ -14,9 +14,7 @@ function RaceObserverCardTag({title, value} : {title : string, value : string}) 
     return (
             <span>{title} : {value}</span>
     )
-
 }
-
 
 function RaceObserverPanel({contestants, raceObserverController} : {raceObserverController : RefObject<RaceObserverController>, contestants: ActiveRaceContestant[]} ) {
     return (

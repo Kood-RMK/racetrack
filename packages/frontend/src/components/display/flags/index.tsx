@@ -7,6 +7,7 @@ import { mdiArrowExpandAll } from '@mdi/js';
 import { Button } from 'react-aria-components';
 
 
+
 // Race Flags
 export function RaceFlagCheckered () {
     
@@ -52,7 +53,7 @@ export function RaceFlagRed () {
             <div className="flex justify-end p-5">
                 <Button aria-label="fullscreen" className="w-10 h-10 whitespace-nowrap"
                     onPress={toggleFullscreen}>
-                    <Icon path={mdiArrowExpandAll} className="w-10 h-10 flex-shrink-0 text-slate-700"/>
+                    <Icon path={mdiArrowExpandAll} className="w-10 h-10 flex-shrink-0 text-white"/>
                 </Button>
             </div>
         </div>

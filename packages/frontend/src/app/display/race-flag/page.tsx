@@ -1,46 +1,45 @@
 "use client";
 
-import { RaceState } from "@/racetrack/types/stateTypes";
-import { useEffect } from "react";
 import { RaceFlagGreen, RaceFlagYellow, RaceFlagRed, RaceFlagCheckered } from "@/components/display/flags";
-import { useActiveRaceBinding } from "/src/app/admin/race-control/activeRaceStateBinding.ts";
+import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/state/activeRaceStateProvider";
+import { ActiveRace } from "racetrack-backend/types";
+import { SocketProvider } from "@/app/providers/socket/socketProvider";
 
 // Mapping between race states and race flags
-const raceFlags = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean) => {
-    console.log('raceFlags received:', { raceState, isHazard, isDanger, isFinishing });
-
+const raceFlagMap = (activeRace: ActiveRace) => {
+    const {isHazard, isFinishing, raceState} = activeRace;
     switch(raceState) {
-        
         case 'pending': return <RaceFlagRed />;
-        
-        case 'active': return isHazard ? <RaceFlagYellow /> : isDanger ? <RaceFlagRed /> : isFinishing ? <RaceFlagCheckered /> : <RaceFlagGreen />; 
-        
+        case 'active': return isHazard ? <RaceFlagYellow /> : isFinishing ? <RaceFlagCheckered /> : <RaceFlagGreen />; 
+        case 'paused': return <RaceFlagRed />;
         case 'completed': return <RaceFlagRed />;
-        
         case 'canceled': return <RaceFlagRed />;
             
         default: return null;
     }
 };
 
-export default function Page() {
 
-    const activeRaceBinding = useActiveRaceBinding();
+function RaceFlagDisplay() {
+    const activeRace = useActiveRaceState();
 
-    if (!activeRaceBinding) {
-      console.error("Socket not found.");
-      return;
+    if (!activeRace) {
+      return (<div className="bg-white w-full h-full p-2">Loading...</div>);
     }
   
-    const {activeRace} = activeRaceBinding;
-  
-    // Extract values from the activeRace object
-    const { raceState, isHazard, isDanger, isFinishing } = activeRace;
-
-
     return (
         <div className="min-h-screen w-full">
-            {raceFlags(raceState, isHazard, isDanger, isFinishing)}
+            {raceFlagMap(activeRace)}
         </div>
     );
+}
+
+export default function Page() {
+    return (
+        <SocketProvider url="http://localhost:3001">
+            <ActiveRaceStateProvider>
+                <RaceFlagDisplay></RaceFlagDisplay>
+            </ActiveRaceStateProvider>
+        </SocketProvider>
+    )
 }
