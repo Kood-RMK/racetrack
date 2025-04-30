@@ -61,15 +61,27 @@ export class ActiveRaceContestantHandler {
     }
 
     public onLineCrossed() {
-        this._contestantState.setLapCount(this._contestantState.lapCount + 1);
-        const lapTime = this._contestantState.lapStopwatchTime;
 
-        if (lapTime < this._contestantState.fastestLap) {
-            this._contestantState.setFastestLap(lapTime);
+        try {
+
+            if (this._activeRaceState.raceState !== 'active') {
+                this.logger.error(`Race is not active. Cannot handle line crossed event.`);
+                return;
+            }
+
+            this._contestantState.setLapCount(this._contestantState.lapCount + 1);
+            const lapTime = this._contestantState.lapStopwatchTime;
+
+            if (lapTime < this._contestantState.fastestLap) {
+                this._contestantState.setFastestLap(lapTime);
+            }
+
+            const stopwatchTime = this._stopwatch.reset();
+            this._contestantState.setLapStopwatchTime(stopwatchTime);
+        } catch (error) {
+            this.logger.error(`Error processing line crossed event.`, error);
         }
 
-        const stopwatchTime = this._stopwatch.reset();
-        this._contestantState.setLapStopwatchTime(stopwatchTime);
     }
 
     constructor(contestantState: ActiveRaceContestantState, activeRaceState : ActiveRaceState, socketNamespace : Namespace, parentLogger : Logger) {

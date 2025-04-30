@@ -1,11 +1,12 @@
 "use client";
 
-import { RaceObserverControllerProvider, useRaceObserverController } from "@/app/providers/controllers/raceObserverControllerProvider";
+import { RaceObserverController, RaceObserverControllerProvider, useRaceObserverController } from "@/app/providers/controllers/raceObserverControllerProvider";
 import { SocketProvider } from "@/app/providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/state/activeRaceStateProvider";
-import { useEffect } from "react";
+import { RefObject, useEffect } from "react";
 import { Button } from "react-aria-components";
 import { millisecondsToMinutes } from "@/utils/timeConverter"
+import { ActiveRaceContestant } from "racetrack-backend/types";
 
 
 
@@ -14,6 +15,39 @@ function RaceObserverCardTag({title, value} : {title : string, value : string}) 
             <span>{title} : {value}</span>
     )
 
+}
+
+
+function RaceObserverPanel({contestants, raceObserverController} : {raceObserverController : RefObject<RaceObserverController>, contestants: ActiveRaceContestant[]} ) {
+    return (
+        <div className={`grid gap-4 w-full h-full ${contestants.length >= 4 ? 'grid-cols-4' : 'grid-cols-2' }`}>
+            {
+                contestants.map((contestant, index) => {
+                return <li key={index} className="list-none">
+                    <Button
+                        key={index}
+                        className={({isPressed}) => `bg-gray-100 w-full h-[600px] font-cairo rounded-md border-gray-200 border-2 flex justify-center items-center ${isPressed ? 'bg-green-300' : ''} hover:border-gray-300 transition-all duration-75`} 
+                        onPress={() => {
+                            raceObserverController.current?.tryHandleLineCrossed(contestant.contestant.contestantId);
+                        }}
+                        aria-label={`Lap-line-observer button`}
+                        >
+                        <div className="h-full w-full flex justify-center items-center relative">
+                            <p className="text-7xl text-gray-800">{ contestant.contestant.racecarNumber }</p>
+                            <div className="absolute bottom-0 left-0 right-0 h-1/3 flex flex-col justify-end pb-8 items-center">
+                                <RaceObserverCardTag title="Place" value={contestant.place.toString()}></RaceObserverCardTag>
+                                <RaceObserverCardTag title="Lap" value={contestant.lapCount.toString()}></RaceObserverCardTag>
+                                <RaceObserverCardTag title="Fastest Lap" value={millisecondsToMinutes(contestant.fastestLap)}></RaceObserverCardTag>
+                                <RaceObserverCardTag title="Lap Time" value={millisecondsToMinutes(contestant.lapStopwatchTime)}></RaceObserverCardTag>
+                            </div>
+                        </div>
+                        
+                    </Button>
+                </li>
+                })     
+            }
+        </div>
+    )
 }
 
 function RaceObserverPage() {
@@ -37,33 +71,10 @@ function RaceObserverPage() {
     return (
         <div className="bg-white flex justify-center flex-col w-full h-full py-12 px-12">
         <h1 className='text-center py-12 text-5xl'>Race Observer</h1>
-            <div className={`grid gap-4 w-full h-full ${contestants.length >= 4 ? 'grid-cols-4' : 'grid-cols-2' }`}>
-                {
-                   contestants.map((contestant, index) => {
-                    return <li key={index} className="list-none">
-                        <Button
-                            key={index}
-                            className="bg-gray-100 w-full h-[600px] font-cairo rounded-md border-gray-200 border-2 flex justify-center items-center"
-                            onPress={() => {
-                                raceObserverController.current?.tryHandleLineCrossed(contestant.contestant.contestantId);
-                            }}
-                            aria-label={`Lap-line-observer button`}
-                            >
-                            <div className="h-full w-full flex justify-center items-center relative">
-                                <p className="text-7xl text-gray-800">{ contestant.contestant.racecarNumber }</p>
-                                <div className="absolute bottom-0 left-0 right-0 h-1/3 flex flex-col justify-end pb-8 items-center">
-                                    <RaceObserverCardTag title="Place" value={contestant.place.toString()}></RaceObserverCardTag>
-                                    <RaceObserverCardTag title="Lap" value={contestant.lapCount.toString()}></RaceObserverCardTag>
-                                    <RaceObserverCardTag title="Fastest Lap" value={millisecondsToMinutes(contestant.fastestLap)}></RaceObserverCardTag>
-                                    <RaceObserverCardTag title="Lap Time" value={millisecondsToMinutes(contestant.lapStopwatchTime)}></RaceObserverCardTag>
-                                </div>
-                            </div>
-                            
-                        </Button>
-                    </li>
-                   })     
-                }
-            </div>
+
+            {activeRace.raceState === 'active' &&
+            <RaceObserverPanel raceObserverController={raceObserverController} contestants={contestants}></RaceObserverPanel>
+            }
         </div>
     )
 }
