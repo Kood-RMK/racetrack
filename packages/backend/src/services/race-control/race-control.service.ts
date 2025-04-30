@@ -30,7 +30,7 @@ export type ChangeActiveRaceHazard = {
     raceId : string,
     isHazard : boolean,
 }
-
+  
 export type ChangeActiveRaceIsFinishing = {
     type : RaceControlCommands.ChangeRaceIsFinishing,
     raceId : string,

@@ -18,9 +18,9 @@ export type ScheduledRace = {
     raceState : RaceState,
 }
 
-export type RaceSchedule = RaceScheduleEntries;
+// export type RaceSchedule = RaceScheduleEntries;
 
-// export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
+export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
 
 export type ActiveRaceContestant = {
     contestant : RaceContestant,

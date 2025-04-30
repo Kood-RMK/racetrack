@@ -1,6 +1,7 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { RaceScheduleState, RaceScheduleEntry, RaceScheduleEntries } from "./race-schedule.state";
 import { RacetrackCommand, RacetrackEvent, ScheduledRace } from "@racetrack/types";
+import { Logger } from "pino";
 
 // Message Types
 export enum RaceScheduleEvents {
@@ -51,26 +52,28 @@ export type ModifyRace = {
 
 //Handlers
 export class RaceScheduleService {
-    private schedule: RaceScheduleState;
-    private io: SocketIOServer;
+    private readonly socketIO: SocketIOServer;
+    private readonly schedule: RaceScheduleState;
+    private readonly logger : Logger;
 
-    private readonly raceScheduleRoom = "raceScheduleRoom";
+    constructor(socketIO : SocketIOServer, schedule: RaceScheduleState, parentLogger : Logger) {
 
-    constructor(io: SocketIOServer) {
+        this.socketIO = socketIO;
         this.schedule = new RaceScheduleState();
-        this.io = io;
+        const logger = parentLogger.child({serviceName : this.constructor.name})
+        this.logger = logger;
 
-        const raceScheduleNamespace = this.io.of("/race-schedule");
+        const socketNamespace = this.socketIO.of("/race-schedule");
 
         // Middleware to check if the user is authenticated.
-        raceScheduleNamespace.use((socket, next) => {
+        socketNamespace.use((socket, next) => {
             next();
         })
 
         // Siia jäävad kõik commandid ja kasutavad sealt ülevalt evente
-        raceScheduleNamespace.on("connection", (client) => {
+        socketNamespace.on("connection", (client) => {
 
-            console.log(`👩‍💻 Race Schedule Service: New Client Connected! ID:`, client.id)
+            this.logger.info(`New client connected!, ID`, client.id);
 
             function initializeClientRooms() {
                 client.join("raceServiceRoom");
@@ -90,13 +93,15 @@ export class RaceScheduleService {
             client.emit(RaceScheduleEvents.RaceScheduleInitialState, stateMessage)
 
 
-            // Add new client to the raceControlRoom. 
-            // TODO: select room based on assigned role.
-            initializeClientRooms();
 
 
             // New Race 
             client.on(RaceScheduleCommands.ScheduleNewRace, (command: RacetrackCommand<ScheduleNewRace>) => {
+
+                // logging 
+                this.logger.info("📨 Received ScheduleNewRace command", command);
+                console.log("📦 Race data received from client:", command.message?.data?.race);
+
 
                 try {
 
@@ -155,7 +160,7 @@ export class RaceScheduleService {
                         }
                     };
 
-                    raceScheduleNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
+                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
@@ -187,7 +192,7 @@ export class RaceScheduleService {
                         }
                     };
 
-                    io.emit("raceScheduleUpdated", updateMessage);
+                    socketNamespace.emit("raceScheduleUpdated", updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.DeleteRace} command:`, error);
@@ -251,7 +256,7 @@ export class RaceScheduleService {
                         }
                     };
 
-                    io.emit("raceScheduleUpdated", updateMessage);
+                    socketNamespace.emit("raceScheduleUpdated", updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);

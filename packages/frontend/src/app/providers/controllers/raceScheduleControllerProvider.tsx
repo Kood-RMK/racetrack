@@ -1,4 +1,5 @@
 import { useSocket } from "@/app/providers/socket/socketProvider";
+import { mdiCompassOutline } from "@mdi/js";
 import { DeleteRace, ModifyRace, RaceScheduleCommands, ScheduleNewRace } from "racetrack-backend/services";
 import { RacetrackCommand, ScheduledRace } from "racetrack-backend/types";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
@@ -9,7 +10,6 @@ export type RaceScheduleController = {
     tryModifyRace: (raceId: string, updatedRace: Partial<ScheduledRace>) => void;
     tryDeleteRace: (raceId: string) => void;
 }
-
 
 const RaceScheduleControllerContext = createContext<RefObject<RaceScheduleController> | null>(null);
 
@@ -43,11 +43,13 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                     },
                 };
 
-                if (!command.message?.type) {
-                    throw new Error("Message has no type!");
+                if (command.message?.type) {
+                    socket.emit(command.message.type, command);
+                    console.log("☀️ Emitting race schedule command:", command);
                 }
+                
 
-                socket.emit(command.message.type, command);
+        
             },
             tryModifyRace: (raceId: string, updatedRace: Partial<ScheduledRace>) => {
                 const command: RacetrackCommand<ModifyRace> = {
@@ -60,11 +62,11 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                     },
                 };
 
-                if (!command.message?.type) {
-                    throw new Error("Message has no type!");
+                if (command.message?.type) {
+                    socket.emit(command.message.type, command);
                 }
 
-                socket.emit(command.message.type, command);
+                
             },
             tryDeleteRace: (raceId: string) => {
                 const command: RacetrackCommand<DeleteRace> = {
@@ -77,11 +79,11 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                     },
                 };
 
-                if (!command.message?.type) {
-                    throw new Error("Message has no type!");
+                if (command.message?.type) {
+                    socket.emit(command.message.type, command);
                 }
 
-                socket.emit(command.message.type, command);
+                
             },
         };
 
@@ -96,11 +98,11 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
 
 // Hook to access the context easily
 export const useRaceScheduleController = (): RefObject<RaceScheduleController> | null => {
-    const schedule = useContext(RaceScheduleControllerContext);
+    const scheduleContoller = useContext(RaceScheduleControllerContext);
 
-    if (schedule === undefined) {
+    if (scheduleContoller === undefined) {
         throw new Error("useRaceScheduleController must be used within a RaceScheduleControllerProvider");
     }
 
-    return schedule;
+    return scheduleContoller;
 };

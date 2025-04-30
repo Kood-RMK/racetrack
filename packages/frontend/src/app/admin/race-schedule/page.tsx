@@ -7,8 +7,7 @@ import { RacePendingButtons } from '@/components/card/race-card/Buttons'
 import { RaceScheduleControllerProvider, useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
-import { ScheduledRace } from 'racetrack-backend/types';
-import { RaceScheduleEntries, RaceScheduleEntry } from 'racetrack-backend/services/race-schedule/race-schedule.state.js';
+
 
 
 
