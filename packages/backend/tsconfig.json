@@ -18,7 +18,7 @@
     "rootDir": "./src",
     "plugins": [],
     "paths": {
-      "@racetrack/*": ["./*"],
+      "@racetrack/*": ["./src/*"],
     }
   },
   "include": ["src/**/*.ts"],
