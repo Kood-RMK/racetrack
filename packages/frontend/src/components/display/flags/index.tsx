@@ -22,17 +22,23 @@ export function RaceFlagCheckered () {
         }
     };
 
+    const squareSize = 40;
 
     return (
-        <div className="w-screen h-screen bg-cover bg-center"
-        style={{ backgroundImage: "url('/CheckeredFlag.png')"}}>
-            <div className="flex justify-end p-5">
-                <Button aria-label="fullscreen" className="w-10 h-10 whitespace-nowrap"
-                    onPress={toggleFullscreen}>
-                    <Icon path={mdiArrowExpandAll} className="w-10 h-10 flex-shrink-0 text-amber-400"/>
-                </Button>
-            </div>
-        </div>
+        <div
+      className="w-screen h-screen"
+      style={{
+        backgroundColor: "#fff",
+        backgroundImage: [
+          `linear-gradient(45deg, #000 25%, transparent 25%)`,
+          `linear-gradient(-45deg, #000 25%, transparent 25%)`,
+          `linear-gradient(45deg, transparent 75%, #000 75%)`,
+          `linear-gradient(-45deg, transparent 75%, #000 75%)`,
+        ].join(", "),
+        backgroundSize: `${squareSize}px ${squareSize}px`,
+        backgroundPosition: `0 0, 0 ${squareSize/2}px, ${squareSize/2}px -${squareSize/2}px, -${squareSize/2}px 0`,
+      }}
+    />
     )
 }
 
@@ -97,7 +103,7 @@ export function RaceFlagGreen () {
     };
 
     return (
-        <div className="w-screen h-screen bg-green-900">
+        <div className="w-screen h-screen bg-green-500">
             <div className="flex justify-end p-5">
                 <Button aria-label="fullscreen" className="w-10 h-10 whitespace-nowrap"
                     onPress={toggleFullscreen}>
