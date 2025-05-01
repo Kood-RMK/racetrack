@@ -7,6 +7,8 @@ import { RacePendingButtons } from '@/components/card/race-card/Buttons'
 import { RaceScheduleControllerProvider, useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
+import { RaceScheduleEntry } from 'racetrack-backend/services';
+
 
 
 
@@ -22,9 +24,14 @@ function RaceSchedulePage() {
 
   // Sort the races by the raceDateTime (timeslot)
   //TODO: Write sorting logic.
-  const sortedRaces = scheduleState;
+  // const sortedRaces = scheduleState;
 
-
+  const sortedRaces = Object.fromEntries(
+    Object.entries(scheduleState).map(([raceId, raceData]) => [
+      raceId,
+      new RaceScheduleEntry(raceData), // ✅ wrap each one
+    ])
+  );
 
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
@@ -34,14 +41,23 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        {Object.entries(sortedRaces).map(([raceId, race]: [string, RaceScheduleEntry]) => (
-          <RaceCard
-            key={raceId}
-            race={race}
-            tags={<RacePendingTags />}
-            buttons={<RacePendingButtons race={race} />}
-          />
-        ))}
+        {Object.entries(sortedRaces).map(([raceId, raceEntry]: [string, RaceScheduleEntry]) => {
+
+
+          console.log("➡️ Race Entry is this!!!!!!:", raceEntry);
+          console.log("📥 Race Entry .race:", raceEntry.race); // ✅ use getter as a property
+          console.log("👥 Contestants:", raceEntry.contestants); // also a getter
+          console.log("Is instance of RaceScheduleEntry?", raceEntry instanceof RaceScheduleEntry);
+
+          return (
+            <RaceCard
+              key={raceId}
+              race={raceEntry.race}
+              tags={<RacePendingTags />}
+              buttons={<RacePendingButtons race={raceEntry} />}
+            />
+          );
+        })}
 
       </div>
     </div>

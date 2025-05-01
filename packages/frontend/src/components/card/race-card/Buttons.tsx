@@ -4,17 +4,17 @@
 
 import React, { useState } from "react";
 import { Button } from 'react-aria-components';
-import { mdiConsoleNetworkOutline, mdiDelete, mdiInvoiceTextEdit } from "@mdi/js";
+import { mdiDelete, mdiInvoiceTextEdit } from "@mdi/js";
 import Icon from '@mdi/react';
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { RacetrackCommand } from "@/racetrack/types/messageTypes";
-import { DeleteRace, ModifyRace } from "@/racetrack/services/race-schedule.service";
-import { Race } from "@/racetrack/types/stateTypes";
-import ModifyRaceDialog from "../modify-race-card";
+import { RacetrackCommand, ScheduledRace } from "racetrack-backend/types";
+import { DeleteRace, RaceScheduleCommands, RaceScheduleEntry } from "racetrack-backend/services";
+
+
 
 // Race Pending Buttons
 
-export function RacePendingButtons({ race }: { race: Race }) {
+export function RacePendingButtons({ race }: { race: RaceScheduleEntry }) {
 
 //     const [isDialogOpen, setIsDialogOpen] = useState(false);  // State to manage dialog visibility
 
@@ -32,18 +32,18 @@ export function RacePendingButtons({ race }: { race: Race }) {
             const commandMessage: RacetrackCommand<DeleteRace> = {
                 senderId: "socket.id",
                 message: {
-                    type: "deleteRace",
+                    type: RaceScheduleCommands.DeleteRace,
                     data: {
                         race: {
                             raceId: race.raceId, // this should come from the component's props
-                            raceDateTime: race.raceTimeslot,
+                            raceDateTime: race.raceStartDateTime,
                             contestants: race.contestants,
                         }
                     }
                 }
             };
 
-            socket.emit("deleteRace", commandMessage);
+            socket.current?.emit("deleteRace", commandMessage);
             console.log(" Delete Event emitted");
         }
     }

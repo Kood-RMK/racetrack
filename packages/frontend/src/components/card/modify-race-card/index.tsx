@@ -25,15 +25,15 @@ import {
     mdiInvoiceTextEdit
 } from '@mdi/js';
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { RacetrackCommand } from "@/racetrack/types/messageTypes";
-import { RaceScheduleUpdated, ScheduleNewRace } from "@/racetrack/services/race-schedule.service";
-import { Race } from "@/racetrack/types/stateTypes";
+import { RacetrackCommand, ScheduledRace } from "racetrack-backend/types";
+import { RaceScheduleCommands, ScheduleNewRace } from "racetrack-backend/services";
+
 
 
 type ModifyRaceDialogProps = {
     isOpen: boolean;
     onClose: () => void;
-    initialRace: Race;
+    initialRace: ScheduledRace;
 };
 
 
@@ -65,20 +65,23 @@ export default function ModifyRaceDialog({ isOpen, onClose, initialRace }: Modif
             const contestants = driverNames
                 .filter(name => name.trim() !== "") // filter out any empty fields
                 .map((name, index) => ({
+                    contestantId: `contestant-${index}`,
                     name,
-                    racecar: index + 1 // default racecar numbers: 1, 2, 3...
+                    racecarNumber: index + 1 // default racecar numbers: 1, 2, 3...
                 }));
 
-            const newRace: Race = {
+
+            const newRace: ScheduledRace = {
                 raceId: initialRace?.raceId || "abc123",
-                raceTimeslot: initialRace?.raceTimeslot || "",
-                contestants: contestants
+                raceStartDateTime: initialRace?.raceStartDateTime || "",
+                contestants: contestants,
+                raceState: 'pending',
             };
                   
             const commandMessage: RacetrackCommand<ScheduleNewRace> = {
             senderId: "1",
             message: {
-                type: "scheduleNewRace",
+                type: RaceScheduleCommands.ScheduleNewRace,
                 data: {
                 race: newRace,
                 }
@@ -88,7 +91,7 @@ export default function ModifyRaceDialog({ isOpen, onClose, initialRace }: Modif
             console.log("Command message:", commandMessage);
             
             // Send out the new race info to the server
-            socket.emit("scheduleNewRace", commandMessage);
+            socket.current?.emit("scheduleNewRace", commandMessage);
         }
     }
 

@@ -1,5 +1,3 @@
-import { RaceScheduleEntries } from "@racetrack/services/race-schedule/race-schedule.state";
-
 export type RaceContestantId = string;
 export type RaceContestant = {
     contestantId : RaceContestantId,

@@ -5,7 +5,8 @@ import Icon from '@mdi/react';
 import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
 import { ActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
-import { ActiveRace } from "@/racetrack/types/stateTypes";
+import { ActiveRace } from "racetrack-backend/types";
+
 
 export type RaceButtonParams = {
     activeRace : ActiveRace,

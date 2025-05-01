@@ -3,7 +3,8 @@
 import React from "react";
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { ScheduledRace } from "racetrack-backend/types";
-import { RaceScheduleEntry} from "racetrack-backend/services/race-schedule/race-schedule.state.ts";
+import { RaceScheduleEntry } from "racetrack-backend/services";
+
 
 
 interface RaceCardProps {
@@ -15,13 +16,17 @@ interface RaceCardProps {
 
 
 
-export default function RaceCard ({ race, tags, buttons}: RaceCardProps) {
+export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
 
   const socket = useSocket();
 
   const maxDrivers = 8;
   const contestants = race?.contestants ?? [];
-  console.log("📦 Race contestants raw:", race?.contestants);
+  console.log("📦 [RaceCard] Full RaceScheduleEntry received:", race);
+  console.log("📦 [RaceCard] Race ID:", race?.raceId);
+  console.log("📦 [RaceCard] Race Start DateTime:", race?.raceStartDateTime);
+  console.log("📦 [RaceCard] Race State:", race?.raceState);
+  console.log("📦 [RaceCard] Contestants array:", contestants);
 
 
 
@@ -41,23 +46,23 @@ export default function RaceCard ({ race, tags, buttons}: RaceCardProps) {
           {Array(maxDrivers).fill(null).map((_, index) => {
             const driver = contestants[index];
             console.log("drivers:", driver);
-            
-              return (
-                <div key={index} className="text-center text-sm font-medium">
-                  <p>Racecar {`${driver?.racecarNumber ?? index + 1}`}</p>
-                  <p className="text-black font-medium text-base max-w-xs md:max-w-sm">
-                    {driver?.name ?? "-"}
-                  </p>
-                </div>
-              );
 
-            })}
+            return (
+              <div key={index} className="text-center text-sm font-medium">
+                <p>Racecar {`${driver?.racecarNumber ?? index + 1}`}</p>
+                <p className="text-black font-medium text-base max-w-xs md:max-w-sm">
+                  {driver?.name ?? "-"}
+                </p>
+              </div>
+            );
+
+          })}
         </div>
       </div>
 
-    {/* Buttons */}
-    <div className="buttons">{buttons}</div>
+      {/* Buttons */}
+      <div className="buttons">{buttons}</div>
     </div>
-    
+
   );
 }

@@ -1,5 +1,6 @@
-import { ScheduledRace } from "@racetrack/types/stateTypes";
+
 import EventEmitter from "events";
+import { ScheduledRace } from "types";
 
 
 
@@ -111,7 +112,7 @@ export class RaceScheduleEntry {
         return this._race.contestants;
     }
 
-    public get raceDateTime() {
+    public get raceStartDateTime() {
         return this._race.raceStartDateTime;
     }
 
@@ -120,6 +121,7 @@ export class RaceScheduleEntry {
     }
 
     public get race() {
+        console.log("Accessing race getter");
         return this._race;
     }
 

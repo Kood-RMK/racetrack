@@ -1,7 +1,9 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { RaceScheduleState, RaceScheduleEntry, RaceScheduleEntries } from "./race-schedule.state";
-import { RacetrackCommand, RacetrackEvent, ScheduledRace } from "@racetrack/types";
+
 import { Logger } from "pino";
+import { ScheduledRace } from "types/stateTypes";
+import { RacetrackEvent, RacetrackCommand } from "types";
 
 // Message Types
 export enum RaceScheduleEvents {
@@ -26,7 +28,7 @@ export type RaceScheduleInitialState = {
 export type RaceScheduleUpdated = {
     type: RaceScheduleEvents.RaceScheduleUpdated,
     schedule: RaceScheduleEntries,
-}
+};
 
 // Commands (sent from client to server)
 export type ScheduleNewRace = {
@@ -41,14 +43,14 @@ export type DeleteRace = {
     data: {
         race: ScheduledRace
     }
-}
+};
 
 export type ModifyRace = {
     type: RaceScheduleCommands.ModifyRace
     data: {
         race: ScheduledRace
     }
-}
+};
 
 //Handlers
 export class RaceScheduleService {
@@ -134,8 +136,8 @@ export class RaceScheduleService {
                     let timeslotTaken = false;
 
                     for (const value of Object.values(existingRaces)) {
-                        console.log(value.raceDateTime);
-                        if (value.raceDateTime === newData.race.raceStartDateTime) {
+                        console.log(value.raceStartDateTime);
+                        if (value.raceStartDateTime === newData.race.raceStartDateTime) {
                             timeslotTaken = true;
                         }
                     }
@@ -229,8 +231,8 @@ export class RaceScheduleService {
                     let timeslotTaken = false;
 
                     for (const value of Object.values(existingSchedule)) {
-                        console.log(value.raceDateTime);
-                        if (value.raceDateTime === raceDateTime) {
+                        console.log(value.raceStartDateTime);
+                        if (value.raceStartDateTime === raceDateTime) {
                             timeslotTaken = true;
                         }
                     }
