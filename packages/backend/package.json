@@ -11,10 +11,10 @@
     "typescript": "^5.8.3"
   },
   "exports": {
-    "./types": "./dist/types/index.js",
-    "./types/*": "./dist/types/*",
-    "./services": "./dist/services/index.js",
-    "./services/*": "./dist/services/*"
+    "./types": "./src/types/index.ts",
+    "./types/*": "./src/types/*",
+    "./services": "./src/services/index.ts",
+    "./services/*": "./src/services/*"
   },
   "scripts": {
     "dev": "tsc -p tsconfig.json --watch & nodemon ./dist/server.js"
