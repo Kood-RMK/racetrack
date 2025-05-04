@@ -6,6 +6,17 @@ import jwt from 'jsonwebtoken';
 export type RacetrackRole = 'OBSERVER' | 'RECEPTIONIST' | 'SAFETY';
 export type SignedToken = string;
 
+export type AuthenicationRequest = {
+    token: string;
+}
+
+export type RacetrackAuthenticatedClient = {
+    token: string;
+    role: RacetrackRole;
+}
+
+export const RACETRACK_AUTH_COOKIE = "Authorization";
+
 export class AuthService {
 
     private readonly logger: Logger;
@@ -15,7 +26,7 @@ export class AuthService {
         this.logger = logger;
 
         app.post('/auth', (req, res) => {
-            const { token } = req.body;
+            const { token } = req.body as AuthenicationRequest;
 
             if (!token) {
                 res.status(400).send('Token is required');
@@ -44,14 +55,15 @@ export class AuthService {
         }
 
         if (token === process.env.OBSERVER_KEY) {
-            this.logger.info('Authenticated as OBSERVER');
+            this.logger.info(`${token} authenticated as OBSERVER.`);
             return signToken(token, 'OBSERVER');
-        } else if (token === process.env.RECEPTIONIST_KEY) {
-            this.logger.info('Authenticated as RECEPTIONIST');
+        } 
+        else if (token === process.env.RECEPTIONIST_KEY) {
+            this.logger.info(`${token} authenticated as RECEPTIONIST.`);
             return signToken(token, 'RECEPTIONIST');
         }
         else if (token === process.env.SAFETY_KEY) {
-            this.logger.info('Authenticated as SAFETY');
+            this.logger.info(`${token} authenticated as SAFETY.`);
             return signToken(token, 'SAFETY');
         }
 
