@@ -2,8 +2,11 @@
   "name": "racetrack-backend",
   "dependencies": {
     "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.15.3",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.10",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",

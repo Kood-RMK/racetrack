@@ -5,7 +5,7 @@ import { ActiveRace, RacetrackCommand } from "racetrack-backend/types";
 import { RaceState } from "racetrack-backend/types/stateTypes.js";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 import { useActiveRaceState } from "@providers/state/activeRaceStateProvider";
-import { ChangeActiveRaceHazard, RaceControlCommands, ChangeActiveRaceIsFinishing, ChangeActiveRaceState } from "racetrack-backend/services/race-control/race-control.service.js";
+import { ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands } from "racetrack-backend/services";
 
 
 export type ActiveRaceController = {

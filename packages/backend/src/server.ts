@@ -3,14 +3,19 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import pino from 'pino';
 import pretty from 'pino-pretty';
+import 'dotenv/config';
 
 import { RaceScheduleService } from './services/race-schedule/race-schedule.service';
 import { RaceControlService } from './services/race-control/race-control.service';
 import { ActiveRaceService } from './services/active-race/active-race.service';
 import { RaceObserverService } from './services/race-observer/race-observer.service';
 import { RaceScheduleState } from './services/race-schedule/race-schedule.state';
+import { AuthService } from './services/auth';
 
 const app = express();
+
+app.use(express.json());
+
 const server = createServer(app);
 
 const io = new Server(server, {
@@ -40,6 +45,8 @@ const logger = pino(
   },
   logStream,
 );
+
+const authService = new AuthService(app, logger);
 
 // leaderboardService(io);
 const activeRaceService = new ActiveRaceService(io, logger);

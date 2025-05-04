@@ -13,15 +13,16 @@
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "next": "^15.1.6",
     "nodemon": "^3.1.9",
+    "racetrack-backend": "*",
     "react": "^19.0.0",
     "react-aria": "^3.37.0",
     "react-aria-components": "^1.6.0",
     "react-dom": "^19.0.0",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "racetrack-backend": "*"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
