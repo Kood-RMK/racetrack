@@ -1,7 +1,7 @@
 import { getBrowserCookies } from '@/utils/cookies';
 import jwt from 'jsonwebtoken';
 import { RACETRACK_AUTH_COOKIE, RacetrackAuthenticatedClient } from 'racetrack-backend/services';
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 export type AuthenticationState = {
     isAuthenticated: boolean;
@@ -9,15 +9,22 @@ export type AuthenticationState = {
 }
 
 
-export interface AuthenicationStateContextType {
+export interface AuthenticationStateContext {
     authState: AuthenticationState;
-    authenticate: (token : string) => void;
+    authenticate: (token : string) => Promise<AuthenticationState>;
  }
 
-const AuthenicationStateContext = createContext<AuthenicationStateContextType | null>(null);
+const AuthenicationStateContext = createContext<AuthenticationStateContext | null>(null);
 
 
-export const AuthStateProvider = ({children} : {children : ReactNode}) => {
+export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
+
+
+    const [authState, setAuthState] = useState<AuthenticationState>({
+        isAuthenticated: false,
+        racetrackClient: null,
+    });
+
 
     function tryExtractJwtData(signedJwt: string) : RacetrackAuthenticatedClient | null {
         const data = jwt.decode(signedJwt);
@@ -34,21 +41,42 @@ export const AuthStateProvider = ({children} : {children : ReactNode}) => {
         return null;
     }
 
-    const cookies = getBrowserCookies()
-    const jwtToken = cookies[RACETRACK_AUTH_COOKIE];
-    const authenticatedClient : RacetrackAuthenticatedClient | null = jwtToken ? tryExtractJwtData(jwtToken) : null;
+    useEffect(() => {
+        const cookies = getBrowserCookies()
+        const jwtToken = cookies[RACETRACK_AUTH_COOKIE];
+        const authenticatedClient : RacetrackAuthenticatedClient | null = jwtToken ? tryExtractJwtData(jwtToken) : null;
 
-    const authState : AuthenticationState = {
-        isAuthenticated: authenticatedClient ? true : false,
-        racetrackClient: authenticatedClient,
-    }
+        setAuthState({
+            isAuthenticated: authenticatedClient ? true : false,
+            racetrackClient: authenticatedClient,
+        });
+    }, [])
 
 
-
-    const authenticate = (token : string) => {
+    const authenticate = async (token : string) : Promise<AuthenticationState> => {
         const body = { token: token };
         const headers = { 'Content-Type': 'application/json' };
-        fetch('http://localhost:3001/auth', {method : 'POST', body : JSON.stringify(body), headers})
+        const result = await fetch('http://localhost:3001/auth', {
+            method : 'POST',
+            credentials: 'include',
+            body : JSON.stringify(body),
+            headers})
+
+        if (result.status === 200) {
+            const jwtToken = result.headers.get(RACETRACK_AUTH_COOKIE);
+            if (jwtToken) {
+                const authenticatedClient : RacetrackAuthenticatedClient | null = tryExtractJwtData(jwtToken);
+                setAuthState({
+                    isAuthenticated: true,
+                    racetrackClient: authenticatedClient,
+                });
+            }
+        }
+
+        return {
+            isAuthenticated: false,
+            racetrackClient: null,
+        };
     }
 
     return (
@@ -58,12 +86,12 @@ export const AuthStateProvider = ({children} : {children : ReactNode}) => {
     )
 }
 
-export const getAuthState = () : AuthenticationState => {
+export const useAuthentication = () : AuthenticationStateContext => {
   const context = useContext(AuthenicationStateContext);
 
   if (!context) {
-    throw new Error("useAuthState must be used within an AuthStateProvider");
+    throw new Error("useAuthentication must be used within an AuthStateProvider");
   }
 
-  return context.authState;
+  return context;
 };

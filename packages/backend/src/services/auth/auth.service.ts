@@ -16,6 +16,7 @@ export type RacetrackAuthenticatedClient = {
 }
 
 export const RACETRACK_AUTH_COOKIE = "Authorization";
+export const RACETRACK_AUTH_HEADER = "Authorization";
 
 export class AuthService {
 
@@ -35,7 +36,10 @@ export class AuthService {
 
             const jwt = this.authenticate(token);
             if (jwt) {
-                res.cookie('Authorization', jwt);
+                res.cookie(RACETRACK_AUTH_COOKIE, jwt);
+                res.contentType('application/json');
+                res.header(RACETRACK_AUTH_HEADER, jwt);
+                res.header('Access-Control-Expose-Headers', RACETRACK_AUTH_HEADER);
                 res.status(200).send('Authenticated');
             } else {
                 res.status(401).send('Authentication failed');

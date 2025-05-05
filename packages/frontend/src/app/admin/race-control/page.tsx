@@ -9,6 +9,8 @@ import { RaceActiveTag, RaceCancelledTag, RaceDangerTag, RaceFinishingTag, RaceH
 import { ActiveRaceController, ActiveRaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
+import { LoginWrapper } from "@/components/authentication/Login";
+import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
 
 
 // Mapping between race state and components for buttons and tags
@@ -112,12 +114,16 @@ function RaceControlPage() {
 
 export default function Page() {
   return (
-    <SocketProvider url="http://localhost:3001">
-      <ActiveRaceStateProvider>
-        <ActiveRaceControllerProvider>
-          <RaceControlPage />
-        </ActiveRaceControllerProvider>
-      </ActiveRaceStateProvider>
-    </SocketProvider>
+    <AuthenticationProvider>
+      <LoginWrapper options={{ permittedRoles: ['SAFETY'] }}>
+        <SocketProvider url="http://localhost:3001">
+          <ActiveRaceStateProvider>
+            <ActiveRaceControllerProvider>
+              <RaceControlPage />
+            </ActiveRaceControllerProvider>
+          </ActiveRaceStateProvider>
+        </SocketProvider>
+      </LoginWrapper>
+    </AuthenticationProvider>
   )
 }
