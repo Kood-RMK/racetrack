@@ -2,6 +2,7 @@ import EventEmitter from "events";
 import { ActiveRaceContestantState } from "./contestant/active-race-contestant.state";
 import { ActiveRace } from "@racetrack/types";
 import { Logger } from "pino";
+import { DatabaseSync } from "node:sqlite";
 
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
@@ -35,16 +36,36 @@ export class ActiveRaceStateEventEmitter extends EventEmitter {
 export class ActiveRaceState {
     private _activeRace: ActiveRace;
     private _activeRaceContestantsState: ActiveRaceContestantState[];
-    private readonly logger : Logger;
     private _eventEmitter = new ActiveRaceStateEventEmitter();
 
-    constructor(activeRace: ActiveRace, baseLogger : Logger) {
-        this._activeRace = activeRace;
-        this.logger = baseLogger.child({handlerName : this.constructor.name})
+    private readonly logger : Logger;
+    private readonly _database: DatabaseSync;
 
-        this._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
-            return new ActiveRaceContestantState(contestant, this.logger);
+    public static loadFromDatabase(baseLogger: Logger, database: DatabaseSync) : ActiveRaceState | null {
+        const raceState = new ActiveRaceState(baseLogger, database);
+
+        const activeRaceQuery = database.prepare("SELECT * FROM active_races LIMIT 1;");
+        const activeRaceRow = activeRaceQuery.get();
+
+        if (!activeRaceRow) {
+            return null;
+        }
+
+        if (typeof activeRaceRow)
+
+    }
+
+    public static createNew(activeRace: ActiveRace, baseLogger: Logger, database: DatabaseSync) {
+        const raceState = new ActiveRaceState(baseLogger, database);
+
+        raceState._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
+            return new ActiveRaceContestantState(contestant, raceState.logger);
         });
+    }
+
+    private constructor(baseLogger : Logger, database: DatabaseSync) {
+        this.logger = baseLogger.child({handlerName : this.constructor.name})
+        this._database = database;
     }
 
     public get events() {

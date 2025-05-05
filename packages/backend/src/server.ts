@@ -25,7 +25,6 @@ app.use(cors({
 }))
 
 
-
 const server = createServer(app);
 
 const io = new Server(server, {
@@ -56,10 +55,10 @@ const logger = pino(
   logStream,
 );
 
-const db = new DatabaseSync('racetrack.db')
+const database = new DatabaseSync('racetrack.db')
 
 function initializeDatabase() {
-  db.exec(`
+  database.exec(`
       CREATE TABLE IF NOT EXISTS active_races (
         raceId TEXT PRIMARY KEY,
         raceStartDateTime TEXT NOT NULL,
@@ -69,13 +68,13 @@ function initializeDatabase() {
         timeLeft INT NOT NULL
     );`);
 
-    db.exec(`CREATE TABLE IF NOT EXISTS race_contestants (
+    database.exec(`CREATE TABLE IF NOT EXISTS race_contestants (
       contestantId TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       racecarNumber INT NOT NULL
     );`)
 
-    db.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
+    database.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
       contestantId TEXT PRIMARY KEY,
       activeRaceId TEXT NOT NULL,
       place INT NOT NULL,
@@ -93,7 +92,7 @@ initializeDatabase();
 const authService = new AuthService(app, logger);
 
 // leaderboardService(io);
-const activeRaceService = new ActiveRaceService(io, logger);
+const activeRaceService = new ActiveRaceService(io, logger, database);
 const raceControlService = new RaceControlService(io, activeRaceService, logger);
 const raceObserverService = new RaceObserverService(io, activeRaceService, logger);
 

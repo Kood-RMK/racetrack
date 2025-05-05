@@ -5,6 +5,7 @@ import { ActiveRaceHandler } from "./active-race.handler";
 import { Logger } from "pino";
 import { RacetrackClientRole, useRacetrackAuth } from "../auth";
 import { ActiveRace } from "types";
+import { DatabaseSync } from "node:sqlite";
 
 export enum ActiveRaceServiceEvents {
     ActiveRaceSet = 'activeRaceSet',
@@ -38,45 +39,58 @@ export class ActiveRaceService {
     private readonly _socketServer: SocketIOServer;
     private readonly _eventEmitter = new ActiveRaceServiceEventEmitter();
     private readonly _socketNamespace: Namespace;
+    private readonly _database: DatabaseSync;
     private readonly logger : Logger;
 
-    constructor(io: SocketIOServer, parentLogger : Logger) {
+    constructor(io: SocketIOServer, parentLogger : Logger, database: DatabaseSync) {
         this._socketServer = io;
         this._socketNamespace = this._socketServer.of("/active-race");
         const logger = parentLogger.child({serviceName: this.constructor.name});
+        this._database = database;
         this.logger = logger;
 
-        const mockRace : ActiveRace = {
-            raceId : "123", 
-            raceStartDateTime : "10:00 - 10:15",
-            contestants : {
-                "1" : {
-                    contestant : {
-                        contestantId : "1",
-                        name : "Contestant 1",
-                        racecarNumber : 1,
-                    },
-                    place : 1,
-                    lapCount : 5,
-                    fastestLap : 1000000,
-                    lapStopwatchTime : 0,
-                },
-                "2" : {
-                    contestant : {
-                        contestantId : "2",
-                        name : "Contestant 2",
-                        racecarNumber : 2,
-                    },
-                    place : 2,
-                    lapCount : 4,
-                    fastestLap : 1100000,
-                    lapStopwatchTime : 0,
-                },
-            },
-            raceState : "pending",
-            isHazard : false,
-            isFinishing : false,
-            timeLeft : 1000,};
+        // const mockRace : ActiveRace = {
+        //     raceId : "123", 
+        //     raceStartDateTime : "10:00 - 10:15",
+        //     contestants : {
+        //         "1" : {
+        //             contestant : {
+        //                 contestantId : "1",
+        //                 name : "Contestant 1",
+        //                 racecarNumber : 1,
+        //             },
+        //             place : 1,
+        //             lapCount : 5,
+        //             fastestLap : 1000000,
+        //             lapStopwatchTime : 0,
+        //         },
+        //         "2" : {
+        //             contestant : {
+        //                 contestantId : "2",
+        //                 name : "Contestant 2",
+        //                 racecarNumber : 2,
+        //             },
+        //             place : 2,
+        //             lapCount : 4,
+        //             fastestLap : 1100000,
+        //             lapStopwatchTime : 0,
+        //         },
+        //     },
+        //     raceState : "pending",
+        //     isHazard : false,
+        //     isFinishing : false,
+        //     timeLeft : 1000,};
+
+
+        function getActiveRaceFromDatabase() : ActiveRace {
+            const activeRaceQuery = database.prepare("SELECT * FROM active_races LIMIT 1;");
+            const activeRaceRow = activeRaceQuery.get();
+
+            if (activeRaceRow) {
+
+            }
+        }
+
 
         this._activeRaceHandler = new ActiveRaceHandler(mockRace, this._socketNamespace, this.logger);
         this._activeRaceHandler.initialize();
