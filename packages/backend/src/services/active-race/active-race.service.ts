@@ -84,7 +84,15 @@ export class ActiveRaceService {
 
         // Middleware to check if the user is authenticated.
         this._socketNamespace.use((socket, next) => {
-            useRacetrackAuth(socket, next, this.logger, [RacetrackClientRole.OBSERVER, RacetrackClientRole.RECEPTIONIST, RacetrackClientRole.SAFETY]);
+            useRacetrackAuth(
+                socket, 
+                next, 
+                this.logger, 
+                [
+                    RacetrackClientRole.OBSERVER,
+                    RacetrackClientRole.RECEPTIONIST,
+                    RacetrackClientRole.SAFETY
+                ]);
         })
 
         this._socketNamespace.on("connection", (client) => {

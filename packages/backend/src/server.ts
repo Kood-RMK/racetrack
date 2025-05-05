@@ -5,6 +5,8 @@ import pino from 'pino';
 import pretty from 'pino-pretty';
 import cors from 'cors';
 import 'dotenv/config';
+import { DatabaseSync } from 'node:sqlite';
+
 
 import { RaceScheduleService } from './services/race-schedule/race-schedule.service';
 import { RaceControlService } from './services/race-control/race-control.service';
@@ -53,6 +55,40 @@ const logger = pino(
   },
   logStream,
 );
+
+const db = new DatabaseSync('racetrack.db')
+
+function initializeDatabase() {
+  db.exec(`
+      CREATE TABLE IF NOT EXISTS active_races (
+        raceId TEXT PRIMARY KEY,
+        raceStartDateTime TEXT NOT NULL,
+        raceState TEXT NOT NULL,
+        isHazard BOOLEAN NOT NULL,
+        isFinishing BOOLEAN NOT NULL,
+        timeLeft INT NOT NULL
+    );`);
+
+    db.exec(`CREATE TABLE IF NOT EXISTS race_contestants (
+      contestantId TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      racecarNumber INT NOT NULL
+    );`)
+
+    db.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
+      contestantId TEXT PRIMARY KEY,
+      activeRaceId TEXT NOT NULL,
+      place INT NOT NULL,
+      lapCount INT NOT NULL,
+      fastestLap INT NOT NULL,
+      lapStopwatchTime INT NOT NULL,
+      FOREIGN KEY (contestantId) REFERENCES race_contestants(contestantId),
+      FOREIGN KEY (activeRaceId) REFERENCES active_races(raceId)
+    );`)
+}
+
+initializeDatabase();
+
 
 const authService = new AuthService(app, logger);
 

@@ -5,7 +5,13 @@ export type RaceContestant = {
     racecarNumber : number
 }
 
-export type RaceState = 'completed' | 'active' | 'canceled' | 'pending' | 'paused' ;
+export enum RaceState {
+    Completed = 'completed',
+    Active = 'active',
+    Canceled = 'canceled',
+    Pending = 'pending',
+    Paused = 'paused',
+};
 
 export type ScheduledRaceId = string;
 
