@@ -6,6 +6,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 export type AuthenticationState = {
     isAuthenticated: boolean;
     racetrackClient: RacetrackAuthenticatedClient | null;
+    jwt : string | null;
 }
 
 
@@ -23,6 +24,7 @@ export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
     const [authState, setAuthState] = useState<AuthenticationState>({
         isAuthenticated: false,
         racetrackClient: null,
+        jwt: null,
     });
 
 
@@ -49,6 +51,7 @@ export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
         setAuthState({
             isAuthenticated: authenticatedClient ? true : false,
             racetrackClient: authenticatedClient,
+            jwt: jwtToken,
         });
     }, [])
 
@@ -69,6 +72,7 @@ export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
                 setAuthState({
                     isAuthenticated: true,
                     racetrackClient: authenticatedClient,
+                    jwt: jwtToken,
                 });
             }
         }
@@ -76,6 +80,7 @@ export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
         return {
             isAuthenticated: false,
             racetrackClient: null,
+            jwt: null,
         };
     }
 

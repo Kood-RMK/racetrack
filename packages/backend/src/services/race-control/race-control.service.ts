@@ -55,6 +55,7 @@ export class RaceControlService {
 
         // Middleware to check if the user is authenticated.
         socketNamespace.use((socket, next) => {
+            console.log(socket.handshake.auth);
             next();
         })
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ActiveRace, RaceState } from "racetrack-backend/types";
+import { ActiveRace } from "racetrack-backend/types";
 
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
@@ -11,6 +11,7 @@ import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 import { LoginWrapper } from "@/components/authentication/Login";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
+import { RacetrackClientRole } from "racetrack-backend/services";
 
 
 // Mapping between race state and components for buttons and tags
@@ -115,7 +116,7 @@ function RaceControlPage() {
 export default function Page() {
   return (
     <AuthenticationProvider>
-      <LoginWrapper options={{ permittedRoles: ['SAFETY'] }}>
+      <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.SAFETY] }}>
         <SocketProvider url="http://localhost:3001">
           <ActiveRaceStateProvider>
             <ActiveRaceControllerProvider>

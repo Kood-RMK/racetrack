@@ -13,7 +13,7 @@ const ActiveRaceStateContext = createContext<ActiveRace | null>(null);
 export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => {
 
   const [activeRaceState, setActiveRaceState] = useState<ActiveRace | null>(null);
-  const socketRef = useSocket("/active-race");
+  const socketRef = useSocket("/active-race", true);
 
   // useEffect to only mount the socket once and unhook listeners when the component unmounts.
   useEffect(() => {

@@ -3,7 +3,11 @@ import { Logger } from 'pino';
 import jwt from 'jsonwebtoken';
 
 
-export type RacetrackRole = 'OBSERVER' | 'RECEPTIONIST' | 'SAFETY';
+export enum RacetrackClientRole  {
+    OBSERVER = 'OBSERVER',
+    RECEPTIONIST = 'RECEPTIONIST',
+    SAFETY = 'SAFETY',
+} 
 export type SignedToken = string;
 
 export type AuthenicationRequest = {
@@ -12,7 +16,7 @@ export type AuthenicationRequest = {
 
 export type RacetrackAuthenticatedClient = {
     token: string;
-    role: RacetrackRole;
+    role: RacetrackClientRole;
 }
 
 export const RACETRACK_AUTH_COOKIE = "Authorization";
@@ -49,7 +53,7 @@ export class AuthService {
     
     private authenticate(token: string): SignedToken | null {
 
-        function signToken(token: string, role : RacetrackRole): SignedToken {
+        function signToken(token: string, role : RacetrackClientRole): SignedToken {
             const payload = {
                 token: token,
                 role: role,
@@ -60,18 +64,18 @@ export class AuthService {
 
         if (token === process.env.OBSERVER_KEY) {
             this.logger.info(`${token} authenticated as OBSERVER.`);
-            return signToken(token, 'OBSERVER');
+            return signToken(token, RacetrackClientRole.OBSERVER);
         } 
         else if (token === process.env.RECEPTIONIST_KEY) {
             this.logger.info(`${token} authenticated as RECEPTIONIST.`);
-            return signToken(token, 'RECEPTIONIST');
+            return signToken(token, RacetrackClientRole.RECEPTIONIST);
         }
         else if (token === process.env.SAFETY_KEY) {
             this.logger.info(`${token} authenticated as SAFETY.`);
-            return signToken(token, 'SAFETY');
+            return signToken(token, RacetrackClientRole.SAFETY);
         }
 
-        this.logger.error('Authentication failed');
+        this.logger.error('Client authentication failed. Invalid token.');
         return null;
     }
 }

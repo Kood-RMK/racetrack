@@ -7,6 +7,9 @@ import { RefObject, useEffect } from "react";
 import { Button } from "react-aria-components";
 import { millisecondsToMinutes } from "@/utils/timeConverter"
 import { ActiveRaceContestant } from "racetrack-backend/types";
+import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
+import { LoginWrapper } from "@/components/authentication/Login";
+import { RacetrackClientRole } from "racetrack-backend/services";
 
 
 
@@ -80,6 +83,9 @@ function RaceObserverPage() {
 export default function Page() {
 
     return (
+
+    <AuthenticationProvider>
+      <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.OBSERVER] }}>
         <SocketProvider url="http://localhost:3001">
             <ActiveRaceStateProvider>
                 <RaceObserverControllerProvider>
@@ -87,5 +93,8 @@ export default function Page() {
                 </RaceObserverControllerProvider>
             </ActiveRaceStateProvider>
         </SocketProvider>
+      </LoginWrapper>
+      </AuthenticationProvider>
+
     );
 }

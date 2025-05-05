@@ -1,11 +1,12 @@
 import { AuthenticationState, useAuthentication } from "@/app/providers/auth/authProvider";
+import { RacetrackClientRole } from "racetrack-backend/services";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 import { Button, Form, Input, Label, TextField } from "react-aria-components";
 
 
 export type LoginWrapperProps = {
     options: {
-        permittedRoles: string[];
+        permittedRoles: RacetrackClientRole[];
     }
     children: ReactNode;
 }

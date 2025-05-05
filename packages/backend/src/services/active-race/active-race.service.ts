@@ -2,8 +2,9 @@
 import type { DefaultEventsMap, Namespace, RemoteSocket, Socket, Server as SocketIOServer } from "socket.io";
 import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
-import { ActiveRace } from "@racetrack/types";
 import { Logger } from "pino";
+import { RacetrackClientRole, useRacetrackAuth } from "../auth";
+import { ActiveRace } from "types";
 
 export enum ActiveRaceServiceEvents {
     ActiveRaceSet = 'activeRaceSet',
@@ -79,6 +80,12 @@ export class ActiveRaceService {
 
         this._activeRaceHandler = new ActiveRaceHandler(mockRace, this._socketNamespace, this.logger);
         this._activeRaceHandler.initialize();
+
+
+        // Middleware to check if the user is authenticated.
+        this._socketNamespace.use((socket, next) => {
+            useRacetrackAuth(socket, next, this.logger, [RacetrackClientRole.OBSERVER, RacetrackClientRole.RECEPTIONIST, RacetrackClientRole.SAFETY]);
+        })
 
         this._socketNamespace.on("connection", (client) => {
             if (this._activeRaceHandler) {
