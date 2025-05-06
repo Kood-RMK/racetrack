@@ -1,41 +1,9 @@
 import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { Namespace, Socket } from "socket.io";
-import { ActiveRaceContestantEvents, ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
 import { ActiveRaceContestantStateEvents } from "./contestant/active-race-contestant.state";
-import { ActiveRace, RaceContestantId, RaceState, RacetrackEvent } from "@racetrack/types";
 import { Logger } from "pino";
-
-export enum ActiveRaceEvents {
-    RaceStateChanged = 'raceStateChanged',
-    RaceHazardChanged = 'raceHazardChanged',
-    RaceIsFinishingChanged = 'raceIsFinishingChanged',
-    RaceInitialState = 'raceInitialState',
-}
-
-export enum ActiveRaceCommands {
-    RequestActiveRaceState = 'requestActiveRaceState',
-}
-
-//External Events
-export type ActiveRaceStateChanged = {
-    type : ActiveRaceEvents.RaceStateChanged,
-    newState : RaceState,
-};
-
-export type ActiveRaceHazardChanged = {
-    type : ActiveRaceEvents.RaceHazardChanged,
-    isHazard : boolean,
-}
-
-export type ActiveRaceIsFinishingChanged = {
-    type : ActiveRaceEvents.RaceIsFinishingChanged,
-    isFinishing : boolean,
-}
-
-export type ActiveRaceInitialState = {
-    type : ActiveRaceEvents.RaceInitialState,
-    race : ActiveRace,
-}
+import { ActiveRace, ActiveRaceEvents, ActiveRaceHazardChanged, ActiveRaceInitialState, ActiveRaceIsFinishingChanged, ActiveRaceStateChanged, RaceContestantId, RaceState, RacetrackEvent } from "racetrack-shared/types";
+import { ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
 
 
 type ActiveContestantHandlers = Record<RaceContestantId, ActiveRaceContestantHandler>;
@@ -90,14 +58,14 @@ export class ActiveRaceHandler {
         });
     }
 
-    constructor(activeRace : ActiveRace, socketNamespace : Namespace, baseLogger : Logger) {
+    constructor(activeRaceState : ActiveRaceState, socketNamespace : Namespace, baseLogger : Logger) {
         this.logger = baseLogger.child(
             {
                 handlerName: this.constructor.name
             }
         );
 
-        this._activeRaceState = new ActiveRaceState(activeRace, this.logger);
+        this._activeRaceState = activeRaceState;
 
         // Create a handler for each active contestant.
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {

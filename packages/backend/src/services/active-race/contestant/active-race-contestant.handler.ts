@@ -2,41 +2,8 @@ import { ActiveRaceContestantState, ActiveRaceContestantStateCallbacks, ActiveRa
 import { Namespace } from "socket.io";
 import { ActiveRaceState, ActiveRaceStateEvents } from "../active-race.state";
 import { Stopwatch, StopwatchEvents } from "../../../utils/stopwatch";
-import { ActiveRaceContestant, RacetrackEvent } from "@racetrack/types";
+import { ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveContestantPlaceChanged, ActiveRaceContestant, ActiveRaceContestantEvents, RacetrackEvent } from "racetrack-shared/types";
 import { Logger } from "pino";
-
-
-export enum ActiveRaceContestantEvents {
-    ContestantPlaceChanged = 'ContestantPlaceChanged',
-    ContestantLapCountChanged = 'ContestantLapCountChanged',
-    ContestantFastestLapChanged = 'ContestantFastestLapChanged',
-    ContestantLapStopwatchTick = 'ContestantLapStopwatchTick',
-}
-
-//External Events
-export type ActiveContestantPlaceChanged = {
-    type : ActiveRaceContestantEvents.ContestantPlaceChanged,
-    contestantId : ActiveRaceContestant['contestant']['contestantId'],   
-    place : ActiveRaceContestant['place'],
-};
-
-export type ActiveContestantLapCountChanged = {
-    type : ActiveRaceContestantEvents.ContestantLapCountChanged,
-    contestantId : ActiveRaceContestant['contestant']['contestantId'],
-    lapCount : ActiveRaceContestant['lapCount'],
-}
-
-export type ActiveContestantFastestLapChanged = {
-    type : ActiveRaceContestantEvents.ContestantFastestLapChanged,
-    contestantId : ActiveRaceContestant['contestant']['contestantId'],
-    fastestLap : ActiveRaceContestant['fastestLap'],
-}
-
-export type ActiveContestantLapStopwatchTick = {
-    type : ActiveRaceContestantEvents.ContestantLapStopwatchTick,
-    contestantId : ActiveRaceContestant['contestant']['contestantId'],
-    stopwatchTime : ActiveRaceContestant['lapStopwatchTime'],
-}
 
 export class ActiveRaceContestantHandler {
 

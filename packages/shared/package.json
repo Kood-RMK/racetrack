@@ -1,0 +1,15 @@
+{
+  "name": "racetrack-shared",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "exports" : {
+    "./types": "./src/types/index.ts",
+    "./types/*": "./src/types/*"
+  },
+  "license": "ISC",
+  "description": ""
+}

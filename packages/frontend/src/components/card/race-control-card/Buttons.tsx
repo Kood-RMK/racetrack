@@ -5,7 +5,7 @@ import Icon from '@mdi/react';
 import { mdiDelete, mdiFlagCheckered, mdiPauseOctagon, mdiAlertOctagon, mdiHazardLights, mdiCheck, mdiPlayCircle, mdiStopCircle } from '@mdi/js';
 import {Button} from 'react-aria-components';
 import { ActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
-import { ActiveRace } from "racetrack-backend/types";
+import { ActiveRace, RaceState } from "racetrack-shared/types";
 
 
 export type RaceButtonParams = {
@@ -19,7 +19,7 @@ export function StartRaceButton({activeRace, activeRaceController} : RaceButtonP
         <Button 
             aria-label="Start race" 
             className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded xl:w-56 w-full min-w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={() => {activeRaceController.current.tryChangeRaceState('active')}}>
+            onPress={() => {activeRaceController.current.tryChangeRaceState(RaceState.Active)}}>
             <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
             Start Race
         </Button>
@@ -32,7 +32,7 @@ export function CancelRaceButton({activeRace, activeRaceController} : RaceButton
         <Button 
             aria-label="Cancel race" 
             className="text-xl flex justify-center items-center bg-red-700 text-white p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={() => {activeRaceController.current.tryChangeRaceState('canceled')}}>
+            onPress={() => {activeRaceController.current.tryChangeRaceState(RaceState.Canceled)}}>
             <Icon path={mdiDelete} className="w-6 h-6 flex-shrink-0"/>
             Cancel Race
         </Button>
@@ -72,7 +72,7 @@ export function StopRaceButton({activeRace, activeRaceController} : RaceButtonPa
         <Button 
             aria-label="Stop race"
             className={`text-xl flex justify-center items-center bg-red-600 text-white p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap`}
-            onPress={() => {activeRaceController.current.tryChangeRaceState('paused')}}>
+            onPress={() => {activeRaceController.current.tryChangeRaceState(RaceState.Paused)}}>
             <Icon path={mdiPauseOctagon} className="w-6 h-6 flex-shrink-0"/>
             Stop Race
         </Button>
@@ -85,7 +85,7 @@ export function EndRaceButton({activeRace, activeRaceController} : RaceButtonPar
         <Button 
             aria-label="End session" 
             className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded w-full xl:w-56 min-w-56 h-14 gap-1 whitespace-nowrap"
-            onPress={() => {activeRaceController.current.tryChangeRaceState('completed')}}>
+            onPress={() => {activeRaceController.current.tryChangeRaceState(RaceState.Completed)}}>
             <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
             End Session
         </Button>

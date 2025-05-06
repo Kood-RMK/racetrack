@@ -6,7 +6,7 @@ import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/sta
 import { RefObject, useEffect } from "react";
 import { Button } from "react-aria-components";
 import { millisecondsToMinutes } from "@/utils/timeConverter"
-import { ActiveRaceContestant } from "racetrack-backend/types";
+import { ActiveRaceContestant } from "racetrack-shared/types";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
 import { LoginWrapper } from "@/components/authentication/Login";
 import { RacetrackClientRole } from "racetrack-backend/services";

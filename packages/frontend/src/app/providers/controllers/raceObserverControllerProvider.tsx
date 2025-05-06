@@ -1,7 +1,7 @@
 import { createContext, RefObject, use, useContext, useEffect, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
 import {useActiveRaceState} from "@providers/state/activeRaceStateProvider";
-import { RaceContestantId, RacetrackCommand } from "racetrack-backend/types";
+import { RaceContestantId, RacetrackCommand } from "racetrack-shared/types";
 import { HandleLineCrossed, RaceObserverCommands } from "racetrack-backend/services";
 
 export type RaceObserverController = {

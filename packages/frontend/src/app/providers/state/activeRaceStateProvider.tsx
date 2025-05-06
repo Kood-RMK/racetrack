@@ -1,9 +1,7 @@
 "use client";
 
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ActiveRaceInitialState, ActiveRaceStateChanged } from "racetrack-backend/services/active-race/active-race.handler.js";
-import { RaceControlEvents, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ActiveContestantPlaceChanged, ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveRaceContestantEvents } from "racetrack-backend/services";
-import { ActiveRace, RacetrackEvent } from "racetrack-backend/types";
+import { ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveContestantPlaceChanged, ActiveRace, ActiveRaceContestantEvents, ActiveRaceInitialState, ActiveRaceStateChanged, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, RaceControlEvents, RacetrackEvent } from "racetrack-shared/types";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 

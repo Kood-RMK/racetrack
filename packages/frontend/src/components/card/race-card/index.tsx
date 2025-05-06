@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ScheduledRace } from "racetrack-backend/types";
+import { ScheduledRace } from "racetrack-shared/types";
 import { RaceScheduleEntry } from "racetrack-backend/services";
 
 

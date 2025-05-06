@@ -28,7 +28,7 @@ import {
 
 
 import { useRaceScheduleController } from "@/app/providers/controllers/raceScheduleControllerProvider";
-import { RaceContestant, ScheduledRace } from "racetrack-backend/types";
+import { RaceContestant, ScheduledRace } from "racetrack-shared/types";
 
 
 

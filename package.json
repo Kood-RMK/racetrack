@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "workspaces" : [
+  "workspaces": [
     "packages/backend",
-    "packages/frontend"
+    "packages/frontend",
+    "packages/shared"
   ],
   "scripts": {
-    "dev" : "npm run dev --workspace packages/backend npm & run dev --workspace packages/frontend"
+    "dev": "npm run dev --workspace packages/backend npm & run dev --workspace packages/frontend"
   },
   "repository": {
     "type": "git",
@@ -20,5 +21,12 @@
   "bugs": {
     "url": "https://github.com/Kood-RMK/racetrack/issues"
   },
-  "homepage": "https://github.com/Kood-RMK/racetrack#readme"
+  "homepage": "https://github.com/Kood-RMK/racetrack#readme",
+  "devDependencies": {
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.2"
+  }
 }

@@ -2,7 +2,7 @@ import EventEmitter from "events";
 import { ActiveRaceContestantState } from "./contestant/active-race-contestant.state";
 import { Logger } from "pino";
 import { DatabaseSync } from "node:sqlite";
-import { ActiveRace, ActiveRaceContestant, RaceState } from "types";
+import { ActiveRace, ActiveRaceContestant, RaceState } from "racetrack-shared/types";
 
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
@@ -51,13 +51,15 @@ export class ActiveRaceState {
         if (!activeRaceRow) {
             return null;
         }
+
+        console.log(activeRaceRow);
         
         if (!(typeof activeRaceRow.raceId === 'string' 
             && typeof activeRaceRow.raceStartDateTime === 'string' 
             && typeof activeRaceRow.raceState === 'string'
             && Object.values(RaceState).includes(activeRaceRow.raceState as RaceState)
-            && typeof activeRaceRow.isHazard === 'boolean'
-            && typeof activeRaceRow.isFinishing === 'boolean'
+            && typeof activeRaceRow.isHazard === 'number'
+            && typeof activeRaceRow.isFinishing === 'number'
             && typeof activeRaceRow.timeLeft === 'number'
         )) {
             logger.error("Malformed active race row in database.");
@@ -68,8 +70,8 @@ export class ActiveRaceState {
             raceId: activeRaceRow.raceId,
             raceStartDateTime: activeRaceRow.raceStartDateTime,
             raceState: RaceState[activeRaceRow.raceState as keyof typeof RaceState], 
-            isHazard: activeRaceRow.isHazard,
-            isFinishing: activeRaceRow.isFinishing,
+            isHazard: !!activeRaceRow.isHazard,
+            isFinishing: !!activeRaceRow.isFinishing,
             timeLeft: activeRaceRow.timeLeft,
             contestants : {}
         }
@@ -87,7 +89,6 @@ export class ActiveRaceState {
             WHERE activeRaceId = @activeRaceId`
         );
         const activeRaceContestantsRows = activeRaceContestantsQuery.all({activeRaceId: activeRaceRow.raceId});
-
 
         // Get active race contestants from the database.
         activeRace.contestants = {};

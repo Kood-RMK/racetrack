@@ -4,8 +4,9 @@ import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
 import { Logger } from "pino";
 import { RacetrackClientRole, useRacetrackAuth } from "../auth";
-import { ActiveRace } from "types";
+import { ActiveRace } from "racetrack-shared/types";
 import { DatabaseSync } from "node:sqlite";
+import { ActiveRaceState } from "./active-race.state";
 
 export enum ActiveRaceServiceEvents {
     ActiveRaceSet = 'activeRaceSet',
@@ -36,6 +37,7 @@ export class ActiveRaceService {
 
     // Either we have a active race or we don't.
     private _activeRaceHandler : ActiveRaceHandler | null = null;
+    private _activeRaceState : ActiveRaceState | null = null;
     private readonly _socketServer: SocketIOServer;
     private readonly _eventEmitter = new ActiveRaceServiceEventEmitter();
     private readonly _socketNamespace: Namespace;
@@ -48,6 +50,8 @@ export class ActiveRaceService {
         const logger = parentLogger.child({serviceName: this.constructor.name});
         this._database = database;
         this.logger = logger;
+
+        this._activeRaceState = ActiveRaceState.loadFromDatabase(logger, this._database);
 
         // const mockRace : ActiveRace = {
         //     raceId : "123", 
@@ -82,18 +86,11 @@ export class ActiveRaceService {
         //     timeLeft : 1000,};
 
 
-        function getActiveRaceFromDatabase() : ActiveRace {
-            const activeRaceQuery = database.prepare("SELECT * FROM active_races LIMIT 1;");
-            const activeRaceRow = activeRaceQuery.get();
-
-            if (activeRaceRow) {
-
-            }
+        // Create active race handler if an active race is found in the database.
+        if (this._activeRaceState) {
+            this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
+            this._activeRaceHandler.initialize();
         }
-
-
-        this._activeRaceHandler = new ActiveRaceHandler(mockRace, this._socketNamespace, this.logger);
-        this._activeRaceHandler.initialize();
 
 
         // Middleware to check if the user is authenticated.
@@ -169,7 +166,8 @@ export class ActiveRaceService {
     }
 
     public setActiveRace(activeRace: ActiveRace) {
-        this._activeRaceHandler = new ActiveRaceHandler(activeRace, this._socketNamespace, this.logger);
+        this._activeRaceState = ActiveRaceState.createNew(activeRace, this.logger, this._database);
+        this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
         this._activeRaceHandler.initialize();
         this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceSet, activeRace);
     }

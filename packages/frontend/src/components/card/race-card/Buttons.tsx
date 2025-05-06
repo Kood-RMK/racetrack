@@ -7,7 +7,7 @@ import { Button } from 'react-aria-components';
 import { mdiDelete, mdiInvoiceTextEdit } from "@mdi/js";
 import Icon from '@mdi/react';
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { RacetrackCommand, ScheduledRace } from "racetrack-backend/types";
+import { RacetrackCommand, ScheduledRace } from "racetrack-shared/types";
 import { DeleteRace, RaceScheduleCommands, RaceScheduleEntry } from "racetrack-backend/services";
 
 

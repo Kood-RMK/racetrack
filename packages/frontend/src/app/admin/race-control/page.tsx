@@ -1,7 +1,6 @@
 "use client";
 
-import { ActiveRace } from "racetrack-backend/types";
-
+import { ActiveRace } from "racetrack-shared/types";
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { RefObject, useEffect } from "react";

@@ -1,11 +1,9 @@
 "use client";
 
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ActiveRace, RacetrackCommand } from "racetrack-backend/types";
-import { RaceState } from "racetrack-backend/types/stateTypes.js";
+import { ActiveRace, RacetrackCommand, RaceState, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands } from "racetrack-shared/types";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 import { useActiveRaceState } from "@providers/state/activeRaceStateProvider";
-import { ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands } from "racetrack-backend/services";
 
 
 export type ActiveRaceController = {
