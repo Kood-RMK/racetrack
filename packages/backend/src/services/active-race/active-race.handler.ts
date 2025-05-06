@@ -2,8 +2,9 @@ import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { Namespace, Socket } from "socket.io";
 import { ActiveRaceContestantStateEvents } from "./contestant/active-race-contestant.state";
 import { Logger } from "pino";
-import { ActiveRace, ActiveRaceEvents, ActiveRaceHazardChanged, ActiveRaceInitialState, ActiveRaceIsFinishingChanged, ActiveRaceStateChanged, RaceContestantId, RaceState, RacetrackEvent } from "racetrack-shared/types";
+import { ActiveRace, ActiveRaceEvents, ActiveRaceHazardChanged, ActiveRaceInitialState, ActiveRaceIsFinishingChanged, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, RaceContestantId, RaceState, RacetrackEvent } from "racetrack-shared/types";
 import { ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
+import { Stopwatch, StopwatchEvents } from "@racetrack/utils/stopwatch";
 
 
 type ActiveContestantHandlers = Record<RaceContestantId, ActiveRaceContestantHandler>;
@@ -14,6 +15,7 @@ export class ActiveRaceHandler {
     private readonly _activeRaceRoom : string;
     private readonly _socketNamespace : Namespace;
     private readonly logger : Logger;
+    private readonly _stopwatch : Stopwatch;
 
     private readonly _activeRaceContestantHandlers: ActiveContestantHandlers;
 
@@ -37,6 +39,7 @@ export class ActiveRaceHandler {
     private onRaceStateChanged : (newState: ActiveRace['raceState']) => void;
     private onRaceHazardChanged : (isHazard: ActiveRace['isHazard']) => void;
     private onRaceIsFinishingChanged : (isFinishing: ActiveRace['isFinishing']) => void;
+    private onTimeLeftChanged : (timeLeft: ActiveRace['timeLeft']) => void;
 
     private refreshContestantPlacement(contestantHandlers : ActiveContestantHandlers) {
         const contestants = Object.entries(contestantHandlers).map(([contestantId, contestantHandler]) => {
@@ -64,6 +67,12 @@ export class ActiveRaceHandler {
                 handlerName: this.constructor.name
             }
         );
+
+        this._stopwatch = new Stopwatch(process.env.STOPWATCH_TICK);
+
+        this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
+            this._activeRaceState.setTimeLeft(this._activeRaceState.timeLeft - elapsed);
+        });
 
         this._activeRaceState = activeRaceState;
 
@@ -99,6 +108,13 @@ export class ActiveRaceHandler {
         }
 
         this.onRaceStateChanged = (newState: ActiveRace['raceState']) => {
+
+            if (newState === 'active') {
+                this._stopwatch.start();
+            } else {
+                this._stopwatch.stop();
+            }
+
             try {
                 const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
                     message : {
@@ -157,6 +173,24 @@ export class ActiveRaceHandler {
                 this.logger.error(error);
             }
         }
+
+        this.onTimeLeftChanged = (timeLeft: ActiveRace['timeLeft']) => {
+            try {
+                const timeLeftChangedMessage : RacetrackEvent<ActiveRaceTimeLeftChanged> = {
+                    message : {
+                        type: ActiveRaceEvents.RaceTimeLeftChanged,
+                        timeLeft: timeLeft,
+                    }
+                }
+
+                this._socketNamespace
+                    .to(this._activeRaceRoom)
+                    .emit(ActiveRaceEvents.RaceTimeLeftChanged, timeLeftChangedMessage);
+
+            } catch (error) {
+                this.logger.error(error);
+            }
+        }
     }
 
     public initialize() {
@@ -169,6 +203,7 @@ export class ActiveRaceHandler {
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
         activeRaceStateEvents.on(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+        activeRaceStateEvents.on(ActiveRaceStateEvents.TimeLeftChanged, this.onTimeLeftChanged);
 
 
         this._socketNamespace.on("connection", this.onConnection);
@@ -181,6 +216,7 @@ export class ActiveRaceHandler {
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
         activeRaceStateEvents.off(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
+        activeRaceStateEvents.off(ActiveRaceStateEvents.TimeLeftChanged, this.onTimeLeftChanged);
 
         Object.entries(this._activeRaceContestantHandlers).forEach(([contestantId, contestantHandler]) => {
             contestantHandler.destroy();

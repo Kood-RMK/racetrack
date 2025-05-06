@@ -1,5 +1,5 @@
 import { AuthenticationState, useAuthentication } from "@/app/providers/auth/authProvider";
-import { RacetrackClientRole } from "racetrack-backend/services";
+import { RacetrackClientRole } from "racetrack-shared/types";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 import { Button, Form, Input, Label, TextField } from "react-aria-components";
 

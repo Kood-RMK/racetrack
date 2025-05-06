@@ -1,26 +1,7 @@
 import {Express} from 'express';
 import { Logger } from 'pino';
 import jwt from 'jsonwebtoken';
-
-
-export enum RacetrackClientRole  {
-    OBSERVER = 'OBSERVER',
-    RECEPTIONIST = 'RECEPTIONIST',
-    SAFETY = 'SAFETY',
-} 
-export type SignedToken = string;
-
-export type AuthenicationRequest = {
-    token: string;
-}
-
-export type RacetrackAuthenticatedClient = {
-    token: string;
-    role: RacetrackClientRole;
-}
-
-export const RACETRACK_AUTH_COOKIE = "Authorization";
-export const RACETRACK_AUTH_HEADER = "Authorization";
+import { AuthenicationRequest, RACETRACK_AUTH_COOKIE, RACETRACK_AUTH_HEADER, RacetrackClientRole, SignedToken } from 'racetrack-shared/types';
 
 export class AuthService {
 

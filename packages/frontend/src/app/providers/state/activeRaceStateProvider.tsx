@@ -1,7 +1,7 @@
 "use client";
 
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveContestantPlaceChanged, ActiveRace, ActiveRaceContestantEvents, ActiveRaceInitialState, ActiveRaceStateChanged, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, RaceControlEvents, RacetrackEvent } from "racetrack-shared/types";
+import { ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveContestantPlaceChanged, ActiveRace, ActiveRaceContestantEvents, ActiveRaceEvents, ActiveRaceInitialState, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, RaceControlEvents, RacetrackEvent } from "racetrack-shared/types";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 
@@ -30,7 +30,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
       console.log(`[📩 Active Race State]: Initial Race State Received:`, initalState);
     }
-    socket.on(RaceControlEvents.RaceInitialState, onRaceInitialState)
+    socket.on(ActiveRaceEvents.RaceInitialState, onRaceInitialState)
 
     // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
     const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
@@ -42,7 +42,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
       console.log(`[📩 Active Race State]: Race State Changed to ${data.message.newState}`);
     }
-    socket.on(RaceControlEvents.RaceStateChanged, onRaceStateChanged);
+    socket.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
 
 
     // Listens for isHazard flag changes.
@@ -54,8 +54,18 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
       console.log(`[📩 Active Race State]: Race Hazard Flag set to ${data.message.isHazard}.`);
     }
-    socket.on(RaceControlEvents.RaceHazardChanged, onRaceHazardChanged);
+    socket.on(ActiveRaceEvents.RaceHazardChanged, onRaceHazardChanged);
 
+
+    const onTimeLeftChanged = (data: RacetrackEvent<ActiveRaceTimeLeftChanged>) => {
+      setActiveRaceState(prevState => prevState ? {
+        ...prevState,
+        timeLeft: data.message.timeLeft,
+      } : null);
+
+      console.log(data.message.timeLeft)
+    }
+    socket.on(ActiveRaceEvents.RaceTimeLeftChanged, onTimeLeftChanged);
 
     // Listens for isFinishing flag changes.
     const onRaceFinishingChanged = (data: RacetrackEvent<ChangeActiveRaceIsFinishing>) => {
@@ -67,7 +77,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
       console.log(`[📩 Active Race State]: Race Finishing Flag set to ${data.message.isFinishing}.`);
     }
-    socket.on(RaceControlEvents.RaceIsFinishingChanged, onRaceFinishingChanged)
+    socket.on(ActiveRaceEvents.RaceIsFinishingChanged, onRaceFinishingChanged)
 
     // Listens for contestant place changes.
     const onContestantPlaceChanged = (data: RacetrackEvent<ActiveContestantPlaceChanged>) => {

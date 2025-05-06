@@ -10,7 +10,6 @@ import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 import { LoginWrapper } from "@/components/authentication/Login";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
-import { RacetrackClientRole } from "racetrack-backend/services";
 
 
 // Mapping between race state and components for buttons and tags
@@ -18,7 +17,7 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
 
   const raceState = activeRace.raceState;
 
-  activeRace.raceStartUnixTime
+  activeRace.raceScheduledStartUnixTime
   const calculateTimeslot = (raceStartUnixTime : number, raceDurationSeconds : number) => {
       const startDateTime = new Date(raceStartUnixTime * 1000); // Convert to milliseconds
       const startHours = startDateTime.getHours().toString().padStart(2, '0');
@@ -31,21 +30,20 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
       const endSeconds = endDateTime.getSeconds().toString().padStart(2, '0');
       
       return `${startHours}:${startMinutes}:${startSeconds} - ${endHours}:${endMinutes}:${endSeconds}`;
-
   }
 
   switch (raceState) {
     case RaceState.Pending: {
       return <>
         <RacePendingTag></RacePendingTag>
-        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
       </>;
     }
 
     case RaceState.Active : {
       return <>
         <RaceActiveTag></RaceActiveTag>
-        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
         {activeRace.isHazard && <RaceHazardTag></RaceHazardTag>}
         {activeRace.isFinishing && <RaceFinishingTag></RaceFinishingTag>}
       </>;
@@ -53,19 +51,18 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
     case RaceState.Paused : {
       return <>
         <RaceActiveTag></RaceActiveTag>
-        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
         <RaceDangerTag></RaceDangerTag>
       </>;
     }
     case RaceState.Canceled : {
       return <>
-        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
         <RaceCancelledTag></RaceCancelledTag>
       </>;
     }
 
     default : <></>
-  
   }
 };
 

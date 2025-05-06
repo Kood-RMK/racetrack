@@ -4,6 +4,7 @@ export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
     RaceHazardChanged = 'raceHazardChanged',
     RaceIsFinishingChanged = 'raceIsFinishingChanged',
+    RaceTimeLeftChanged = 'raceTimeLeftChanged',
     RaceInitialState = 'raceInitialState',
 }
 
@@ -25,6 +26,11 @@ export type ActiveRaceHazardChanged = {
 export type ActiveRaceIsFinishingChanged = {
     type : ActiveRaceEvents.RaceIsFinishingChanged,
     isFinishing : boolean,
+}
+
+export type ActiveRaceTimeLeftChanged = {
+    type : ActiveRaceEvents.RaceTimeLeftChanged,
+    timeLeft : number,
 }
 
 export type ActiveRaceInitialState = {

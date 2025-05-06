@@ -3,10 +3,10 @@ import type { DefaultEventsMap, Namespace, RemoteSocket, Socket, Server as Socke
 import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
 import { Logger } from "pino";
-import { RacetrackClientRole, useRacetrackAuth } from "../auth";
-import { ActiveRace } from "racetrack-shared/types";
+import { ActiveRace, RacetrackClientRole } from "racetrack-shared/types";
 import { DatabaseSync } from "node:sqlite";
 import { ActiveRaceState } from "./active-race.state";
+import { useRacetrackAuth } from "../auth";
 
 export enum ActiveRaceServiceEvents {
     ActiveRaceSet = 'activeRaceSet',

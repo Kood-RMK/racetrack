@@ -38,7 +38,7 @@ export type ActiveRaceId = string;
 export type ActiveRaceContestants = Record<RaceContestantId, ActiveRaceContestant>;
 export type ActiveRace = {
     raceId : ActiveRaceId,
-    raceStartUnixTime : number // Unix timestamp. Might differ from the scheduled start time.
+    raceScheduledStartUnixTime : number // Unix timestamp. 
     raceDurationSeconds : number, // in seconds.
     contestants : ActiveRaceContestants,
     raceState : RaceState,

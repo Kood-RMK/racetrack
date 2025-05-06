@@ -61,7 +61,7 @@ function initializeDatabase() {
   database.exec(`
       CREATE TABLE IF NOT EXISTS active_races (
         raceId TEXT PRIMARY KEY,
-        raceStartDateTime TEXT NOT NULL,
+        raceScheduledStartUnixTime INT NOT NULL,
         raceState TEXT NOT NULL,
         isHazard BOOLEAN NOT NULL,
         isFinishing BOOLEAN NOT NULL,

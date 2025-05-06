@@ -1,8 +1,8 @@
 import { Logger } from "pino";
-import { RacetrackClientRole } from "./auth.service";
 import { verifyRacetrackClientToken } from "./auth.utils";
 
 import type { Socket} from "socket.io";
+import { RacetrackClientRole } from "racetrack-shared/types";
 
 
 export function useRacetrackAuth(socket: Socket, next: (err?: Error) => void, logger : Logger, permittedRoles : RacetrackClientRole[] = []) {

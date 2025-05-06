@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { RacetrackAuthenticatedClient } from './auth.service';
+import { RacetrackAuthenticatedClient } from 'racetrack-shared/types';
 
 
 export function verifyRacetrackClientToken(token: string): Promise<RacetrackAuthenticatedClient> {

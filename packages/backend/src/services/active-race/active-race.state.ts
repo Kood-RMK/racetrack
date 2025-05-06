@@ -53,7 +53,7 @@ export class ActiveRaceState {
         }
 
         if (!(typeof activeRaceRow.raceId === 'string' 
-            && typeof activeRaceRow.raceStartDateTime === 'string' 
+            && typeof activeRaceRow.raceScheduledStartUnixTime === 'number' 
             && typeof activeRaceRow.raceState === 'string'
             && Object.values(RaceState).includes(activeRaceRow.raceState as RaceState)
             && typeof activeRaceRow.isHazard === 'number'
@@ -66,7 +66,7 @@ export class ActiveRaceState {
 
         const activeRace : ActiveRace = {
             raceId: activeRaceRow.raceId,
-            raceStartUnixTime: activeRaceRow.raceStartDateTime,
+            raceScheduledStartUnixTime: activeRaceRow.raceScheduledStartUnixTime,
             raceState: activeRaceRow.raceState as RaceState, 
             isHazard: !!activeRaceRow.isHazard,
             isFinishing: !!activeRaceRow.isFinishing,
@@ -148,7 +148,7 @@ export class ActiveRaceState {
     }
 
     public get raceDateTime() {
-        return this._activeRace.raceStartUnixTime;
+        return this._activeRace.raceScheduledStartUnixTime;
     }
 
     public get contestants() {
@@ -160,6 +160,8 @@ export class ActiveRaceState {
     }
 
     public get isHazard() {
+
+        const updateRaceStateStatement = this._database.prepare(`UPDATE active_races SET raceState = @raceState WHERE raceId = @raceId`);
         return this._activeRace.isHazard;
     }
 
