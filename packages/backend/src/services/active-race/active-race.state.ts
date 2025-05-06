@@ -57,7 +57,7 @@ export class ActiveRaceState {
         if (!(typeof activeRaceRow.raceId === 'string' 
             && typeof activeRaceRow.raceStartDateTime === 'string' 
             && typeof activeRaceRow.raceState === 'string'
-            && Object.keys(RaceState).includes(activeRaceRow.raceState as RaceState)
+            && Object.values(RaceState).includes(activeRaceRow.raceState as RaceState)
             && typeof activeRaceRow.isHazard === 'number'
             && typeof activeRaceRow.isFinishing === 'number'
             && typeof activeRaceRow.timeLeft === 'number'
@@ -71,7 +71,7 @@ export class ActiveRaceState {
         const activeRace : ActiveRace = {
             raceId: activeRaceRow.raceId,
             raceStartDateTime: activeRaceRow.raceStartDateTime,
-            raceState: RaceState[activeRaceRow.raceState as keyof typeof RaceState], 
+            raceState: activeRaceRow.raceState as RaceState, 
             isHazard: !!activeRaceRow.isHazard,
             isFinishing: !!activeRaceRow.isFinishing,
             timeLeft: activeRaceRow.timeLeft,
@@ -179,15 +179,27 @@ export class ActiveRaceState {
     }
 
     public setRaceState(raceState: ActiveRace['raceState']) {
-
         this._activeRace.raceState = raceState;
+
+        const updateRaceStateStatement = this._database.prepare(`UPDATE active_races SET raceState = @raceState WHERE raceId = @raceId`);
+        updateRaceStateStatement.run({
+            raceState: raceState,
+            raceId: this._activeRace.raceId
+        });
+
         this.logger.info(`Race state set to: ${raceState}.`)
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceStateChanged, raceState);
     }
 
     public setIsHazard(isHazard: ActiveRace['isHazard']) {
-
         this._activeRace.isHazard = isHazard;
+
+        const updateIsHazardStatement = this._database.prepare(`UPDATE active_races SET isHazard = @isHazard WHERE raceId = @raceId`);
+        updateIsHazardStatement.run({
+            isHazard: isHazard ? 1 : 0,
+            raceId: this._activeRace.raceId
+        });
+
         this.logger.info(`Hazard flag set to : ${isHazard}.`)
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceHazardChanged, isHazard);
 
@@ -198,8 +210,14 @@ export class ActiveRaceState {
     }
 
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
-
         this._activeRace.isFinishing = isFinishing;
+
+        const updateIsFinishingStatement = this._database.prepare(`UPDATE active_races SET isFinishing = @isFinishing WHERE raceId = @raceId`);
+        updateIsFinishingStatement.run({
+            isFinishing: isFinishing ? 1 : 0,
+            raceId: this._activeRace.raceId
+        });
+
         this.logger.info(`Is finishing flag set to : ${isFinishing}.`)
         this._eventEmitter.emit(ActiveRaceStateEvents.RaceIsFinishingChanged, isFinishing);
 
@@ -211,6 +229,13 @@ export class ActiveRaceState {
 
     public setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
         this._activeRace.timeLeft = timeLeft;
+
+        const updateTimeLeftStatement = this._database.prepare(`UPDATE active_races SET timeLeft = @timeLeft WHERE raceId = @raceId`);
+        updateTimeLeftStatement.run({
+            timeLeft: timeLeft,
+            raceId: this._activeRace.raceId
+        });
+
         this._eventEmitter.emit(ActiveRaceStateEvents.TimeLeftChanged, timeLeft);
     }
 }
