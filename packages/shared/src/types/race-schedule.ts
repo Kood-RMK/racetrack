@@ -15,6 +15,8 @@ export enum RaceScheduleCommands {
 }
 
 
+export type RaceScheduleEntries = Record<ScheduledRace['raceId'], ScheduledRace>;
+
 // Events (sent from server to client)
 export type RaceScheduleInitialState = {
     type: RaceScheduleEvents.RaceScheduleInitialState,

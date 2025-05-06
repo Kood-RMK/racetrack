@@ -9,7 +9,7 @@
     "packages/shared"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace packages/backend npm & run dev --workspace packages/frontend"
+    "dev": "npm run dev --workspace packages/backend & npm run dev --workspace packages/frontend"
   },
   "repository": {
     "type": "git",

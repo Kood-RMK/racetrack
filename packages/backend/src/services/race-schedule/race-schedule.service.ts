@@ -11,7 +11,7 @@ export class RaceScheduleService {
     private readonly schedule: RaceScheduleState;
     private readonly logger : Logger;
 
-    constructor(socketIO : SocketIOServer, schedule: RaceScheduleState, parentLogger : Logger) {
+    constructor(socketIO : SocketIOServer, parentLogger : Logger) {
 
         this.socketIO = socketIO;
         this.schedule = new RaceScheduleState();

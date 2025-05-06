@@ -97,8 +97,7 @@ const raceControlService = new RaceControlService(io, activeRaceService, logger)
 const raceObserverService = new RaceObserverService(io, activeRaceService, logger);
 
 // new RaceScheduleService(io);
-const raceSchedule = new RaceScheduleState();
-const raceScheduleService = new RaceScheduleService(io, raceSchedule, logger);
+const raceScheduleService = new RaceScheduleService(io, logger);
 
 server.listen(3001, () => {
   console.log('server running at http://localhost:3001');

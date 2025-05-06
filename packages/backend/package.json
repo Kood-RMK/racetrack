@@ -20,6 +20,6 @@
     "./services/*": "./src/services/*"
   },
   "scripts": {
-    "dev": "nodemon --watch src --exec ts-node src/server.ts"
+    "dev": "tsc -p tsconfig.json && node --watch -r ts-node/register ./dist/server.js"
   }
 }
