@@ -43,17 +43,15 @@ export class ActiveRaceState {
 
     public static loadFromDatabase(baseLogger: Logger, database: DatabaseSync) : ActiveRaceState | null {
 
+        const logger = baseLogger.child({handlerName : this.constructor.name})            
+
         const activeRaceQuery = database.prepare("SELECT * FROM active_races LIMIT 1;");
         const activeRaceRow = activeRaceQuery.get();
-
-        const logger = baseLogger.child({handlerName : this.constructor.name})            
 
         if (!activeRaceRow) {
             return null;
         }
 
-        console.log(activeRaceRow);
-        
         if (!(typeof activeRaceRow.raceId === 'string' 
             && typeof activeRaceRow.raceStartDateTime === 'string' 
             && typeof activeRaceRow.raceState === 'string'
@@ -65,8 +63,6 @@ export class ActiveRaceState {
             logger.error("Malformed active race row in database.");
             return null;
         }
-
-        console.log(activeRaceRow)
 
         const activeRace : ActiveRace = {
             raceId: activeRaceRow.raceId,
@@ -136,7 +132,7 @@ export class ActiveRaceState {
 
         // Initialize contestants state.
         this._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
-            return new ActiveRaceContestantState(contestant, baseLogger);
+            return new ActiveRaceContestantState(contestant, baseLogger, database);
         });
 
         this._database = database;
