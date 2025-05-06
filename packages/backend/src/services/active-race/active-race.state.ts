@@ -3,6 +3,7 @@ import { ActiveRaceContestantState } from "./contestant/active-race-contestant.s
 import { ActiveRace } from "@racetrack/types";
 import { Logger } from "pino";
 import { DatabaseSync } from "node:sqlite";
+import { ActiveRaceContestant } from "types";
 
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
@@ -50,9 +51,75 @@ export class ActiveRaceState {
         if (!activeRaceRow) {
             return null;
         }
+        
+        if (!(typeof activeRaceRow.raceId === 'string' 
+            && typeof activeRaceRow.raceStartDateTime === 'string' 
+            && typeof activeRaceRow.raceState === 'string'
+            && typeof activeRaceRow.isHazard === 'boolean'
+            && typeof activeRaceRow.isFinishing === 'boolean'
+            && typeof activeRaceRow.timeLeft === 'number'
+        )) {
+            raceState.logger.error("Malformed active race row in database.");
+            return null;
+        }
 
-        if (typeof activeRaceRow)
+        raceState._activeRace = {
+            raceId: activeRaceRow.raceId,
+            raceStartDateTime: new Date(activeRaceRow.raceStartDateTime),
+            raceState: activeRaceRow.raceState,
+            isHazard: activeRaceRow.isHazard,
+            isFinishing: activeRaceRow.isFinishing,
+            timeLeft: activeRaceRow.timeLeft,
+        }
 
+        const activeRaceContestantsQuery = database.prepare(`
+            SELECT arc.contestantId as contestantId,
+                rc.name,
+                rc.racecarNumber,
+                arc.place,
+                arc.lapCount,
+                arc.fastestLap,
+                arc.lapStopwatchTime 
+            FROM active_race_contestants arc
+            JOIN race_contestants rc on rc.contestantId = arc.contestantId
+            WHERE activeRaceId = @activeRaceId`
+        );
+        const activeRaceContestantsRows = activeRaceContestantsQuery.all({activeRaceId: activeRaceRow.raceId});
+
+
+        // Get active race contestants from the database.
+        raceState._activeRaceContestantsState = [];
+        for (const contestantRow of activeRaceContestantsRows) {
+            if (!(typeof contestantRow.contestantId === 'string' 
+                && typeof contestantRow.racecarNumber === 'number'
+                && typeof contestantRow.name === 'string'
+                && typeof contestantRow.place === 'number'
+                && typeof contestantRow.lapCount === 'number'
+                && typeof contestantRow.fastestLap === 'number'
+                && typeof contestantRow.lapStopwatchTime === 'number'
+            )) {
+                raceState.logger.error("Malformed active race contestant row in database.");
+                return null;
+            }
+
+            const activeRaceContestant = {
+                contestant: {
+                    contestantId: contestantRow.contestantId,
+                    racecarNumber: contestantRow.racecarNumber,
+                    name: contestantRow.name,
+                },
+                place: contestantRow.place,
+                lapCount: contestantRow.lapCount,
+                fastestLap: contestantRow.fastestLap,
+                lapStopwatchTime: contestantRow.lapStopwatchTime
+            }
+
+            raceState._activeRace.contestants[contestantRow.contestantId] = activeRaceContestant;
+            const activeRaceContestantState = new ActiveRaceContestantState(activeRaceContestant, raceState.logger);
+            raceState._activeRaceContestantsState.push(activeRaceContestantState);
+        }
+
+        return raceState;
     }
 
     public static createNew(activeRace: ActiveRace, baseLogger: Logger, database: DatabaseSync) {
@@ -65,6 +132,7 @@ export class ActiveRaceState {
 
     private constructor(baseLogger : Logger, database: DatabaseSync) {
         this.logger = baseLogger.child({handlerName : this.constructor.name})
+        this._activeRaceContestantsState = [];
         this._database = database;
     }
 

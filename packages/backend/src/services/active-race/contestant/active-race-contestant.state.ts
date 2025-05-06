@@ -1,6 +1,6 @@
-import { ActiveRaceContestant } from "@racetrack/types";
 import EventEmitter from "events";
 import { Logger } from "pino";
+import { ActiveRaceContestant } from "types";
 export enum ActiveRaceContestantStateEvents {
     ContestantPlaceChanged = 'onContestantPlaceChanged',
     ContestantLapCountChanged = 'onContestantLapCountChanged',
