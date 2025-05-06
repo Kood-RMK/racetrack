@@ -68,10 +68,12 @@ export class ActiveRaceHandler {
             }
         );
 
-        this._stopwatch = new Stopwatch(process.env.STOPWATCH_TICK);
+        this._stopwatch = new Stopwatch(Number (process.env.STOPWATCH_TICK));
 
         this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
+            console.log(`Stopwatch tick: ${elapsed}`);
             this._activeRaceState.setTimeLeft(this._activeRaceState.timeLeft - elapsed);
+            this._stopwatch.reset();
         });
 
         this._activeRaceState = activeRaceState;
@@ -207,6 +209,12 @@ export class ActiveRaceHandler {
 
 
         this._socketNamespace.on("connection", this.onConnection);
+
+    
+        if (this._activeRaceState.raceState === 'active') {
+            this._stopwatch.start();
+        }
+
         this.logger.info(`Initialized!`)
     }
 

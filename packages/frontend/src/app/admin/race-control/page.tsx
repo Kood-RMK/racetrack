@@ -4,7 +4,7 @@ import { ActiveRace, RaceState, RacetrackClientRole } from "racetrack-shared/typ
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { RefObject, useEffect } from "react";
-import { RaceActiveTag, RaceCancelledTag, RaceDangerTag, RaceFinishingTag, RaceHazardTag, RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
+import { RaceActiveTag, RaceCancelledTag, RaceCountdownTag, RaceDangerTag, RaceFinishingTag, RaceHazardTag, RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
 import { ActiveRaceController, ActiveRaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
@@ -32,6 +32,14 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
       return `${startHours}:${startMinutes}:${startSeconds} - ${endHours}:${endMinutes}:${endSeconds}`;
   }
 
+  const calculateTimeleft = (timeLeft : number) => {
+     const hours = Math.floor(timeLeft / 3_600_000);
+     const minutes = Math.floor((timeLeft % 3_600_000) / 60_000);
+     const seconds = Math.floor((timeLeft % 60_000) / 1_000);
+
+    return `${hours}:${minutes}:${seconds}`;
+  }
+
   switch (raceState) {
     case RaceState.Pending: {
       return <>
@@ -44,6 +52,7 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
       return <>
         <RaceActiveTag></RaceActiveTag>
         <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
+        <RaceCountdownTag timeLeft={calculateTimeleft(activeRace.timeLeft)}></RaceCountdownTag>
         {activeRace.isHazard && <RaceHazardTag></RaceHazardTag>}
         {activeRace.isFinishing && <RaceFinishingTag></RaceFinishingTag>}
       </>;

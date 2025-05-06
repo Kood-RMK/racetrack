@@ -40,7 +40,7 @@ export class AuthService {
                 role: role,
             };
 
-            return jwt.sign(payload, process.env.JWT_SECRET);
+            return jwt.sign(payload, String(process.env.JWT_SECRET));
         }
 
         if (token === process.env.OBSERVER_KEY) {

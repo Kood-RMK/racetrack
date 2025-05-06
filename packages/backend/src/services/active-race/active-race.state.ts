@@ -71,7 +71,7 @@ export class ActiveRaceState {
             isHazard: !!activeRaceRow.isHazard,
             isFinishing: !!activeRaceRow.isFinishing,
             timeLeft: activeRaceRow.timeLeft,
-            raceDurationSeconds : process.env.RACE_DURATION_SECONDS,
+            raceDurationSeconds : Number(process.env.RACE_DURATION_SECONDS),
             contestants : {}
         }
 
