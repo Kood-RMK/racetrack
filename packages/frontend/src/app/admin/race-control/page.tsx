@@ -18,6 +18,22 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
 
   const raceState = activeRace.raceState;
 
+  activeRace.raceStartUnixTime
+  const calculateTimeslot = (raceStartUnixTime : number, raceDurationSeconds : number) => {
+      const startDateTime = new Date(raceStartUnixTime * 1000); // Convert to milliseconds
+      const startHours = startDateTime.getHours().toString().padStart(2, '0');
+      const startMinutes = startDateTime.getMinutes().toString().padStart(2, '0');
+      const startSeconds = startDateTime.getSeconds().toString().padStart(2, '0');
+
+      const endDateTime = new Date(startDateTime.getTime() + (raceDurationSeconds * 1000)); // Convert to milliseconds
+      const endHours = endDateTime.getHours().toString().padStart(2, '0');
+      const endMinutes = endDateTime.getMinutes().toString().padStart(2, '0');
+      const endSeconds = endDateTime.getSeconds().toString().padStart(2, '0');
+      
+      return `${startHours}:${startMinutes}:${startSeconds} - ${endHours}:${endMinutes}:${endSeconds}`;
+
+  }
+
   switch (raceState) {
     case RaceState.Pending: {
       return <>
@@ -29,7 +45,7 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
     case RaceState.Active : {
       return <>
         <RaceActiveTag></RaceActiveTag>
-        <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
         {activeRace.isHazard && <RaceHazardTag></RaceHazardTag>}
         {activeRace.isFinishing && <RaceFinishingTag></RaceFinishingTag>}
       </>;

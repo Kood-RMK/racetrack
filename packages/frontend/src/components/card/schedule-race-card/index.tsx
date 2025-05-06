@@ -67,7 +67,7 @@ export default function NewRaceDialog() {
         // Create the new race object (you can adjust the logic for the race data as needed)
         const newRace: ScheduledRace = {
             raceId: `race-${Date.now()}`,
-            raceStartDateTime: Date.now().toString(),
+            raceScheduledStartUnixTime: Date.now().toString(),
             contestants,
             raceState: RaceState.Pending,
         };

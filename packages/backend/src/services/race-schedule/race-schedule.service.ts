@@ -66,7 +66,7 @@ export class RaceScheduleService {
 
                     const newData = command.message.data;
                     const newRace = newData.race;
-                    const { contestants, raceStartDateTime: raceDateTime } = newRace
+                    const { contestants, raceScheduledStartUnixTime: raceDateTime } = newRace
 
                     // Check to ensure there are no duplicate names in the new race
                     const duplicates = contestants
@@ -90,7 +90,7 @@ export class RaceScheduleService {
 
                     for (const value of Object.values(existingRaces)) {
                         console.log(value.raceStartDateTime);
-                        if (value.raceStartDateTime === newData.race.raceStartDateTime) {
+                        if (value.raceStartDateTime === newData.race.raceScheduledStartUnixTime) {
                             timeslotTaken = true;
                         }
                     }
@@ -165,7 +165,7 @@ export class RaceScheduleService {
 
                     const raceModificationData = command.message.data;
                     const updatedRace = raceModificationData.race;
-                    const { contestants, raceStartDateTime: raceDateTime, raceId: raceId, raceState } = updatedRace;
+                    const { contestants, raceScheduledStartUnixTime: raceDateTime, raceId: raceId, raceState } = updatedRace;
 
                     
                     // Check that the race exists in the schedule

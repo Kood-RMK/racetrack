@@ -5,5 +5,6 @@ declare namespace NodeJS {
       OBSERVER_KEY: string;
       SAFETY_KEY: string;
       JWT_SECRET: string;
+      RACE_DURATION_SECONDS: number; // in seconds.
     }
   }

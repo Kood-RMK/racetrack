@@ -10,7 +10,9 @@ export function RaceTimeslotTag({timeslot} : {timeslot : string}) {
    return (
         <Tag textValue="Time" className="bg-blue-200 min-w-40 h-8 text-base text-blue-800 font-medium rounded flex justify-center items-center gap-1 py-1 px-6 whitespace-nowrap">
             <Icon path={mdiClockTimeFour} className="w-4 h-4 flex-shrink-0"/>
-            {timeslot}
+            <span>
+                {timeslot}
+            </span>
         </Tag>
    );
 }

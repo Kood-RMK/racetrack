@@ -66,11 +66,12 @@ export class ActiveRaceState {
 
         const activeRace : ActiveRace = {
             raceId: activeRaceRow.raceId,
-            raceStartDateTime: activeRaceRow.raceStartDateTime,
+            raceStartUnixTime: activeRaceRow.raceStartDateTime,
             raceState: activeRaceRow.raceState as RaceState, 
             isHazard: !!activeRaceRow.isHazard,
             isFinishing: !!activeRaceRow.isFinishing,
             timeLeft: activeRaceRow.timeLeft,
+            raceDurationSeconds : process.env.RACE_DURATION_SECONDS,
             contestants : {}
         }
 
@@ -147,7 +148,7 @@ export class ActiveRaceState {
     }
 
     public get raceDateTime() {
-        return this._activeRace.raceStartDateTime;
+        return this._activeRace.raceStartUnixTime;
     }
 
     public get contestants() {
