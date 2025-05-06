@@ -1,56 +1,9 @@
 import type { Server as SocketIOServer } from "socket.io";
-import { RaceScheduleState, RaceScheduleEntry, RaceScheduleEntries } from "./race-schedule.state";
-
 import { Logger } from "pino";
-import { ScheduledRace } from "types/stateTypes";
-import { RacetrackEvent, RacetrackCommand } from "types";
-
-// Message Types
-export enum RaceScheduleEvents {
-    // NewRaceScheduled = "newRaceScheduled",
-    RaceScheduleInitialState = "raceScheduleinitialState",
-    RaceScheduleUpdated = "raceScheduleUpdated",
-}
-
-export enum RaceScheduleCommands {
-    ScheduleNewRace = "scheduleNewRace",
-    DeleteRace = "deleteRace",
-    ModifyRace = "ModifyRace"
-}
+import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
+import { RaceScheduleEntry, RaceScheduleState } from "./race-schedule.state";
 
 
-// Events (sent from server to client)
-export type RaceScheduleInitialState = {
-    type: RaceScheduleEvents.RaceScheduleInitialState,
-    schedule: RaceScheduleEntries,
-};
-
-export type RaceScheduleUpdated = {
-    type: RaceScheduleEvents.RaceScheduleUpdated,
-    schedule: RaceScheduleEntries,
-};
-
-// Commands (sent from client to server)
-export type ScheduleNewRace = {
-    type: RaceScheduleCommands.ScheduleNewRace,
-    data: {
-        race: ScheduledRace
-    }
-};
-
-export type DeleteRace = {
-    type: RaceScheduleCommands.DeleteRace
-    data: {
-        race: ScheduledRace
-    }
-};
-
-export type ModifyRace = {
-    type: RaceScheduleCommands.ModifyRace
-    data: {
-        race: ScheduledRace
-    }
-};
 
 //Handlers
 export class RaceScheduleService {

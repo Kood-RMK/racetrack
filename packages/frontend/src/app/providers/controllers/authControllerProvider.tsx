@@ -16,5 +16,4 @@ export const AuthControllerProvider = ({children} : {children : ReactNode}) => {
     }
   });
 
-
 }

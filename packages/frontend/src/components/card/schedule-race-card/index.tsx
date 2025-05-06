@@ -28,7 +28,7 @@ import {
 
 
 import { useRaceScheduleController } from "@/app/providers/controllers/raceScheduleControllerProvider";
-import { RaceContestant, ScheduledRace } from "racetrack-shared/types";
+import { RaceContestant, RaceState, ScheduledRace } from "racetrack-shared/types";
 
 
 
@@ -69,7 +69,7 @@ export default function NewRaceDialog() {
             raceId: `race-${Date.now()}`,
             raceStartDateTime: Date.now().toString(),
             contestants,
-            raceState: 'pending',
+            raceState: RaceState.Pending,
         };
 
         console.log(newRace);

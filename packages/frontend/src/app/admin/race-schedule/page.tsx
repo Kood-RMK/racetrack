@@ -10,9 +10,6 @@ import { SocketProvider } from '@/app/providers/socket/socketProvider';
 import { RaceScheduleEntry } from 'racetrack-backend/services';
 
 
-
-
-
 function RaceSchedulePage() {
 
   const scheduleState = useRaceScheduleState();

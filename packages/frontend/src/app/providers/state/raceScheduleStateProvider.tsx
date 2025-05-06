@@ -2,9 +2,7 @@
 
 import { ReactNode, useEffect, useState, createContext, useContext, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { RaceSchedule, RacetrackEvent } from "racetrack-shared/types";
-import { RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated } from "racetrack-backend/services";
-import { RaceScheduleEntries } from "racetrack-backend/services/race-schedule/race-schedule.state.js";
+import { RaceSchedule, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent } from "racetrack-shared/types";
 
 
 // Contexts

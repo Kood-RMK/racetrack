@@ -20,6 +20,6 @@
     "./services/*": "./src/services/*"
   },
   "scripts": {
-    "dev": "ts-node ./dist/server.js"
+    "dev": "nodemon --watch src --exec ts-node src/server.ts"
   }
 }

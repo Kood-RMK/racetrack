@@ -1,32 +1,7 @@
-import { ActiveRaceId, RaceContestantId, RacetrackCommand } from "@racetrack/types";
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRaceService } from "../active-race/active-race.service";
 import { Logger } from "pino";
-
-
-// Message Types
-
-export enum RaceObserverEvents {
-    LineCrossingHandled = "LineCrossingHandled",
-}
-
-export enum RaceObserverCommands {
-    HandleLineCrossed = "HandleLineCrossed",
-}
-
-// Commands
-export type HandleLineCrossed = {
-    type : RaceObserverCommands.HandleLineCrossed,
-    raceId : ActiveRaceId,
-    contestantId : RaceContestantId,
-}
-
-// Events
-export type LineCrossingHandeledEvent = {
-    type : RaceObserverEvents.LineCrossingHandled,
-    raceId : ActiveRaceId,
-    contestantId : RaceContestantId,
-}
+import { ActiveRaceId, HandleLineCrossed, LineCrossingHandeledEvent, RaceContestantId, RaceObserverCommands, RaceObserverEvents, RacetrackCommand } from "racetrack-shared/types";
 
 export class RaceObserverService {
 

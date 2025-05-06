@@ -1,8 +1,6 @@
 
 import EventEmitter from "events";
-import { ScheduledRace } from "types";
-
-
+import { ScheduledRace } from "racetrack-shared/types";
 
 export enum RaceScheduleEvents {
     RaceScheduleChanged = 'onRaceScheduleChanged',
@@ -28,7 +26,7 @@ export class RaceScheduleEventEmitter extends EventEmitter {
     }
 }
 
-export type RaceScheduleEntries = Record<ScheduledRace['raceId'], RaceScheduleEntry>;
+export type RaceScheduleEntries = Record<ScheduledRace['raceId'], RaceScheduleEntry>
 
 // Get for all races in race schedule
 export class RaceScheduleState {

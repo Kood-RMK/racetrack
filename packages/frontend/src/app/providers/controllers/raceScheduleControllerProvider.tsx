@@ -1,7 +1,6 @@
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { mdiCompassOutline } from "@mdi/js";
-import { DeleteRace, ModifyRace, RaceScheduleCommands, ScheduleNewRace } from "racetrack-backend/services";
-import { RacetrackCommand, ScheduledRace } from "racetrack-shared/types";
+import { DeleteRace, ModifyRace, RaceScheduleCommands, RacetrackCommand, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 

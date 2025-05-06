@@ -1,10 +1,7 @@
-import { RaceState, RacetrackCommand } from "@racetrack/types";
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRaceService } from "../active-race/active-race.service";
 import { Logger } from "pino";
-
-
-
+import { ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, RacetrackCommand } from "racetrack-shared/types";
 
 // Handlers.
 export class RaceControlService {
