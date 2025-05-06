@@ -57,7 +57,7 @@ export class ActiveRaceState {
         if (!(typeof activeRaceRow.raceId === 'string' 
             && typeof activeRaceRow.raceStartDateTime === 'string' 
             && typeof activeRaceRow.raceState === 'string'
-            && Object.values(RaceState).includes(activeRaceRow.raceState as RaceState)
+            && Object.keys(RaceState).includes(activeRaceRow.raceState as RaceState)
             && typeof activeRaceRow.isHazard === 'number'
             && typeof activeRaceRow.isFinishing === 'number'
             && typeof activeRaceRow.timeLeft === 'number'
@@ -65,6 +65,8 @@ export class ActiveRaceState {
             logger.error("Malformed active race row in database.");
             return null;
         }
+
+        console.log(activeRaceRow)
 
         const activeRace : ActiveRace = {
             raceId: activeRaceRow.raceId,

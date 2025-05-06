@@ -1,6 +1,6 @@
 "use client";
 
-import { ActiveRace } from "racetrack-shared/types";
+import { ActiveRace, RaceState } from "racetrack-shared/types";
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { RefObject, useEffect } from "react";
@@ -19,14 +19,14 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
   const raceState = activeRace.raceState;
 
   switch (raceState) {
-    case 'pending': {
+    case RaceState.Pending: {
       return <>
         <RacePendingTag></RacePendingTag>
         <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
       </>;
     }
 
-    case 'active' : {
+    case RaceState.Active : {
       return <>
         <RaceActiveTag></RaceActiveTag>
         <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
@@ -34,14 +34,14 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
         {activeRace.isFinishing && <RaceFinishingTag></RaceFinishingTag>}
       </>;
     }
-    case 'paused' : {
+    case RaceState.Paused : {
       return <>
         <RaceActiveTag></RaceActiveTag>
         <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
         <RaceDangerTag></RaceDangerTag>
       </>;
     }
-    case 'canceled' : {
+    case RaceState.Canceled : {
       return <>
         <RaceTimeslotTag timeslot={activeRace.raceTimeslot}></RaceTimeslotTag>
         <RaceCancelledTag></RaceCancelledTag>
