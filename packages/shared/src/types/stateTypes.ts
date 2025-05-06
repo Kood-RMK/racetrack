@@ -22,7 +22,6 @@ export type ScheduledRace = {
     raceState : RaceState,
 }
 
-// export type RaceSchedule = RaceScheduleEntries;
 
 export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
 

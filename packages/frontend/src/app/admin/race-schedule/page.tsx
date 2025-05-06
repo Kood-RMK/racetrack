@@ -7,7 +7,6 @@ import { RacePendingButtons } from '@/components/card/race-card/Buttons'
 import { RaceScheduleControllerProvider, useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
-import { RaceScheduleEntryState } from 'racetrack-backend/services';
 
 
 function RaceSchedulePage() {
@@ -26,7 +25,7 @@ function RaceSchedulePage() {
   const sortedRaces = Object.fromEntries(
     Object.entries(scheduleState).map(([raceId, raceData]) => [
       raceId,
-      new RaceScheduleEntryState(raceData), // ✅ wrap each one
+      raceData,
     ])
   );
 
@@ -39,7 +38,6 @@ function RaceSchedulePage() {
         <NewRaceDialog />
 
         {Object.entries(sortedRaces).map(([raceId, raceEntry]: [string, RaceScheduleEntryState]) => {
-
 
           console.log("➡️ Race Entry is this!!!!!!:", raceEntry);
           console.log("📥 Race Entry .race:", raceEntry.scheduledRace); // ✅ use getter as a property

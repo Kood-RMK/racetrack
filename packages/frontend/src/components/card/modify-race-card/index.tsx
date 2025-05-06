@@ -25,8 +25,7 @@ import {
     mdiInvoiceTextEdit
 } from '@mdi/js';
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { RacetrackCommand, ScheduledRace } from "racetrack-backend/types";
-import { RaceScheduleCommands, ScheduleNewRace } from "racetrack-backend/services";
+import { RaceScheduleCommands, RaceState, RacetrackCommand, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
 
 
 
@@ -72,10 +71,10 @@ export default function ModifyRaceDialog({ isOpen, onClose, initialRace }: Modif
 
 
             const newRace: ScheduledRace = {
-                raceId: initialRace?.raceId || "abc123",
-                raceStartDateTime: initialRace?.raceStartDateTime || "",
+                raceId: initialRace?.raceId,
+                raceScheduledStartUnixTime: initialRace?.raceScheduledStartUnixTime,
                 contestants: contestants,
-                raceState: 'pending',
+                raceState : RaceState.Pending,
             };
                   
             const commandMessage: RacetrackCommand<ScheduleNewRace> = {
