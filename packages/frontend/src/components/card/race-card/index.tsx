@@ -3,12 +3,12 @@
 import React from "react";
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { ScheduledRace } from "racetrack-shared/types";
-import { RaceScheduleEntry } from "racetrack-backend/services";
+import { RaceScheduleEntryState } from "racetrack-backend/services";
 
 
 
 interface RaceCardProps {
-  race: RaceScheduleEntry; // ✅ changed from ScheduledRace
+  race: RaceScheduleEntryState; // ✅ changed from ScheduledRace
   onDelete?: () => void;
   tags: React.ReactNode;
   buttons?: React.ReactNode;
@@ -24,7 +24,7 @@ export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
   const contestants = race?.contestants ?? [];
   console.log("📦 [RaceCard] Full RaceScheduleEntry received:", race);
   console.log("📦 [RaceCard] Race ID:", race?.raceId);
-  console.log("📦 [RaceCard] Race Start DateTime:", race?.raceStartDateTime);
+  console.log("📦 [RaceCard] Race Start DateTime:", race?.raceScheduledStartUnixTime);
   console.log("📦 [RaceCard] Race State:", race?.raceState);
   console.log("📦 [RaceCard] Contestants array:", contestants);
 

@@ -8,13 +8,13 @@ import { mdiDelete, mdiInvoiceTextEdit } from "@mdi/js";
 import Icon from '@mdi/react';
 import { useSocket } from "@/app/providers/socket/socketProvider";
 import { RacetrackCommand, ScheduledRace } from "racetrack-shared/types";
-import { DeleteRace, RaceScheduleCommands, RaceScheduleEntry } from "racetrack-backend/services";
+import { DeleteRace, RaceScheduleCommands, RaceScheduleEntryState } from "racetrack-backend/services";
 
 
 
 // Race Pending Buttons
 
-export function RacePendingButtons({ race }: { race: RaceScheduleEntry }) {
+export function RacePendingButtons({ race }: { race: RaceScheduleEntryState }) {
 
 //     const [isDialogOpen, setIsDialogOpen] = useState(false);  // State to manage dialog visibility
 
@@ -36,7 +36,7 @@ export function RacePendingButtons({ race }: { race: RaceScheduleEntry }) {
                     data: {
                         race: {
                             raceId: race.raceId, // this should come from the component's props
-                            raceDateTime: race.raceStartDateTime,
+                            raceDateTime: race.raceScheduledStartUnixTime,
                             contestants: race.contestants,
                         }
                     }

@@ -7,7 +7,7 @@ import { RacePendingButtons } from '@/components/card/race-card/Buttons'
 import { RaceScheduleControllerProvider, useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
-import { RaceScheduleEntry } from 'racetrack-backend/services';
+import { RaceScheduleEntryState } from 'racetrack-backend/services';
 
 
 function RaceSchedulePage() {
@@ -26,7 +26,7 @@ function RaceSchedulePage() {
   const sortedRaces = Object.fromEntries(
     Object.entries(scheduleState).map(([raceId, raceData]) => [
       raceId,
-      new RaceScheduleEntry(raceData), // ✅ wrap each one
+      new RaceScheduleEntryState(raceData), // ✅ wrap each one
     ])
   );
 
@@ -38,18 +38,18 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        {Object.entries(sortedRaces).map(([raceId, raceEntry]: [string, RaceScheduleEntry]) => {
+        {Object.entries(sortedRaces).map(([raceId, raceEntry]: [string, RaceScheduleEntryState]) => {
 
 
           console.log("➡️ Race Entry is this!!!!!!:", raceEntry);
-          console.log("📥 Race Entry .race:", raceEntry.race); // ✅ use getter as a property
+          console.log("📥 Race Entry .race:", raceEntry.scheduledRace); // ✅ use getter as a property
           console.log("👥 Contestants:", raceEntry.contestants); // also a getter
-          console.log("Is instance of RaceScheduleEntry?", raceEntry instanceof RaceScheduleEntry);
+          console.log("Is instance of RaceScheduleEntry?", raceEntry instanceof RaceScheduleEntryState);
 
           return (
             <RaceCard
               key={raceId}
-              race={raceEntry.race}
+              race={raceEntry.scheduledRace}
               tags={<RacePendingTags />}
               buttons={<RacePendingButtons race={raceEntry} />}
             />

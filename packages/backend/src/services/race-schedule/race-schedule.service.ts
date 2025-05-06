@@ -1,7 +1,7 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
-import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
-import { RaceScheduleEntry, RaceScheduleState } from "./race-schedule.state";
+import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
+import { RaceScheduleEntryState, RaceScheduleState } from "./race-schedule.state";
 
 
 
@@ -41,13 +41,14 @@ export class RaceScheduleService {
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
                     type: RaceScheduleEvents.RaceScheduleInitialState,
-                    schedule: this.schedule.raceSchedule,
+                    schedule: Object.entries (this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                        acc[key] = value.scheduledRace
+                        return acc;
+                    }, {} as RaceScheduleEntries)
                 }
             }
 
             client.emit(RaceScheduleEvents.RaceScheduleInitialState, stateMessage)
-
-
 
 
             // New Race 
@@ -84,13 +85,13 @@ export class RaceScheduleService {
                     }
 
                     // Check that there are no races with the same timeslot
-                    const existingRaces = this.schedule.raceSchedule;
+                    const existingRaces = this.schedule.raceScheduleEntries;
 
                     let timeslotTaken = false;
 
                     for (const value of Object.values(existingRaces)) {
-                        console.log(value.raceStartDateTime);
-                        if (value.raceStartDateTime === newData.race.raceScheduledStartUnixTime) {
+                        console.log(value.raceScheduledStartUnixTime);
+                        if (value.raceScheduledStartUnixTime === newData.race.raceScheduledStartUnixTime) {
                             timeslotTaken = true;
                         }
                     }
@@ -101,7 +102,7 @@ export class RaceScheduleService {
 
                     // When checks are performed and there were no conflicts, add the new race to the schedule
                     // ingredients (newRace) + recipe (RaceScheduleEntry) = cake (newRaceState)
-                    const newRaceState = new RaceScheduleEntry(newRace);
+                    const newRaceState = new RaceScheduleEntryState(newRace);
 
                     // Call addRace method from .state to add cake to schedule
                     this.schedule.addRace(newRaceState);
@@ -111,7 +112,7 @@ export class RaceScheduleService {
                     const updateMessage = { // Write the message that sechedule has been updated
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.raceSchedule,
+                            schedule: this.schedule.raceScheduleEntries,
                         }
                     };
 
@@ -143,7 +144,7 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.raceSchedule
+                            schedule: this.schedule.raceScheduleEntries
                         }
                     };
 
@@ -169,7 +170,7 @@ export class RaceScheduleService {
 
                     
                     // Check that the race exists in the schedule
-                    let existingSchedule = this.schedule.raceSchedule;
+                    let existingSchedule = this.schedule.raceScheduleEntries;
 
                     if (!(raceId in existingSchedule)) {
                         throw new Error(`A race with id: ${raceId} does not exist in the schedule and therefore cannot be modified.`);
@@ -184,8 +185,8 @@ export class RaceScheduleService {
                     let timeslotTaken = false;
 
                     for (const value of Object.values(existingSchedule)) {
-                        console.log(value.raceStartDateTime);
-                        if (value.raceStartDateTime === raceDateTime) {
+                        console.log(value.raceScheduledStartUnixTime);
+                        if (value.raceScheduledStartUnixTime === raceDateTime) {
                             timeslotTaken = true;
                         }
                     }
@@ -196,7 +197,7 @@ export class RaceScheduleService {
 
                     //overwrite the race in schedule
                     // Create a new RaceScheduleEntry with the updated race data
-                    const updatedRaceEntry = new RaceScheduleEntry(updatedRace);
+                    const updatedRaceEntry = new RaceScheduleEntryState(updatedRace);
 
                     // Overwrite the existing race entry in the schedule
                     this.schedule.addRace(updatedRaceEntry);
@@ -207,7 +208,7 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.raceSchedule
+                            schedule: this.schedule.raceScheduleEntries
                         }
                     };
 

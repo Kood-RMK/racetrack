@@ -1,6 +1,6 @@
 import { getBrowserCookies } from '@/utils/cookies';
 import jwt from 'jsonwebtoken';
-import { RacetrackAuthenticatedClient } from 'racetrack-shared/types';
+import { RACETRACK_AUTH_COOKIE, RacetrackAuthenticatedClient } from 'racetrack-shared/types';
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 export type AuthenticationState = {

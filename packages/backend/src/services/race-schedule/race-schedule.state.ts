@@ -9,7 +9,7 @@ export enum RaceScheduleEvents {
 }
 
 export interface RaceScheduleCallbacks {
-    [RaceScheduleEvents.RaceScheduleChanged] : (entries : RaceScheduleEntry[]) => void;
+    [RaceScheduleEvents.RaceScheduleChanged] : (entries : RaceScheduleEntryState[]) => void;
 }
 
 export class RaceScheduleEventEmitter extends EventEmitter {
@@ -26,15 +26,15 @@ export class RaceScheduleEventEmitter extends EventEmitter {
     }
 }
 
-export type RaceScheduleEntries = Record<ScheduledRace['raceId'], RaceScheduleEntry>
+export type RaceScheduleStateEntries = Record<ScheduledRace['raceId'], RaceScheduleEntryState>
 
 // Get for all races in race schedule
 export class RaceScheduleState {
-    private _raceScheduleState: RaceScheduleEntries = {};
+    private _raceScheduleStateEntries: RaceScheduleStateEntries = {};
     private _eventEmitter = new RaceScheduleEventEmitter();
 
-    public get raceSchedule(): RaceScheduleEntries {
-        return this._raceScheduleState;
+    public get raceScheduleEntries(): RaceScheduleStateEntries {
+        return this._raceScheduleStateEntries;
     }
 
     public get events() {
@@ -42,16 +42,16 @@ export class RaceScheduleState {
     }
 
     public getRaceById(id : ScheduledRace['raceId']) {
-        return this._raceScheduleState[id];
+        return this._raceScheduleStateEntries[id];
     }
 
-    public addRace(entry : RaceScheduleEntry) {
-        this._raceScheduleState[entry.raceId] = entry;
+    public addRace(entry : RaceScheduleEntryState) {
+        this._raceScheduleStateEntries[entry.raceId] = entry;
         return entry;
     }
 
     public deleteRace(id : ScheduledRace['raceId']) {
-        delete this._raceScheduleState[id];
+        delete this._raceScheduleStateEntries[id];
     }
 
     public modifyRace(id : ScheduledRace['raceId']) {
@@ -88,11 +88,11 @@ export class RaceScheduleEntryEventEmitter extends EventEmitter {
 }
 
 // One race cake recipe
-export class RaceScheduleEntry {
+export class RaceScheduleEntryState {
     private _race: ScheduledRace;
     private _eventEmitter = new RaceScheduleEntryEventEmitter();
 
-    constructor(race : ScheduledRace) { // Cake ingredients
+    constructor(race : ScheduledRace) {
         this._race = race;
         console.log(`☀️ Race State: Initial state set: `, race);
     }
@@ -110,7 +110,7 @@ export class RaceScheduleEntry {
         return this._race.contestants;
     }
 
-    public get raceStartDateTime() {
+    public get raceScheduledStartUnixTime() {
         return this._race.raceScheduledStartUnixTime;
     }
 
@@ -118,8 +118,7 @@ export class RaceScheduleEntry {
         return this._race.raceState;
     }
 
-    public get race() {
-        console.log("Accessing race getter");
+    public get scheduledRace() {
         return this._race;
     }
 
