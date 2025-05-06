@@ -1,9 +1,8 @@
 import EventEmitter from "events";
 import { ActiveRaceContestantState } from "./contestant/active-race-contestant.state";
-import { ActiveRace } from "@racetrack/types";
 import { Logger } from "pino";
 import { DatabaseSync } from "node:sqlite";
-import { ActiveRaceContestant } from "types";
+import { ActiveRace, ActiveRaceContestant, RaceState } from "types";
 
 export enum ActiveRaceStateEvents {
     RaceStateChanged = 'onRaceStateChanged',
@@ -43,10 +42,11 @@ export class ActiveRaceState {
     private readonly _database: DatabaseSync;
 
     public static loadFromDatabase(baseLogger: Logger, database: DatabaseSync) : ActiveRaceState | null {
-        const raceState = new ActiveRaceState(baseLogger, database);
 
         const activeRaceQuery = database.prepare("SELECT * FROM active_races LIMIT 1;");
         const activeRaceRow = activeRaceQuery.get();
+
+        const logger = baseLogger.child({handlerName : this.constructor.name})            
 
         if (!activeRaceRow) {
             return null;
@@ -55,21 +55,23 @@ export class ActiveRaceState {
         if (!(typeof activeRaceRow.raceId === 'string' 
             && typeof activeRaceRow.raceStartDateTime === 'string' 
             && typeof activeRaceRow.raceState === 'string'
+            && Object.values(RaceState).includes(activeRaceRow.raceState as RaceState)
             && typeof activeRaceRow.isHazard === 'boolean'
             && typeof activeRaceRow.isFinishing === 'boolean'
             && typeof activeRaceRow.timeLeft === 'number'
         )) {
-            raceState.logger.error("Malformed active race row in database.");
+            logger.error("Malformed active race row in database.");
             return null;
         }
 
-        raceState._activeRace = {
+        const activeRace : ActiveRace = {
             raceId: activeRaceRow.raceId,
-            raceStartDateTime: new Date(activeRaceRow.raceStartDateTime),
-            raceState: activeRaceRow.raceState,
+            raceStartDateTime: activeRaceRow.raceStartDateTime,
+            raceState: RaceState[activeRaceRow.raceState as keyof typeof RaceState], 
             isHazard: activeRaceRow.isHazard,
             isFinishing: activeRaceRow.isFinishing,
             timeLeft: activeRaceRow.timeLeft,
+            contestants : {}
         }
 
         const activeRaceContestantsQuery = database.prepare(`
@@ -88,7 +90,7 @@ export class ActiveRaceState {
 
 
         // Get active race contestants from the database.
-        raceState._activeRaceContestantsState = [];
+        activeRace.contestants = {};
         for (const contestantRow of activeRaceContestantsRows) {
             if (!(typeof contestantRow.contestantId === 'string' 
                 && typeof contestantRow.racecarNumber === 'number'
@@ -98,7 +100,7 @@ export class ActiveRaceState {
                 && typeof contestantRow.fastestLap === 'number'
                 && typeof contestantRow.lapStopwatchTime === 'number'
             )) {
-                raceState.logger.error("Malformed active race contestant row in database.");
+                logger.error("Malformed active race contestant row in database.");
                 return null;
             }
 
@@ -114,25 +116,26 @@ export class ActiveRaceState {
                 lapStopwatchTime: contestantRow.lapStopwatchTime
             }
 
-            raceState._activeRace.contestants[contestantRow.contestantId] = activeRaceContestant;
-            const activeRaceContestantState = new ActiveRaceContestantState(activeRaceContestant, raceState.logger);
-            raceState._activeRaceContestantsState.push(activeRaceContestantState);
+            activeRace.contestants[contestantRow.contestantId] = activeRaceContestant;
         }
 
-        return raceState;
+        return new ActiveRaceState(activeRace, logger, database);
     }
 
     public static createNew(activeRace: ActiveRace, baseLogger: Logger, database: DatabaseSync) {
-        const raceState = new ActiveRaceState(baseLogger, database);
+        return new ActiveRaceState(activeRace, baseLogger, database);
 
-        raceState._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
-            return new ActiveRaceContestantState(contestant, raceState.logger);
-        });
     }
 
-    private constructor(baseLogger : Logger, database: DatabaseSync) {
+    private constructor(activeRace : ActiveRace, baseLogger : Logger, database: DatabaseSync) {
         this.logger = baseLogger.child({handlerName : this.constructor.name})
-        this._activeRaceContestantsState = [];
+        this._activeRace = activeRace;
+
+        // Initialize contestants state.
+        this._activeRaceContestantsState = Object.entries(activeRace.contestants).map(([contestantId, contestant]) => {
+            return new ActiveRaceContestantState(contestant, baseLogger);
+        });
+
         this._database = database;
     }
 
