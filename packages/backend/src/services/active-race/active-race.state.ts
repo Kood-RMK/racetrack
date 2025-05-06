@@ -92,12 +92,13 @@ export class ActiveRaceState {
         // Get active race contestants from the database.
         activeRace.contestants = {};
         for (const contestantRow of activeRaceContestantsRows) {
-            if (!(typeof contestantRow.contestantId === 'string' 
+            if (!(
+                typeof contestantRow.contestantId === 'string' 
                 && typeof contestantRow.racecarNumber === 'number'
                 && typeof contestantRow.name === 'string'
                 && typeof contestantRow.place === 'number'
                 && typeof contestantRow.lapCount === 'number'
-                && typeof contestantRow.fastestLap === 'number'
+                && (typeof contestantRow.fastestLap === 'number' || contestantRow.fastestLap === null)
                 && typeof contestantRow.lapStopwatchTime === 'number'
             )) {
                 logger.error("Malformed active race contestant row in database.");

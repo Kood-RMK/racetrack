@@ -46,13 +46,18 @@ export class ActiveRaceHandler {
             return contestantHandler.contestantState;
         });
 
-        // Sort the contestants by lap count and fastest lap time.
+        // Sort the contestants by fastest lap time.
         contestants.sort((a, b) => {
-            if (a.lapCount !== b.lapCount) {
-                return b.lapCount - a.lapCount;
-            } else {
-                return a.fastestLap - b.fastestLap;
+
+            console.log(a.fastestLap, b.fastestLap);
+            if (!a.fastestLap) {
+                return 1;
             }
+            if (!b.fastestLap) {
+                return -1;
+            }
+
+            return a.fastestLap - b.fastestLap;
         });
 
         // Update the placement of each contestant.
@@ -68,10 +73,9 @@ export class ActiveRaceHandler {
             }
         );
 
+        // Create a stopwatch to track the time left.
         this._stopwatch = new Stopwatch(Number (process.env.STOPWATCH_TICK));
-
         this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
-            console.log(`Stopwatch tick: ${elapsed}`);
             this._activeRaceState.setTimeLeft(this._activeRaceState.timeLeft - elapsed);
             this._stopwatch.reset();
         });
@@ -83,7 +87,7 @@ export class ActiveRaceHandler {
             const contestantHandler  = new ActiveRaceContestantHandler(contestantState, this._activeRaceState, socketNamespace, baseLogger);
 
             // When a contestant crosses the line, we need to recalculate the placement of all contestants.
-            contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantLapCountChanged, (contestant, preValue) => {
+            contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantFastestLapChanged, (contestant, preValue) => {
                 this.refreshContestantPlacement(this._activeRaceContestantHandlers);
             });
 

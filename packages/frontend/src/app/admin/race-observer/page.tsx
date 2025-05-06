@@ -6,10 +6,9 @@ import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/sta
 import { RefObject, useEffect } from "react";
 import { Button } from "react-aria-components";
 import { millisecondsToMinutes } from "@/utils/timeConverter"
-import { ActiveRaceContestant } from "racetrack-shared/types";
+import { ActiveRaceContestant, RacetrackClientRole } from "racetrack-shared/types";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
 import { LoginWrapper } from "@/components/authentication/Login";
-import { RacetrackClientRole } from "racetrack-backend/services";
 
 
 
@@ -38,7 +37,7 @@ function RaceObserverPanel({contestants, raceObserverController} : {raceObserver
                             <div className="absolute bottom-0 left-0 right-0 h-1/3 flex flex-col justify-end pb-8 items-center">
                                 <RaceObserverCardTag title="Place" value={contestant.place.toString()}></RaceObserverCardTag>
                                 <RaceObserverCardTag title="Lap" value={contestant.lapCount.toString()}></RaceObserverCardTag>
-                                <RaceObserverCardTag title="Fastest Lap" value={millisecondsToMinutes(contestant.fastestLap)}></RaceObserverCardTag>
+                                {contestant.fastestLap !== null && <RaceObserverCardTag title="Best Lap" value={millisecondsToMinutes(contestant.fastestLap)}/> }
                                 <RaceObserverCardTag title="Lap Time" value={millisecondsToMinutes(contestant.lapStopwatchTime)}></RaceObserverCardTag>
                             </div>
                         </div>

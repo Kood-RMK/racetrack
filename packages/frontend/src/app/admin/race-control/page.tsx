@@ -37,7 +37,7 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
      const minutes = Math.floor((timeLeft % 3_600_000) / 60_000);
      const seconds = Math.floor((timeLeft % 60_000) / 1_000);
 
-    return `${hours}:${minutes}:${seconds}`;
+    return `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   }
 
   switch (raceState) {

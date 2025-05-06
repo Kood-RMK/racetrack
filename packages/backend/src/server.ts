@@ -79,7 +79,7 @@ function initializeDatabase() {
       activeRaceId TEXT NOT NULL,
       place INT NOT NULL,
       lapCount INT NOT NULL,
-      fastestLap INT NOT NULL,
+      fastestLap INT,
       lapStopwatchTime INT NOT NULL,
       FOREIGN KEY (contestantId) REFERENCES race_contestants(contestantId),
       FOREIGN KEY (activeRaceId) REFERENCES active_races(raceId)

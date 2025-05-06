@@ -39,7 +39,7 @@ export class ActiveRaceContestantHandler {
             this._contestantState.setLapCount(this._contestantState.lapCount + 1);
             const lapTime = this._contestantState.lapStopwatchTime;
 
-            if (lapTime < this._contestantState.fastestLap) {
+            if (!this._contestantState.fastestLap || lapTime < this._contestantState.fastestLap) {
                 this._contestantState.setFastestLap(lapTime);
             }
 
@@ -56,7 +56,6 @@ export class ActiveRaceContestantHandler {
         this._socketNamespace = socketNamespace;
         this._activeRaceState = activeRaceState;
         this.logger = parentLogger.child({ handlerName : this.constructor.name });
-        this._stopwatch = new Stopwatch(100);
         this._contestantRoom = `active-contestant-${this._contestantState.contestant.contestantId}`;
 
 
@@ -70,6 +69,7 @@ export class ActiveRaceContestantHandler {
 
         });
 
+        this._stopwatch = new Stopwatch(Number(process.env.STOPWATCH_TICK));
         this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
             this._contestantState.setLapStopwatchTime(elapsed);
         });
@@ -150,6 +150,9 @@ export class ActiveRaceContestantHandler {
         activeRaceContestantStateEvents.on(ActiveRaceContestantStateEvents.ContestantFastestLapChanged, this.onContestantFastestLapChanged);
         activeRaceContestantStateEvents.on(ActiveRaceContestantStateEvents.ContestantLapStopwatchTime, this.onContestantLapStopwatchTick);
 
+        if (this._activeRaceState.raceState === 'active') {
+            this._stopwatch.start();
+        }
 
         console.log(`[Active Race Handler (${this._contestantState.contestant.contestantId})]: Initialized!`);
     }

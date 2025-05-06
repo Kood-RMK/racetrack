@@ -53,39 +53,6 @@ export class ActiveRaceService {
 
         this._activeRaceState = ActiveRaceState.loadFromDatabase(logger, this._database);
 
-        // const mockRace : ActiveRace = {
-        //     raceId : "123", 
-        //     raceStartDateTime : "10:00 - 10:15",
-        //     contestants : {
-        //         "1" : {
-        //             contestant : {
-        //                 contestantId : "1",
-        //                 name : "Contestant 1",
-        //                 racecarNumber : 1,
-        //             },
-        //             place : 1,
-        //             lapCount : 5,
-        //             fastestLap : 1000000,
-        //             lapStopwatchTime : 0,
-        //         },
-        //         "2" : {
-        //             contestant : {
-        //                 contestantId : "2",
-        //                 name : "Contestant 2",
-        //                 racecarNumber : 2,
-        //             },
-        //             place : 2,
-        //             lapCount : 4,
-        //             fastestLap : 1100000,
-        //             lapStopwatchTime : 0,
-        //         },
-        //     },
-        //     raceState : "pending",
-        //     isHazard : false,
-        //     isFinishing : false,
-        //     timeLeft : 1000,};
-
-
         // Create active race handler if an active race is found in the database.
         if (this._activeRaceState) {
             this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);

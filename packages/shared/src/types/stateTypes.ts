@@ -30,7 +30,7 @@ export type ActiveRaceContestant = {
     contestant : RaceContestant,
     place : number,
     lapCount : number,
-    fastestLap : number // in milliseconds.
+    fastestLap : number | null // in milliseconds.
     lapStopwatchTime : number // in milliseconds.
 }
 
