@@ -20,14 +20,21 @@ function RaceSchedulePage() {
 
   // Sort the races by the raceDateTime (timeslot)
   //TODO: Write sorting logic.
-  // const sortedRaces = scheduleState;
-
+  
+  // To get access to getters and setters
   const sortedRaces = Object.fromEntries(
     Object.entries(scheduleState).map(([raceId, raceData]) => [
       raceId,
       raceData,
     ])
   );
+
+  // export type ScheduledRace = {
+  //     raceId : ScheduledRaceId,
+  //     contestants : RaceContestant[],
+  //     raceScheduledStartUnixTime : string // Unix timestamp.
+  //     raceState : RaceState,
+  // }
 
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
@@ -37,22 +44,22 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        {Object.entries(sortedRaces).map(([raceId, raceEntry]: [string, RaceScheduleEntryState]) => {
+        {Object.entries(sortedRaces).map(([raceId, raceData]) => {
 
-          console.log("➡️ Race Entry is this!!!!!!:", raceEntry);
-          console.log("📥 Race Entry .race:", raceEntry.scheduledRace); // ✅ use getter as a property
-          console.log("👥 Contestants:", raceEntry.contestants); // also a getter
-          console.log("Is instance of RaceScheduleEntry?", raceEntry instanceof RaceScheduleEntryState);
+            // console.log("➡️ Race Entry is this!!!!!!:", raceData);
+            // console.log("📥 Race Entry .race:", raceData); // ✅ use getter as a property
+            // console.log("👥 Contestants:", raceData.contestants); // also a getter
+            // console.log("Is instance of RaceScheduleEntry?", raceData instanceof RaceScheduleEntryState);
 
           return (
             <RaceCard
               key={raceId}
-              race={raceEntry.scheduledRace}
+              race={raceData}
               tags={<RacePendingTags />}
-              buttons={<RacePendingButtons race={raceEntry} />}
+              buttons={<RacePendingButtons race={raceData} />}
             />
           );
-        })}
+         })}
 
       </div>
     </div>

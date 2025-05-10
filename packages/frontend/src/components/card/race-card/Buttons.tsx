@@ -6,15 +6,16 @@ import React, { useState } from "react";
 import { Button } from 'react-aria-components';
 import { mdiDelete, mdiInvoiceTextEdit } from "@mdi/js";
 import Icon from '@mdi/react';
-import { useSocket } from "@/app/providers/socket/socketProvider";
-import { RacetrackCommand, ScheduledRace } from "racetrack-shared/types";
-import { DeleteRace, RaceScheduleCommands, RaceScheduleEntryState } from "racetrack-backend/services";
+import { DeleteRace, RaceScheduleCommands, RacetrackCommand, ScheduledRace } from "racetrack-shared/types";
+import { useRaceScheduleController } from "@/app/providers/controllers/raceScheduleControllerProvider";
 
 
 
 // Race Pending Buttons
 
-export function RacePendingButtons({ race }: { race: RaceScheduleEntryState }) {
+export function RacePendingButtons({ race }: { race: ScheduledRace }) {
+
+    const scheduleControllerRef = useRaceScheduleController();
 
 //     const [isDialogOpen, setIsDialogOpen] = useState(false);  // State to manage dialog visibility
 
@@ -23,30 +24,15 @@ export function RacePendingButtons({ race }: { race: RaceScheduleEntryState }) {
 //     setIsDialogOpen(true);  // Set the dialog to open
 //   };
 
-    const socket = useSocket();
-
-    const onDelete = () => {
-
-        if (socket) {
-
-            const commandMessage: RacetrackCommand<DeleteRace> = {
-                senderId: "socket.id",
-                message: {
-                    type: RaceScheduleCommands.DeleteRace,
-                    data: {
-                        race: {
-                            raceId: race.raceId, // this should come from the component's props
-                            raceDateTime: race.raceScheduledStartUnixTime,
-                            contestants: race.contestants,
-                        }
-                    }
-                }
-            };
-
-            socket.current?.emit("deleteRace", commandMessage);
-            console.log(" Delete Event emitted");
-        }
+const onDelete = () => {
+    if (scheduleControllerRef?.current) {
+      scheduleControllerRef.current.tryDeleteRace(race.raceId);
+      console.log("🗑️ Race delete attempted via controller:", race.raceId);
+    } else {
+      console.error("❌ RaceScheduleController not available.");
     }
+  };
+
 
     // const onModify = () => {
 

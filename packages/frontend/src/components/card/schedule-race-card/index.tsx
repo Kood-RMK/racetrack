@@ -72,8 +72,6 @@ export default function NewRaceDialog() {
             raceState: RaceState.Pending,
         };
 
-        console.log(newRace);
-
         // Use the controller's tryAddRace method to add the new race
         if (scheduleController && scheduleController.current && scheduleController.current.tryAddRace) {
             scheduleController.current.tryAddRace(newRace); // Add the new race to the schedule

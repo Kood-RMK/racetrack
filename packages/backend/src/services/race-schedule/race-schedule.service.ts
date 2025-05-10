@@ -133,7 +133,7 @@ export class RaceScheduleService {
                     }
 
                     // Determine the race ID to remove
-                    const idToRemove = command.message.data.race.raceId;
+                    const idToRemove = command.message.data.raceId;
 
                     // Delete the race
                     this.schedule.deleteRace(idToRemove);
@@ -164,11 +164,16 @@ export class RaceScheduleService {
                         throw new Error("message is undefined.");
                     }
 
+                    
+
                     const raceModificationData = command.message.data;
-                    const updatedRace = raceModificationData.race;
+                    const updatedRace = raceModificationData.updates;
                     const { contestants, raceScheduledStartUnixTime: raceDateTime, raceId: raceId, raceState } = updatedRace;
 
-                    
+                    if (!raceId) {
+                        throw new Error("No raceID");
+                    }
+
                     // Check that the race exists in the schedule
                     let existingSchedule = this.schedule.raceScheduleEntries;
 

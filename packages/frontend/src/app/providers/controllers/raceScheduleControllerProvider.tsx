@@ -4,15 +4,15 @@ import { DeleteRace, ModifyRace, RaceScheduleCommands, RacetrackCommand, Schedul
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 
-export type RaceScheduleController = { 
+export type RaceScheduleController = {
     tryAddRace: (newRace: ScheduledRace) => void;
-    tryModifyRace: (raceId: string, updatedRace: Partial<ScheduledRace>) => void;
+    tryModifyRace: (raceId: string, updatedRace: ScheduledRace) => void;
     tryDeleteRace: (raceId: string) => void;
 }
 
 const RaceScheduleControllerContext = createContext<RefObject<RaceScheduleController> | null>(null);
 
-export const RaceScheduleControllerProvider = ({ children }: { children: ReactNode}) => {
+export const RaceScheduleControllerProvider = ({ children }: { children: ReactNode }) => {
     const scheduleController = useRef<RaceScheduleController>({
         tryAddRace: () => { console.error("RaceScheduleControllerProvider: tryAddRace not implemented.") },
         tryModifyRace: () => { console.error("RaceScheduleControllerProvider: tryModifyRace not implemented.") },
@@ -46,17 +46,18 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                     socket.emit(command.message.type, command);
                     console.log("☀️ Emitting race schedule command:", command);
                 }
-                
 
-        
+
+
             },
-            tryModifyRace: (raceId: string, updatedRace: Partial<ScheduledRace>) => {
+            tryModifyRace: (raceId: string, updatedRace: ScheduledRace) => {
                 const command: RacetrackCommand<ModifyRace> = {
                     senderId: socket.id,
                     message: {
                         type: RaceScheduleCommands.ModifyRace,
                         data: {
-                            race: raceId, ...updatedRace,
+                            raceId: raceId,
+                            updates: updatedRace,
                         },
                     },
                 };
@@ -65,7 +66,7 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                     socket.emit(command.message.type, command);
                 }
 
-                
+
             },
             tryDeleteRace: (raceId: string) => {
                 const command: RacetrackCommand<DeleteRace> = {
@@ -73,7 +74,7 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                     message: {
                         type: RaceScheduleCommands.DeleteRace,
                         data: {
-                            race: raceId,
+                            raceId: raceId
                         },
                     },
                 };
@@ -81,8 +82,6 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                 if (command.message?.type) {
                     socket.emit(command.message.type, command);
                 }
-
-                
             },
         };
 

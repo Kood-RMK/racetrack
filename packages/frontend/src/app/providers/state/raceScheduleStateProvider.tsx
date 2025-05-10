@@ -2,12 +2,11 @@
 
 import { ReactNode, useEffect, useState, createContext, useContext, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent } from "racetrack-shared/types";
+import { RaceSchedule, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent } from "racetrack-shared/types";
 
 
 // Contexts
-const RaceScheduleContext = createContext<RaceScheduleEntries | null>(null);
-
+const RaceScheduleContext = createContext<RaceSchedule | null>(null);
 
 // Provider
 export const RaceScheduleStateProvider = ({ children }: { children: ReactNode }) => {
@@ -30,16 +29,20 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
             const initialSchedule = data.message.schedule; // mis sisse tuleb?
             setScheduleState(initialSchedule); // mis v'lja peab minema?
 
-            console.log(`[📩 Race Schedule]: Initial Schedule State Received:`, initialSchedule);
+            console.log(`[Race Schedule initial]: Initial Schedule State Received:`, initialSchedule);
         }
         socket.current.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
 
 
         const onRaceScheduleUpdated = (data: RacetrackEvent<RaceScheduleUpdated>) => {
             const updatedSchedule = data.message.schedule;
-            setScheduleState(updatedSchedule);
 
-            console.log(`[📩 Race Schedule]: Race Schedule update received:`, updatedSchedule);
+            setScheduleState(prevSchedule => ({
+                ...prevSchedule,
+                ...updatedSchedule, // ✅ merge updates into previous state
+            }));
+
+            console.log(`[📩 Race Schedule updated]: Race Schedule update received:`, updatedSchedule);
         }
         socket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
 
@@ -51,7 +54,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 
     return (
         <RaceScheduleContext.Provider value={scheduleState}>
-                {children}
+            {children}
         </RaceScheduleContext.Provider>
     );
 };
@@ -64,5 +67,6 @@ export const useRaceScheduleState = (): RaceScheduleEntries | null => {
         throw new Error("useRaceScheduleState must be used within a RaceScheduleStateProvider");
     }
 
+    console.log(schedule);
     return schedule;
 };

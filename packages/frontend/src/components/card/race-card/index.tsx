@@ -1,24 +1,21 @@
 "use client";
 
 import React from "react";
-import { useSocket } from "@/app/providers/socket/socketProvider";
 import { ScheduledRace } from "racetrack-shared/types";
-import { RaceScheduleEntryState } from "racetrack-backend/services";
+
 
 
 
 interface RaceCardProps {
-  race: RaceScheduleEntryState; // ✅ changed from ScheduledRace
+  race: ScheduledRace; // ✅ changed from ScheduledRace
   onDelete?: () => void;
   tags: React.ReactNode;
   buttons?: React.ReactNode;
 }
 
 
-
 export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
 
-  const socket = useSocket();
 
   const maxDrivers = 8;
   const contestants = race?.contestants ?? [];

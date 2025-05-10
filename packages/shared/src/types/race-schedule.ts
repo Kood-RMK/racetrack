@@ -39,13 +39,14 @@ export type ScheduleNewRace = {
 export type DeleteRace = {
     type: RaceScheduleCommands.DeleteRace
     data: {
-        race: ScheduledRace
+        raceId: string;
     }
 };
 
 export type ModifyRace = {
     type: RaceScheduleCommands.ModifyRace
     data: {
-        race: ScheduledRace
+        raceId: string;
+        updates: ScheduledRace;
     }
 };
