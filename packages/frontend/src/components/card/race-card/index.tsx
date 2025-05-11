@@ -5,7 +5,7 @@ import { ScheduledRace } from "racetrack-shared/types";
 
 
 interface RaceCardProps {
-  race: ScheduledRace; // ✅ changed from ScheduledRace
+  race: ScheduledRace; 
   onDelete?: () => void;
   tags: React.ReactNode;
   buttons?: React.ReactNode;

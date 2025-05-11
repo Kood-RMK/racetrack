@@ -42,14 +42,6 @@ export default function ModifyRaceDialog({ isOpen, onClose, initialRace }: Modif
     const socket = useSocket();
     const [driverNames, setDriverNames] = useState<string[]>(Array(driverCount).fill(""));
 
-    // useEffect(() => {
-    //     if (initialRace) {
-    //       setDriverNames(initialRace.contestants.map(c => c.name));
-    //       setDriverCount(initialRace.contestants.length);
-    //       // Set timeslot, id, etc., as needed
-    //     }
-    // }, [initialRace]);
-
     // Also want to get car numbers later
     const handleNameChange = (index: number, driverName: string) => {
         const updatedNames = [...driverNames];

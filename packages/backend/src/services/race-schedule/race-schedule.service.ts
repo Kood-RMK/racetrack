@@ -48,7 +48,6 @@ export class RaceScheduleService {
 
             client.emit(RaceScheduleEvents.RaceScheduleInitialState, stateMessage)
 
-
             // New Race 
             client.on(RaceScheduleCommands.ScheduleNewRace, (command: RacetrackCommand<ScheduleNewRace>) => {
 
@@ -107,29 +106,19 @@ export class RaceScheduleService {
 
                     // TODO: I' think we'll need to sort the races according to DateTimes in the schedule before i emit the updated schedule
 
-                    const updateMessage = { // Write the message that sechedule has been updated
+                    //emit updated schedule
+                    const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
-                            type: RaceScheduleEvents.RaceScheduleInitialState,
+                            type: RaceScheduleEvents.RaceScheduleUpdated,
                             schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace
+                                acc[key] = value.scheduledRace;
                                 return acc;
                             }, {} as RaceScheduleEntries)
                         }
                     };
 
 
-                    // const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
-                    //     message: {
-                    //         type: RaceScheduleEvents.RaceScheduleInitialState,
-                    //         schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                    //             acc[key] = value.scheduledRace
-                    //             return acc;
-                    //         }, {} as RaceScheduleEntries)
-                    //     }
-                    // }
-
-                    // client.emit(RaceScheduleEvents.RaceScheduleInitialState, stateMessage)
-                    client.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
+                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
@@ -152,16 +141,18 @@ export class RaceScheduleService {
                     this.schedule.deleteRace(idToRemove);
                     console.log("🗑️ Race deleted:", idToRemove);
 
-
-                    // Emit updated schedule
+                    //emit updated schedule
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.raceScheduleEntries
+                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                                acc[key] = value.scheduledRace;
+                                return acc;
+                            }, {} as RaceScheduleEntries)
                         }
                     };
 
-                    client.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.DeleteRace} command:`, error);
@@ -231,7 +222,7 @@ export class RaceScheduleService {
                         }
                     };
 
-                    client.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);
