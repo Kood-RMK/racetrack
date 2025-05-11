@@ -4,8 +4,6 @@ import React from "react";
 import { ScheduledRace } from "racetrack-shared/types";
 
 
-
-
 interface RaceCardProps {
   race: ScheduledRace; // ✅ changed from ScheduledRace
   onDelete?: () => void;
@@ -20,12 +18,6 @@ export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
   const maxDrivers = 8;
   const contestants = race?.contestants ?? [];
   console.log("📦 [RaceCard] Full RaceScheduleEntry received:", race);
-  console.log("📦 [RaceCard] Race ID:", race?.raceId);
-  console.log("📦 [RaceCard] Race Start DateTime:", race?.raceScheduledStartUnixTime);
-  console.log("📦 [RaceCard] Race State:", race?.raceState);
-  console.log("📦 [RaceCard] Contestants array:", contestants);
-
-
 
   return (
     <div className="bg-gray-100 w-full h-full p-4 gap-4 flex flex-col font-cairo">

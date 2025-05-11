@@ -36,10 +36,9 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 
         const onRaceScheduleUpdated = (data: RacetrackEvent<RaceScheduleUpdated>) => {
             const updatedSchedule = data.message.schedule;
-
             setScheduleState(prevSchedule => ({
                 ...prevSchedule,
-                ...updatedSchedule, // ✅ merge updates into previous state
+                ...updatedSchedule,
             }));
 
             console.log(`[📩 Race Schedule updated]: Race Schedule update received:`, updatedSchedule);

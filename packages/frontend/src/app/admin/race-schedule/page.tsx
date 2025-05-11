@@ -29,13 +29,6 @@ function RaceSchedulePage() {
     ])
   );
 
-  // export type ScheduledRace = {
-  //     raceId : ScheduledRaceId,
-  //     contestants : RaceContestant[],
-  //     raceScheduledStartUnixTime : string // Unix timestamp.
-  //     raceState : RaceState,
-  // }
-
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
       <p className='text-center py-10'>Race Schedule</p>
@@ -45,11 +38,6 @@ function RaceSchedulePage() {
         <NewRaceDialog />
 
         {Object.entries(sortedRaces).map(([raceId, raceData]) => {
-
-            // console.log("➡️ Race Entry is this!!!!!!:", raceData);
-            // console.log("📥 Race Entry .race:", raceData); // ✅ use getter as a property
-            // console.log("👥 Contestants:", raceData.contestants); // also a getter
-            // console.log("Is instance of RaceScheduleEntry?", raceData instanceof RaceScheduleEntryState);
 
           return (
             <RaceCard

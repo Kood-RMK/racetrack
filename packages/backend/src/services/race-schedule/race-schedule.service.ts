@@ -3,19 +3,17 @@ import { Logger } from "pino";
 import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
 import { RaceScheduleEntryState, RaceScheduleState } from "./race-schedule.state";
 
-
-
 //Handlers
 export class RaceScheduleService {
     private readonly socketIO: SocketIOServer;
     private readonly schedule: RaceScheduleState;
-    private readonly logger : Logger;
+    private readonly logger: Logger;
 
-    constructor(socketIO : SocketIOServer, parentLogger : Logger) {
+    constructor(socketIO: SocketIOServer, parentLogger: Logger) {
 
         this.socketIO = socketIO;
         this.schedule = new RaceScheduleState();
-        const logger = parentLogger.child({serviceName : this.constructor.name})
+        const logger = parentLogger.child({ serviceName: this.constructor.name })
         this.logger = logger;
 
         const socketNamespace = this.socketIO.of("/race-schedule");
@@ -41,7 +39,7 @@ export class RaceScheduleService {
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
                     type: RaceScheduleEvents.RaceScheduleInitialState,
-                    schedule: Object.entries (this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                    schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
                         acc[key] = value.scheduledRace
                         return acc;
                     }, {} as RaceScheduleEntries)
@@ -74,7 +72,7 @@ export class RaceScheduleService {
                         .map(contestant => contestant.name.trim().toLowerCase()) // Create a new array 'duplicates' 
                         .reduce((accumulatorArray, name, _, arr) => {
                             if (arr.indexOf(name) !== arr.lastIndexOf(name) && !accumulatorArray.includes(name)) {
-                                accumulatorArray.push(name); 
+                                accumulatorArray.push(name);
                             }
                             return accumulatorArray;
                         }, [] as string[]);
@@ -95,7 +93,7 @@ export class RaceScheduleService {
                             timeslotTaken = true;
                         }
                     }
-                    
+
                     if (timeslotTaken) {
                         throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
                     }
@@ -111,12 +109,27 @@ export class RaceScheduleService {
 
                     const updateMessage = { // Write the message that sechedule has been updated
                         message: {
-                            type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.raceScheduleEntries,
+                            type: RaceScheduleEvents.RaceScheduleInitialState,
+                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                                acc[key] = value.scheduledRace
+                                return acc;
+                            }, {} as RaceScheduleEntries)
                         }
                     };
 
-                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
+
+                    // const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
+                    //     message: {
+                    //         type: RaceScheduleEvents.RaceScheduleInitialState,
+                    //         schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                    //             acc[key] = value.scheduledRace
+                    //             return acc;
+                    //         }, {} as RaceScheduleEntries)
+                    //     }
+                    // }
+
+                    // client.emit(RaceScheduleEvents.RaceScheduleInitialState, stateMessage)
+                    client.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
@@ -148,7 +161,7 @@ export class RaceScheduleService {
                         }
                     };
 
-                    socketNamespace.emit("raceScheduleUpdated", updateMessage);
+                    client.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.DeleteRace} command:`, error);
@@ -163,8 +176,6 @@ export class RaceScheduleService {
                     if (!command.message) {
                         throw new Error("message is undefined.");
                     }
-
-                    
 
                     const raceModificationData = command.message.data;
                     const updatedRace = raceModificationData.updates;
@@ -195,7 +206,7 @@ export class RaceScheduleService {
                             timeslotTaken = true;
                         }
                     }
-                    
+
                     if (timeslotTaken) {
                         throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
                     }
@@ -213,11 +224,14 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.raceScheduleEntries
+                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                                acc[key] = value.scheduledRace;
+                                return acc;
+                            }, {} as RaceScheduleEntries)
                         }
                     };
 
-                    socketNamespace.emit("raceScheduleUpdated", updateMessage);
+                    client.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);
