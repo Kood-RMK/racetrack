@@ -3,24 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "server-dev": "tsc -p src/racetrack/tsconfig.json --watch & nodemon  src/racetrack/dist/server.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "next": "^15.1.6",
+    "next": "^15.3.2",
     "nodemon": "^3.1.9",
-    "racetrack-shared": "*",
-    "react": "^19.0.0",
+    "racetrack-shared": "workspace:*",
+    "react": "^19.1.0",
     "react-aria": "^3.37.0",
     "react-aria-components": "^1.6.0",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.1.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },

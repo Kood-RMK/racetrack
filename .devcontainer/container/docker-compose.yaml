@@ -14,5 +14,7 @@ services:
       - ../.env
     command: sleep infinity
     volumes:
-      - ../..:/workspace
+      - ../..:/workspace:cached
       - /var/run/docker.sock:/var/run/docker.sock
+      - type: tmpfs
+        target: /workspace/packages/frontend/.next
