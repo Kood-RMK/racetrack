@@ -40,12 +40,13 @@ function RaceSchedulePage() {
         
 
         {Object.entries(sortedRaces).map(([raceId, raceData]) => {
+          const timeslot = raceData.raceScheduledStartTimeSlot;
 
           return (
             <RaceCard
               key={raceId}
               race={raceData}
-              tags={<RacePendingTags />}
+              tags={<RacePendingTags timeslot={timeslot}/>}
               buttons={<RacePendingButtons race={raceData} />}
             />
           );

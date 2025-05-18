@@ -118,8 +118,10 @@ export default function NewRaceDialog() {
 
                                 <ComboBox
                                     className="relative w-48"
-                                    // onSelectionChange={(key) => setSelectedTimeslot(String(key))}
-                                    >
+                                    selectedKey={selectedTimeslot}
+                                    onSelectionChange={(key) => setSelectedTimeslot(String(key))}
+                                // onSelectionChange={(key) => setSelectedTimeslot(String(key))}
+                                >
 
                                     <Label className="text-sm font-medium pb-2">Timeslot</Label>
 
@@ -131,10 +133,11 @@ export default function NewRaceDialog() {
                                                 className="absolute left-2 text-gray-500 pointer-events-none"
                                             />
                                             <Input
-                                                id="timeslot"
+                                                // id="timeslot"
                                                 placeholder="Timeslot"
                                                 className="border border-gray-300 rounded-lg pl-8 pr-8 py-1 w-full"
-                                                readOnly
+                                            // readOnly
+                                            // value={selectedTimeslot} // <-- Add this line
                                             />
                                             <Icon
                                                 path={mdiMenuDown}
@@ -146,14 +149,13 @@ export default function NewRaceDialog() {
 
                                     <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md z-50 absolute">
                                         <ListBox
-                                            aria-label="Favorite animal"
                                             className="max-h-48 overflow-y-auto font-cairo"
                                             selectionMode="single"
-                                            selectedKeys={selectedTimeslot ? new Set([selectedTimeslot]) : new Set()}
-                                            onSelectionChange={(keys) => {
-                                                const timeslot = (keys as Set<React.Key>).values().next().value;
-                                                setSelectedTimeslot(String(timeslot));
-                                            }}
+                                        // selectedKeys={selectedTimeslot ? new Set([selectedTimeslot]) : new Set()}
+                                        // onSelectionChange={(keys) => {
+                                        //     const timeslot = (keys as Set<React.Key>).values().next().value;
+                                        //     setSelectedTimeslot(String(timeslot));
+                                        // }}
                                         >
                                             {[
                                                 "9:00 - 9.30",
@@ -168,7 +170,7 @@ export default function NewRaceDialog() {
                                                 "14:30 - 15:00",
                                                 "15:30 - 16:00",
                                             ].map((slot) => (
-                                                <ListBoxItem key={slot} textValue={slot}>
+                                                <ListBoxItem key={slot}>
                                                     {slot}
                                                 </ListBoxItem>
                                             ))}
