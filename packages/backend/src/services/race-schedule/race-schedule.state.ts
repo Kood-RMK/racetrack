@@ -69,7 +69,7 @@ export enum RaceScheduleEntryEvents {
 export interface RaceScheduleEntryCallbacks {
     [RaceScheduleEntryEvents.RaceIdChanged] : (raceId: ScheduledRace['raceId']) => void;
     [RaceScheduleEntryEvents.ContestantsChanged] : (contestants: ScheduledRace['contestants']) => void;
-    [RaceScheduleEntryEvents.RaceDateTimeChanged] : (raceDateTime: ScheduledRace['raceScheduledStartUnixTime']) => void;
+    [RaceScheduleEntryEvents.RaceDateTimeChanged] : (raceDateTime: ScheduledRace['raceScheduledStartTimeSlot']) => void;
     [RaceScheduleEntryEvents.RaceStateChanged] : (newState: ScheduledRace['raceState']) => void;
 }
 
@@ -111,7 +111,7 @@ export class RaceScheduleEntryState {
     }
 
     public get raceScheduledStartUnixTime() {
-        return this._race.raceScheduledStartUnixTime;
+        return this._race.raceScheduledStartTimeSlot;
     }
 
     public get raceState() {
@@ -135,8 +135,8 @@ export class RaceScheduleEntryState {
         this._eventEmitter.emit(RaceScheduleEntryEvents.ContestantsChanged, contestants);
     }
 
-    public setRaceDateTime(raceDateTime: ScheduledRace['raceScheduledStartUnixTime']) {
-        this._race.raceScheduledStartUnixTime = raceDateTime;
+    public setRaceDateTime(raceDateTime: ScheduledRace['raceScheduledStartTimeSlot']) {
+        this._race.raceScheduledStartTimeSlot = raceDateTime;
         console.log(`☀️ Race State: Race Date Time set to: ${raceDateTime}.`);
         this._eventEmitter.emit(RaceScheduleEntryEvents.RaceDateTimeChanged, raceDateTime);
     }

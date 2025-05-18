@@ -64,7 +64,7 @@ export class RaceScheduleService {
 
                     const newData = command.message.data;
                     const newRace = newData.race;
-                    const { contestants, raceScheduledStartUnixTime: raceDateTime } = newRace
+                    const { contestants, raceScheduledStartTimeSlot: raceDateTime } = newRace
 
                     // Check to ensure there are no duplicate names in the new race
                     const duplicates = contestants
@@ -82,20 +82,20 @@ export class RaceScheduleService {
                     }
 
                     // Check that there are no races with the same timeslot
-                    const existingRaces = this.schedule.raceScheduleEntries;
+                    // const existingRaces = this.schedule.raceScheduleEntries;
 
-                    let timeslotTaken = false;
+                    // let timeslotTaken = false;
 
-                    for (const value of Object.values(existingRaces)) {
-                        console.log(value.raceScheduledStartUnixTime);
-                        if (value.raceScheduledStartUnixTime === newData.race.raceScheduledStartUnixTime) {
-                            timeslotTaken = true;
-                        }
-                    }
+                    // for (const value of Object.values(existingRaces)) {
+                    //    
+                    //     if (value.raceScheduledStartUnixTime === newData.race.raceScheduledStartUnixTime) {
+                    //         timeslotTaken = true;
+                    //     }
+                    // }
 
-                    if (timeslotTaken) {
-                        throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
-                    }
+                    // if (timeslotTaken) {
+                    //     throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
+                    // }
 
                     // When checks are performed and there were no conflicts, add the new race to the schedule
                     // ingredients (newRace) + recipe (RaceScheduleEntry) = cake (newRaceState)
@@ -170,7 +170,7 @@ export class RaceScheduleService {
 
                     const raceModificationData = command.message.data;
                     const updatedRace = raceModificationData.updates;
-                    const { contestants, raceScheduledStartUnixTime: raceDateTime, raceId: raceId, raceState } = updatedRace;
+                    const { contestants, raceScheduledStartTimeSlot: raceDateTime, raceId: raceId, raceState } = updatedRace;
 
                     if (!raceId) {
                         throw new Error("No raceID");
