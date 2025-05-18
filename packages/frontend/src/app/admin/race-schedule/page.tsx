@@ -23,7 +23,12 @@ function RaceSchedulePage() {
   
   // To get access to getters and setters
   const sortedRaces = Object.fromEntries(
-    Object.entries(scheduleState).map(([raceId, raceData]) => [
+    Object.entries(scheduleState)
+    
+    //Only show races that are pending:
+    .filter(([_, raceData]) => raceData.raceState === 'pending')
+
+    .map(([raceId, raceData]) => [
       raceId,
       raceData,
     ])
@@ -40,13 +45,12 @@ function RaceSchedulePage() {
         
 
         {Object.entries(sortedRaces).map(([raceId, raceData]) => {
-          const timeslot = raceData.raceScheduledStartTimeSlot;
 
           return (
             <RaceCard
               key={raceId}
               race={raceData}
-              tags={<RacePendingTags timeslot={timeslot}/>}
+              tags={<RacePendingTags race={raceData}/>}
               buttons={<RacePendingButtons race={raceData} />}
             />
           );
