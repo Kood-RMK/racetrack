@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import { Tag, TagGroup, TagList } from 'react-aria-components';
-import { mdiClockTimeFour, mdiCheck, mdiAlertOctagon, mdiCloseOctagon, mdiTimerSand, mdiTimerSandFull, mdiStopCircle, mdiHazardLights, mdiFlagCheckered, mdiTimer, mdiTimerOutline, mdiClockTimeFourOutline } from "@mdi/js";
+import { Tag } from 'react-aria-components';
+import { mdiCheck, mdiAlertOctagon, mdiCloseOctagon, mdiTimerSandFull, mdiHazardLights, mdiFlagCheckered, mdiClockTimeFourOutline } from "@mdi/js";
 import Icon from '@mdi/react';
 
 
 export function RaceTimeslotTag({timeslot} : {timeslot : string}) {
    return (
-        <Tag textValue="Time" className="bg-blue-200 min-w-40 h-8 text-base text-blue-800 font-medium rounded flex justify-center items-center gap-1 py-1 px-6 whitespace-nowrap">
+        <Tag textValue={"Time"} className="bg-blue-200 min-w-40 h-8 text-base text-blue-800 font-medium rounded flex justify-center items-center gap-1 py-1 px-6 whitespace-nowrap">
             <Icon path={mdiClockTimeFourOutline} className="w-4 h-4 flex-shrink-0"/>
             <span>
                 {timeslot}

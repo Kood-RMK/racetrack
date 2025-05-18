@@ -41,7 +41,7 @@ export default function NewRaceDialog() {
     const [driverCount, setDriverCount] = useState(8);
     // const [driverNames, setDriverNames] = useState<string[]>(Array(driverCount).fill(""));
     const [driverNames, setDriverNames] = useState<string[]>([""]);
-    const [selectedTimeslot, setSelectedTimeslot] = useState<Key | null>(null);
+    const [selectedTimeslot, setSelectedTimeslot] = useState<string>("");
 
     // Get the scheduleController from the provider
     const scheduleController = useRaceScheduleController();
@@ -56,6 +56,11 @@ export default function NewRaceDialog() {
 
     const onSave = () => {
 
+        // if (!selectedTimeslot) {
+        //     alert("Please select a timeslot");
+        //     return;
+        // }
+
         const contestants: RaceContestant[] = driverNames
             .filter(name => name.trim() !== "")
             .map((name, index) => ({
@@ -67,7 +72,7 @@ export default function NewRaceDialog() {
         // Create the new race object (you can adjust the logic for the race data as needed)
         const newRace: ScheduledRace = {
             raceId: `race-${Date.now()}`,
-            raceScheduledStartUnixTime: Date.now().toString(),
+            raceScheduledStartTimeSlot: selectedTimeslot,
             contestants,
             raceState: RaceState.Pending,
         };
@@ -111,7 +116,11 @@ export default function NewRaceDialog() {
                                     Race Details
                                 </Heading>
 
-                                <ComboBox className="relative w-48">
+                                <ComboBox
+                                    className="relative w-48"
+                                    // onSelectionChange={(key) => setSelectedTimeslot(String(key))}
+                                    >
+
                                     <Label className="text-sm font-medium pb-2">Timeslot</Label>
 
                                     <Button>
@@ -125,6 +134,7 @@ export default function NewRaceDialog() {
                                                 id="timeslot"
                                                 placeholder="Timeslot"
                                                 className="border border-gray-300 rounded-lg pl-8 pr-8 py-1 w-full"
+                                                readOnly
                                             />
                                             <Icon
                                                 path={mdiMenuDown}
@@ -134,15 +144,17 @@ export default function NewRaceDialog() {
                                         </div>
                                     </Button>
 
-                                    <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md">
+                                    <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md z-50 absolute">
                                         <ListBox
+                                            aria-label="Favorite animal"
                                             className="max-h-48 overflow-y-auto font-cairo"
+                                            selectionMode="single"
                                             selectedKeys={selectedTimeslot ? new Set([selectedTimeslot]) : new Set()}
                                             onSelectionChange={(keys) => {
-                                              const key = (keys as Set<React.Key>).values().next().value;
-                                              setSelectedTimeslot(key as string);
+                                                const timeslot = (keys as Set<React.Key>).values().next().value;
+                                                setSelectedTimeslot(String(timeslot));
                                             }}
-                                          >
+                                        >
                                             {[
                                                 "9:00 - 9.30",
                                                 "9:30 - 10.00",
@@ -156,7 +168,9 @@ export default function NewRaceDialog() {
                                                 "14:30 - 15:00",
                                                 "15:30 - 16:00",
                                             ].map((slot) => (
-                                                <ListBoxItem key={slot}>{slot}</ListBoxItem>
+                                                <ListBoxItem key={slot} textValue={slot}>
+                                                    {slot}
+                                                </ListBoxItem>
                                             ))}
                                         </ListBox>
                                     </Popover>

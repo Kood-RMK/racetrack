@@ -18,7 +18,7 @@ export type ScheduledRaceId = string;
 export type ScheduledRace = {
     raceId : ScheduledRaceId,
     contestants : RaceContestant[],
-    raceScheduledStartUnixTime : string // Unix timestamp.
+    raceScheduledStartTimeSlot : string 
     raceState : RaceState,
 }
 

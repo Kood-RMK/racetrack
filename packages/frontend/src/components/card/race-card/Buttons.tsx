@@ -82,7 +82,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     // Create the new race object (you can adjust the logic for the race data as needed)
     const updatedRace: ScheduledRace = {
       raceId: race.raceId,
-      raceScheduledStartUnixTime: Date.now().toString(),
+      raceScheduledStartTimeSlot: Date.now().toString(),
       contestants,
       raceState: RaceState.Pending,
     };

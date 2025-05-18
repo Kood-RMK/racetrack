@@ -14,7 +14,6 @@ interface RaceCardProps {
 
 export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
 
-
   const maxDrivers = 8;
   const contestants = race?.contestants ?? [];
   console.log("📦 [RaceCard] Full RaceScheduleEntry received:", race);
