@@ -84,11 +84,11 @@ export default function NewRaceDialog() {
             <DialogTrigger>
                 {/* Button that triggers Dialog */}
                 <Button
-                    aria-label="Schedule Race"
+                    aria-label="Race"
                     className="flex flex-col items-center justify-center gap-2 p-2 text-base"
                 >
                     <Icon path={mdiCheckerboardPlus} size={1.5} />
-                    Schedule Race
+                    Scheduled Race
                 </Button>
 
                 <Modal className="absolute inset-0 flex justify-center items-center w-full h-full bg-black/50 font-cairo z-50">
