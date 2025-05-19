@@ -14,7 +14,6 @@ import {
     ListBox,
     ListBoxItem,
     Popover,
-    Key
 } from 'react-aria-components';
 import Icon from '@mdi/react';
 import {
@@ -56,10 +55,10 @@ export default function NewRaceDialog() {
 
     const onSave = () => {
 
-        // if (!selectedTimeslot) {
-        //     alert("Please select a timeslot");
-        //     return;
-        // }
+        if (!selectedTimeslot) {
+            alert("Please select a timeslot");
+            return;
+        }
 
         const contestants: RaceContestant[] = driverNames
             .filter(name => name.trim() !== "")
@@ -82,7 +81,6 @@ export default function NewRaceDialog() {
             scheduleController.current.tryAddRace(newRace); // Add the new race to the schedule
         }
     }
-
 
     return (
         <div className="bg-gray-100 w-full h-full p-4 gap-4 flex items-center justify-center font-cairo">
@@ -120,9 +118,7 @@ export default function NewRaceDialog() {
                                     className="relative w-48"
                                     selectedKey={selectedTimeslot}
                                     onSelectionChange={(key) => setSelectedTimeslot(String(key))}
-                                // onSelectionChange={(key) => setSelectedTimeslot(String(key))}
                                 >
-
                                     <Label className="text-sm font-medium pb-2">Timeslot</Label>
 
                                     <Button>
@@ -133,11 +129,8 @@ export default function NewRaceDialog() {
                                                 className="absolute left-2 text-gray-500 pointer-events-none"
                                             />
                                             <Input
-                                                // id="timeslot"
                                                 placeholder="Timeslot"
                                                 className="border border-gray-300 rounded-lg pl-8 pr-8 py-1 w-full"
-                                            // readOnly
-                                            // value={selectedTimeslot} // <-- Add this line
                                             />
                                             <Icon
                                                 path={mdiMenuDown}
@@ -151,11 +144,6 @@ export default function NewRaceDialog() {
                                         <ListBox
                                             className="max-h-48 overflow-y-auto font-cairo"
                                             selectionMode="single"
-                                        // selectedKeys={selectedTimeslot ? new Set([selectedTimeslot]) : new Set()}
-                                        // onSelectionChange={(keys) => {
-                                        //     const timeslot = (keys as Set<React.Key>).values().next().value;
-                                        //     setSelectedTimeslot(String(timeslot));
-                                        // }}
                                         >
                                             {[
                                                 "9:00 - 9.30",
@@ -169,8 +157,10 @@ export default function NewRaceDialog() {
                                                 "13:30 - 14:00",
                                                 "14:30 - 15:00",
                                                 "15:30 - 16:00",
+                                                "16:00 - 16:30",
+                                                "16:30 - 17:00"
                                             ].map((slot) => (
-                                                <ListBoxItem key={slot}>
+                                                <ListBoxItem id={slot} textValue={slot}>
                                                     {slot}
                                                 </ListBoxItem>
                                             ))}

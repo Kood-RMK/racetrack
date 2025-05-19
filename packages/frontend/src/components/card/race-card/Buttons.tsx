@@ -37,15 +37,15 @@ import { DeleteRace, RaceScheduleCommands, RacetrackCommand, ScheduledRace, Race
 // Race Pending Buttons
 
 export function RacePendingButtons({ race }: { race: ScheduledRace }) {
-  
-    const fillFromRace = () => {
+
+  const fillFromRace = () => {
     setDriverNames(race.contestants.map(c => c.name));
-    };
+  };
 
   const [driverCount, setDriverCount] = useState(8);
   // const [driverNames, setDriverNames] = useState<string[]>(Array(driverCount).fill(""));
   const [driverNames, setDriverNames] = useState<string[]>([""]);
-  const [selectedTimeslot, setSelectedTimeslot] = useState<Key | null>(null);
+  const [selectedTimeslot, setSelectedTimeslot] = useState<string>("");
 
   // Get the scheduleController from the provider
   const scheduleController = useRaceScheduleController();
@@ -74,7 +74,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     const contestants: RaceContestant[] = driverNames
       .filter(name => name.trim() !== "")
       .map((name, index) => ({
-        contestantId: `driver-${index}-${Date.now()}`, 
+        contestantId: `driver-${index}-${Date.now()}`,
         name,
         racecarNumber: index + 1,
       }));
@@ -82,7 +82,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     // Create the new race object (you can adjust the logic for the race data as needed)
     const updatedRace: ScheduledRace = {
       raceId: race.raceId,
-      raceScheduledStartTimeSlot: Date.now().toString(),
+      raceScheduledStartTimeSlot: selectedTimeslot,
       contestants,
       raceState: RaceState.Pending,
     };
@@ -129,7 +129,11 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                   Race Details
                 </Heading>
 
-                <ComboBox className="relative w-48">
+                <ComboBox
+                  className="relative w-48"
+                  selectedKey={selectedTimeslot}
+                  onSelectionChange={(key) => setSelectedTimeslot(String(key))}
+                >
                   <Label className="text-sm font-medium pb-2">Timeslot</Label>
 
                   <Button>
@@ -140,7 +144,6 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                         className="absolute left-2 text-gray-500 pointer-events-none"
                       />
                       <Input
-                        id="timeslot"
                         placeholder="Timeslot"
                         className="border border-gray-300 rounded-lg pl-8 pr-8 py-1 w-full"
                       />
@@ -155,11 +158,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                   <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md">
                     <ListBox
                       className="max-h-48 overflow-y-auto font-cairo"
-                      selectedKeys={selectedTimeslot ? new Set([selectedTimeslot]) : new Set()}
-                      onSelectionChange={(keys) => {
-                        const key = (keys as Set<React.Key>).values().next().value;
-                        setSelectedTimeslot(key as string);
-                      }}
+                      selectionMode="single"
                     >
                       {[
                         "9:00 - 9.30",
@@ -173,8 +172,12 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                         "13:30 - 14:00",
                         "14:30 - 15:00",
                         "15:30 - 16:00",
+                        "16:00 - 16:30",
+                        "16:30 - 17:00"
                       ].map((slot) => (
-                        <ListBoxItem key={slot}>{slot}</ListBoxItem>
+                        <ListBoxItem id={slot} textValue={slot}>
+                          {slot}
+                        </ListBoxItem>
                       ))}
                     </ListBox>
                   </Popover>
