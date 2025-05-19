@@ -1,6 +1,8 @@
 
 import EventEmitter from "events";
 import { ScheduledRace } from "racetrack-shared/types";
+import { Logger } from "pino";
+import { DatabaseSync } from "node:sqlite";
 
 export enum RaceScheduleEvents {
     RaceScheduleChanged = 'onRaceScheduleChanged',
@@ -30,8 +32,17 @@ export type RaceScheduleStateEntries = Record<ScheduledRace['raceId'], RaceSched
 
 // Get for all races in race schedule
 export class RaceScheduleState {
+
+
     private _raceScheduleStateEntries: RaceScheduleStateEntries = {};
     private _eventEmitter = new RaceScheduleEventEmitter();
+
+    private readonly logger : Logger;
+    private _db: DatabaseSync;
+
+    constructor(db: DatabaseSync) {
+        this._db = db;
+    }
 
     public get raceScheduleEntries(): RaceScheduleStateEntries {
         return this._raceScheduleStateEntries;

@@ -30,15 +30,12 @@ import { useRaceScheduleController } from "@/app/providers/controllers/raceSched
 import { RaceContestant, RaceState, ScheduledRace } from "racetrack-shared/types";
 
 
-
-
 export default function NewRaceDialog() {
 
     // Tahame koguda kõigepealt objekti tüübiga RaceContestant ja seejärel lisada objektid arraysse tüübiga RaceContestant[]
     // Peame välja saatma ScheduledRace tüübi ehk kas siin peaks juba lisama mingi id ka?
 
     const [driverCount, setDriverCount] = useState(8);
-    // const [driverNames, setDriverNames] = useState<string[]>(Array(driverCount).fill(""));
     const [driverNames, setDriverNames] = useState<string[]>([""]);
     const [selectedTimeslot, setSelectedTimeslot] = useState<string>("");
 

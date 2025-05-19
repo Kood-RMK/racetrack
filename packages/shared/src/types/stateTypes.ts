@@ -1,4 +1,5 @@
 export type RaceContestantId = string;
+
 export type RaceContestant = {
     contestantId : RaceContestantId,
     name : string,

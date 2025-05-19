@@ -19,9 +19,9 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-    methods: ["GET", "POST"],
+  origin: "http://localhost:3000",
+  credentials: true,
+  methods: ["GET", "POST"],
 }))
 
 
@@ -30,7 +30,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"], 
+    methods: ["GET", "POST"],
   }
 });
 
@@ -43,8 +43,8 @@ const logStream = pretty({
   colorize: true,
   ignore: 'handlerName,serviceName',
   messageFormat: (log, messageKey) => {
-     const prefix = `[${log.serviceName ? log.serviceName : ''}${(log.serviceName && log.handlerName) ? ':' : ''}${log.handlerName ? log.handlerName : ''}]`;
-      return `${prefix}: ${log[messageKey]}`;
+    const prefix = `[${log.serviceName ? log.serviceName : ''}${(log.serviceName && log.handlerName) ? ':' : ''}${log.handlerName ? log.handlerName : ''}]`;
+    return `${prefix}: ${log[messageKey]}`;
   },
 })
 
@@ -59,22 +59,39 @@ const database = new DatabaseSync('racetrack.db')
 
 function initializeDatabase() {
   database.exec(`
+    CREATE TABLE IF NOT EXISTS scheduled_races (
+      raceId TEXT PRIMARY KEY,
+      raceScheduledStartTimeslot INT NOT NULL,
+      raceState TEXT NOT NULL
+  );`);
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS race_contestants (
+      raceId TEXT NOT NULL,
+      contestantId TEXT NOT NULL,
+      name TEXT NOT NULL,
+      racecarNumber INT NOT NULL,
+      PRIMARY KEY (raceId, contestantId),
+      FOREIGN KEY (raceId) REFERENCES scheduled_races(raceId)
+    );`);
+
+  database.exec(`
       CREATE TABLE IF NOT EXISTS active_races (
         raceId TEXT PRIMARY KEY,
-        raceScheduledStartUnixTime INT NOT NULL,
+        raceScheduledStartTimeslot INT NOT NULL,
         raceState TEXT NOT NULL,
         isHazard BOOLEAN NOT NULL,
         isFinishing BOOLEAN NOT NULL,
         timeLeft INT NOT NULL
     );`);
 
-    database.exec(`CREATE TABLE IF NOT EXISTS race_contestants (
-      contestantId TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      racecarNumber INT NOT NULL
-    );`)
+  // database.exec(`CREATE TABLE IF NOT EXISTS race_contestants (
+  //     contestantId TEXT PRIMARY KEY,
+  //     name TEXT NOT NULL,
+  //     racecarNumber INT NOT NULL
+  //   );`)
 
-    database.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
+  database.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
       contestantId TEXT PRIMARY KEY,
       activeRaceId TEXT NOT NULL,
       place INT NOT NULL,
