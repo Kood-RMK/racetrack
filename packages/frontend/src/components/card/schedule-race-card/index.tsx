@@ -35,7 +35,8 @@ export default function NewRaceDialog() {
     // Tahame koguda kõigepealt objekti tüübiga RaceContestant ja seejärel lisada objektid arraysse tüübiga RaceContestant[]
     // Peame välja saatma ScheduledRace tüübi ehk kas siin peaks juba lisama mingi id ka?
 
-    const [driverCount, setDriverCount] = useState(8);
+    // const [driverCount, setDriverCount] = useState(8);
+    const driverCount = 8;
     const [driverNames, setDriverNames] = useState<string[]>([""]);
     const [selectedTimeslot, setSelectedTimeslot] = useState<string>("");
 
@@ -157,7 +158,7 @@ export default function NewRaceDialog() {
                                                 "16:00 - 16:30",
                                                 "16:30 - 17:00"
                                             ].map((slot) => (
-                                                <ListBoxItem id={slot} textValue={slot}>
+                                                <ListBoxItem key={slot} id={slot} textValue={slot}>
                                                     {slot}
                                                 </ListBoxItem>
                                             ))}
@@ -191,29 +192,14 @@ export default function NewRaceDialog() {
                                 ))}
                             </div>
 
-                            {/* Driver Count Selector */}
-                            <div className="flex justify-start text-sm">Driver Count</div>
 
+                            {/* Save Button */}
                             <div className="flex justify-between items-center w-full gap-2">
-                                <div className="flex items-center justify-center gap-2 py-2">
-                                    <Button
-                                        aria-label="Decrease driver count"
-                                        onPress={() => setDriverCount(Math.max(1, driverCount - 1))}
-                                        className="px-3 py-1 rounded border"
-                                    >
-                                        -
-                                    </Button>
-                                    <span className="text-lg font-medium">{driverCount}</span>
-                                    <Button
-                                        aria-label="Increase driver count"
-                                        onPress={() => setDriverCount(Math.min(8, driverCount + 1))}
-                                        className="px-3 py-1 rounded border"
-                                    >
-                                        +
-                                    </Button>
+                                <div className="flex-1">
+                                    <p className="text-sm text-gray-500 flex text-left">
+                                        Maximum 8 drivers
+                                    </p>
                                 </div>
-
-                                {/* Save Button */}
                                 <Button
                                     aria-label="Save race details"
                                     slot="close"
@@ -224,12 +210,7 @@ export default function NewRaceDialog() {
                                     Save Details
                                 </Button>
                             </div>
-
-                            <div>
-                                <p className="text-center text-sm text-gray-500 flex justify-start">
-                                    Maximum 8 drivers
-                                </p>
-                            </div>
+                            
                         </div>
                     </Dialog>
                 </Modal>

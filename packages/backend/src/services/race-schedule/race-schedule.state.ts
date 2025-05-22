@@ -37,13 +37,6 @@ export class RaceScheduleState {
     private _raceScheduleStateEntries: RaceScheduleStateEntries = {};
     private _eventEmitter = new RaceScheduleEventEmitter();
 
-    private readonly logger : Logger;
-    private _db: DatabaseSync;
-
-    constructor(db: DatabaseSync) {
-        this._db = db;
-    }
-
     public get raceScheduleEntries(): RaceScheduleStateEntries {
         return this._raceScheduleStateEntries;
     }
