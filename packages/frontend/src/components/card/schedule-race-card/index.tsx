@@ -32,10 +32,6 @@ import { RaceContestant, RaceState, ScheduledRace } from "racetrack-shared/types
 
 export default function NewRaceDialog() {
 
-    // Tahame koguda kõigepealt objekti tüübiga RaceContestant ja seejärel lisada objektid arraysse tüübiga RaceContestant[]
-    // Peame välja saatma ScheduledRace tüübi ehk kas siin peaks juba lisama mingi id ka?
-
-    // const [driverCount, setDriverCount] = useState(8);
     const driverCount = 8;
     const [driverNames, setDriverNames] = useState<string[]>([""]);
     const [selectedTimeslot, setSelectedTimeslot] = useState<string>("");
@@ -43,13 +39,11 @@ export default function NewRaceDialog() {
     // Get the scheduleController from the provider
     const scheduleController = useRaceScheduleController();
 
-    // Also want to get car numbers later
     const handleNameChange = (index: number, driverName: string) => {
         const updatedNames = [...driverNames];
         updatedNames[index] = driverName;
         setDriverNames(updatedNames);
     };
-
 
     const onSave = () => {
 
@@ -141,8 +135,7 @@ export default function NewRaceDialog() {
                                     <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md z-50 absolute">
                                         <ListBox
                                             className="max-h-48 overflow-y-auto font-cairo"
-                                            selectionMode="single"
-                                        >
+                                            selectionMode="single">
                                             {[
                                                 "9:00 - 9.30",
                                                 "9:30 - 10.00",
@@ -192,7 +185,6 @@ export default function NewRaceDialog() {
                                 ))}
                             </div>
 
-
                             {/* Save Button */}
                             <div className="flex justify-between items-center w-full gap-2">
                                 <div className="flex-1">
@@ -210,7 +202,7 @@ export default function NewRaceDialog() {
                                     Save Details
                                 </Button>
                             </div>
-                            
+
                         </div>
                     </Dialog>
                 </Modal>

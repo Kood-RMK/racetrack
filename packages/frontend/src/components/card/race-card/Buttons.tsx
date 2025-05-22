@@ -53,7 +53,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
       if (prev.length < driverCount) {
         return [...prev, ...Array(driverCount - prev.length).fill("")];
       }
-      return prev; // Don't trim — preserve existing values
+      return prev;
     });
   }, [driverCount]);
 
@@ -67,13 +67,6 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     });
   };
 
-  // const handleNameChange = (index: number, driverName: string) => {
-  //   const updatedNames = [...driverNames];
-  //   updatedNames[index] = driverName;
-  //   setDriverNames(updatedNames);
-  // };
-
-
   const onDelete = () => {
     if (scheduleControllerRef?.current) {
       scheduleControllerRef.current.tryDeleteRace(race.raceId);
@@ -83,10 +76,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     }
   };
 
-
   const onSave = () => {
-
-    console.log("Saving with state:", driverNames, selectedTimeslot); // 👈 check values at time of save
 
     const contestants: RaceContestant[] = driverNames
       .filter(name => name.trim() !== "")
@@ -96,7 +86,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
         racecarNumber: index + 1,
       }));
 
-    // Create the new race object (you can adjust the logic for the race data as needed)
+    // Create the new race object 
     const updatedRace: ScheduledRace = {
       raceId: race.raceId,
       raceScheduledStartTimeSlot: selectedTimeslot,
@@ -231,7 +221,6 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                   ))}
                 </div>
 
-
                 {/* Save Button */}
                 <div className="flex justify-between items-center w-full gap-2">
                   <div className="flex-1">
@@ -255,6 +244,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
           </Modal>
         )}
       </DialogTrigger>
+      
       <Button aria-label="Delete race" className="text-xs flex justify-center items-center bg-red-700 text-white p-2 rounded w-28 h-8 gap-1 whitespace-nowrap"
         onPress={onDelete}>
         <Icon path={mdiDelete} className="w-4 h-4 flex-shrink-0" />
@@ -262,7 +252,6 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
       </Button>
 
     </div>
-
   );
 }
 

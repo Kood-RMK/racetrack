@@ -3,14 +3,12 @@
 import React from "react";
 import { ScheduledRace } from "racetrack-shared/types";
 
-
 interface RaceCardProps {
   race: ScheduledRace; 
   onDelete?: () => void;
   tags: React.ReactNode;
   buttons?: React.ReactNode;
 }
-
 
 export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
 
