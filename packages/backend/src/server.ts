@@ -59,37 +59,23 @@ const database = new DatabaseSync('racetrack.db')
 
 function initializeDatabase() {
   database.exec(`
-    CREATE TABLE IF NOT EXISTS scheduled_races (
-      raceId TEXT PRIMARY KEY,
-      raceScheduledStartTimeslot INT NOT NULL,
-      raceState TEXT NOT NULL
-  );`);
-
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS race_contestants (
-      raceId TEXT NOT NULL,
-      contestantId TEXT NOT NULL,
-      name TEXT NOT NULL,
-      racecarNumber INT NOT NULL,
-      PRIMARY KEY (raceId, contestantId),
-      FOREIGN KEY (raceId) REFERENCES scheduled_races(raceId)
-    );`);
-
-  database.exec(`
-      CREATE TABLE IF NOT EXISTS active_races (
+      CREATE TABLE IF NOT EXISTS scheduled_races (
         raceId TEXT PRIMARY KEY,
-        raceScheduledStartTimeslot INT NOT NULL,
+        raceScheduledStartTimeSlot TEXT NOT NULL,
         raceState TEXT NOT NULL,
         isHazard BOOLEAN NOT NULL,
         isFinishing BOOLEAN NOT NULL,
         timeLeft INT NOT NULL
     );`);
 
-  // database.exec(`CREATE TABLE IF NOT EXISTS race_contestants (
-  //     contestantId TEXT PRIMARY KEY,
-  //     name TEXT NOT NULL,
-  //     racecarNumber INT NOT NULL
-  //   );`)
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS race_contestants (
+        raceId TEXT NOT NULL,
+        contestantId TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        racecarNumber INT NOT NULL,
+        FOREIGN KEY (raceId) REFERENCES scheduled_races(raceId)
+      );`)
 
   database.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
       contestantId TEXT PRIMARY KEY,
@@ -99,7 +85,7 @@ function initializeDatabase() {
       fastestLap INT,
       lapStopwatchTime INT NOT NULL,
       FOREIGN KEY (contestantId) REFERENCES race_contestants(contestantId),
-      FOREIGN KEY (activeRaceId) REFERENCES active_races(raceId)
+      FOREIGN KEY (activeRaceId) REFERENCES scheduled_races(raceId)
     );`)
 }
 

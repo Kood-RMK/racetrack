@@ -45,7 +45,7 @@ export class ActiveRaceState {
 
         const logger = baseLogger.child({handlerName : this.constructor.name})            
 
-        const activeRaceQuery = database.prepare("SELECT * FROM active_races LIMIT 1;");
+        const activeRaceQuery = database.prepare("SELECT * FROM scheduled_races LIMIT 1;");
         const activeRaceRow = activeRaceQuery.get();
 
         if (!activeRaceRow) {

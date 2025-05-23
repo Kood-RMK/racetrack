@@ -2,6 +2,7 @@ import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
 import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
 import { RaceScheduleEntryState, RaceScheduleState } from "./race-schedule.state";
+import { deleteFromScheduledRace, insertRaceContestant, insertScheduledRace, loadFromDatabase, modifyScheduledRace } from "./race-schedule.persistence";
 
 //Handlers
 export class RaceScheduleService {
@@ -35,6 +36,26 @@ export class RaceScheduleService {
             // Add new client to the raceControlRoom. 
             // TODO: select room based on assigned role.
             initializeClientRooms();
+
+            // ✅ Load data from DB (if any)
+            if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
+
+            try {
+                const dbData = loadFromDatabase();
+
+                // Example: Populate in-memory race schedule from DB
+                if (dbData.scheduled_races) {
+                    for (const race of dbData.scheduled_races) {
+                        const entry = new RaceScheduleEntryState(race); // Ensure `race` fits your constructor
+                        this.schedule.addRace(entry);
+                    }
+                }
+
+                this.logger.info("[RaceScheduleService]: Loaded data from database.");
+            } catch (err: any) {
+                this.logger.error("[RaceScheduleService]: Failed to load races from database. Possible schema issue or corruption.", err.message);
+            }
+        }
 
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
@@ -77,25 +98,24 @@ export class RaceScheduleService {
                         }, [] as string[]);
 
                     if (duplicates.length > 0) {
-                        //TODO: Validation Error Event.
                         throw new Error(`❌ Duplicate contestant names found: ${duplicates.join(', ')}`);
                     }
 
-                    // Check that there are no races with the same timeslot
-                    // const existingRaces = this.schedule.raceScheduleEntries;
+                    // Check that there are no races with the same timeSlot
+                    const existingRaces = this.schedule.raceScheduleEntries;
 
-                    // let timeslotTaken = false;
+                    let timeslotTaken = false;
 
-                    // for (const value of Object.values(existingRaces)) {
-                    //    
-                    //     if (value.raceScheduledStartUnixTime === newData.race.raceScheduledStartUnixTime) {
-                    //         timeslotTaken = true;
-                    //     }
-                    // }
+                    for (const value of Object.values(existingRaces)) {
 
-                    // if (timeslotTaken) {
-                    //     throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
-                    // }
+                        if (value.raceScheduledStartTimeSlot === newData.race.raceScheduledStartTimeSlot) {
+                            timeslotTaken = true;
+                        }
+                    }
+
+                    if (timeslotTaken) {
+                        throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
+                    }
 
                     // When checks are performed and there were no conflicts, add the new race to the schedule
                     // ingredients (newRace) + recipe (RaceScheduleEntry) = cake (newRaceState)
@@ -104,7 +124,7 @@ export class RaceScheduleService {
                     // Call addRace method from .state to add cake to schedule
                     this.schedule.addRace(newRaceState);
 
-                    // TODO: I' think we'll need to sort the races according to DateTimes in the schedule before i emit the updated schedule
+                    // TODO: I' think we'll need to sort the races according to Timeslots in the schedule before i emit the updated schedule
 
                     //emit updated schedule
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
@@ -117,8 +137,29 @@ export class RaceScheduleService {
                         }
                     };
 
+                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
-                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage); // Emit the message, so everyone who needs can listen
+                    // ✅ Add to database AFTER emitting
+                    const insertedRace = newRaceState.scheduledRace;
+
+                    insertScheduledRace({
+                        raceId: insertedRace.raceId,
+                        raceScheduledStartTimeSlot: insertedRace.raceScheduledStartTimeSlot,
+                        raceState: insertedRace.raceState,
+                        isHazard: false,
+                        isFinishing: false,
+                        timeLeft: 0
+                    });
+                    
+                    // ✅ Insert contestants into database
+                    for (const contestant of contestants) {
+                        insertRaceContestant({
+                            raceId: insertedRace.raceId,
+                            contestantId: contestant.contestantId,
+                            name: contestant.name,
+                            racecarNumber: contestant.racecarNumber
+                        });
+                    }
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
@@ -153,6 +194,11 @@ export class RaceScheduleService {
                     };
 
                     socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+
+                    // Remove from database
+                    deleteFromScheduledRace({
+                        raceId: idToRemove,
+                    });
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.DeleteRace} command:`, error);
@@ -191,9 +237,13 @@ export class RaceScheduleService {
                     // check for timeslot conflict
                     let timeslotTaken = false;
 
-                    for (const value of Object.values(existingSchedule)) {
-                        console.log(value.raceScheduledStartUnixTime);
-                        if (value.raceScheduledStartUnixTime === raceDateTime) {
+                    for (const [id, value] of Object.entries(existingSchedule)) {
+
+                        if (id === raceId) continue; // ⛔ Skip checking against itself
+                        
+                        console.log(value.raceScheduledStartTimeSlot);
+                        
+                        if (value.raceScheduledStartTimeSlot === raceDateTime) {
                             timeslotTaken = true;
                         }
                     }
@@ -223,6 +273,12 @@ export class RaceScheduleService {
                     };
 
                     socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+
+                    modifyScheduledRace({
+                        raceId,
+                        raceScheduledStartTimeSlot: updatedRace.raceScheduledStartTimeSlot,
+                        raceState,
+                    });
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);

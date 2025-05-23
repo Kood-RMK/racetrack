@@ -1,8 +1,6 @@
 
 import EventEmitter from "events";
 import { ScheduledRace } from "racetrack-shared/types";
-import { Logger } from "pino";
-import { DatabaseSync } from "node:sqlite";
 
 export enum RaceScheduleEvents {
     RaceScheduleChanged = 'onRaceScheduleChanged',
@@ -114,7 +112,7 @@ export class RaceScheduleEntryState {
         return this._race.contestants;
     }
 
-    public get raceScheduledStartUnixTime() {
+    public get raceScheduledStartTimeSlot() {
         return this._race.raceScheduledStartTimeSlot;
     }
 

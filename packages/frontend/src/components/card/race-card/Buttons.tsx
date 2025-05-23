@@ -38,13 +38,13 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
 
   const driverCount = 8;
   const [driverNames, setDriverNames] = useState<string[]>([""]);
-  const [selectedTimeslot, setSelectedTimeslot] = useState<string>("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (isDialogOpen) {
       setDriverNames(race.contestants.map(c => c.name));
-      setSelectedTimeslot(race.raceScheduledStartTimeSlot);
+      setSelectedTimeSlot(race.raceScheduledStartTimeSlot);
     }
   }, [isDialogOpen]);
 
@@ -78,6 +78,11 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
 
   const onSave = () => {
 
+    if (!selectedTimeSlot || selectedTimeSlot.trim() === "") {
+      alert("Please select a timeslot");
+      return;
+    }
+
     const contestants: RaceContestant[] = driverNames
       .filter(name => name.trim() !== "")
       .map((name, index) => ({
@@ -89,7 +94,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     // Create the new race object 
     const updatedRace: ScheduledRace = {
       raceId: race.raceId,
-      raceScheduledStartTimeSlot: selectedTimeslot,
+      raceScheduledStartTimeSlot: selectedTimeSlot,
       contestants,
       raceState: RaceState.Pending,
     };
@@ -143,8 +148,8 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
 
                   <ComboBox
                     className="relative w-48"
-                    selectedKey={selectedTimeslot}
-                    onSelectionChange={(key) => setSelectedTimeslot(String(key))}
+                    selectedKey={selectedTimeSlot}
+                    onSelectionChange={(key) => setSelectedTimeSlot(String(key))}
                   >
                     <Label className="text-sm font-medium pb-2">Timeslot</Label>
 
@@ -244,7 +249,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
           </Modal>
         )}
       </DialogTrigger>
-      
+
       <Button aria-label="Delete race" className="text-xs flex justify-center items-center bg-red-700 text-white p-2 rounded w-28 h-8 gap-1 whitespace-nowrap"
         onPress={onDelete}>
         <Icon path={mdiDelete} className="w-4 h-4 flex-shrink-0" />

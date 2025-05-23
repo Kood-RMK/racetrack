@@ -47,7 +47,7 @@ export default function NewRaceDialog() {
 
     const onSave = () => {
 
-        if (!selectedTimeslot) {
+        if (!selectedTimeslot || selectedTimeslot.trim() === "") {
             alert("Please select a timeslot");
             return;
         }
