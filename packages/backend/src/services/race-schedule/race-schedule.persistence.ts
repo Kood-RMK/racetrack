@@ -8,6 +8,7 @@
         1) Are the tables properly joined where they have to be?
 */
 import { DatabaseSync } from 'node:sqlite';
+import { RaceContestant, RaceSchedule, RaceState } from 'racetrack-shared/types';
 
 const db = new DatabaseSync('racetrack.db');
 
@@ -68,13 +69,18 @@ export function insertRaceContestant(contestant: {
 
 // Delete race info from all relevant tables
 export function deleteFromScheduledRace(race: { raceId: string }) {
-    const stmt = db.prepare(`
-        DELETE FROM scheduled_races WHERE raceId = ?
+    const deleteScheduledRaceContestants = db.prepare(`
+        DELETE FROM race_contestants WHERE raceId = ?
     `);
 
-    stmt.run(race.raceId);
+    const deleteScheduledRace = db.prepare(`
+        DELETE FROM scheduled_races WHERE raceId = ?
+    `);
+    
+    deleteScheduledRaceContestants.run(race.raceId);
+    deleteScheduledRace.run(race.raceId);
 }
-// so now we should export the function into the .srevice file and see if we get a db entry.
+
 
 
 export function modifyScheduledRace(race: {
@@ -111,17 +117,46 @@ export function modifyScheduledRace(race: {
 }
 
 
-export function loadFromDatabase() {
-    const tables = ['scheduled_races', 'race_contestants'];
-    const results: Record<string, any[]> = {};
+export function loadFromDatabase(): RaceSchedule {
+    const scheduledRacesStmt = db.prepare(`SELECT * FROM scheduled_races`);
+    const raceContestantsStmt = db.prepare(`SELECT * FROM race_contestants`);
 
-    for (const table of tables) {
-        const stmt = db.prepare(`SELECT * FROM ${table}`);
-        console.log(stmt);
-        results[table] = stmt.all();
+    const rawScheduledRaces = scheduledRacesStmt.all();
+    const rawRaceContestants = raceContestantsStmt.all();
+
+    const raceSchedule: RaceSchedule = {};
+
+    for (const race of rawScheduledRaces) {
+        const contestants: RaceContestant[] = rawRaceContestants
+            .filter(c => c.raceId === race.raceId)
+            .map(c => ({
+                raceId: c.raceId as string,
+                contestantId: c.contestantId as string,
+                name: c.name as string,
+                racecarNumber: c.racecarNumber as number,
+            }));
+
+         raceSchedule[race.raceId as string] = {
+            raceId: race.raceId as string,
+            raceScheduledStartTimeSlot: race.raceScheduledStartTimeSlot as string,
+            raceState: race.raceState as RaceState,
+            contestants,
+        };
     }
 
-    console.log("STMT: ",results);
-    return results;
+    console.log(raceSchedule);
+    return raceSchedule;
 }
+
+// export type ScheduledRaceId = string;
+
+// export type ScheduledRace = {
+//     raceId : ScheduledRaceId,
+//     contestants : RaceContestant[],
+//     raceScheduledStartTimeSlot : string 
+//     raceState : RaceState,
+// }
+
+
+// export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
 

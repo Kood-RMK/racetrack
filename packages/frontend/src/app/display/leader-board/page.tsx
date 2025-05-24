@@ -6,11 +6,12 @@
 
 // import Header from '@/components/display/header';
 // import LeaderboardTable from '@/components/table/leaderboard';
+// import { RaceState } from "racetrack-shared/types";
 
 
 // export default function RaceTimerPage() {
   
-//   // Use the custom hook to manage socket and race state
+  // Use the custom hook to manage socket and race state
 //   const { activeRace, connectSocket, disconnectSocket } = useRaceSocket();
   
 //   // Connect to the socket server
@@ -23,7 +24,7 @@
 // }, []);
 
 
-//   // Mapping between race state and word displayed
+  // Mapping between race state and word displayed
 //   const getStateLabel = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean): string => {
 
 //     switch (raceState) {
@@ -48,8 +49,12 @@
 //   return (
 
 //     <div className="bg-black min-h-screen min-w-screen text-white flex flex-col items-center pt-10">
-//       <Header trackStateLabel={label} />
+//       <Header trackStateLabel={'PENDING'} />
 //       <LeaderboardTable />
 //     </div>
 //   );
+// }
+
+// function useRaceSocket(): { activeRace: any; connectSocket: any; disconnectSocket: any; } {
+//     throw new Error("Function not implemented.");
 // }

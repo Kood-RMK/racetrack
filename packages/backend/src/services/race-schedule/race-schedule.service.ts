@@ -39,23 +39,20 @@ export class RaceScheduleService {
 
             // ✅ Load data from DB (if any)
             if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
+                try {
+                    const dbSchedule = loadFromDatabase();
 
-            try {
-                const dbData = loadFromDatabase();
-
-                // Example: Populate in-memory race schedule from DB
-                if (dbData.scheduled_races) {
-                    for (const race of dbData.scheduled_races) {
-                        const entry = new RaceScheduleEntryState(race); // Ensure `race` fits your constructor
+                    for (const race of Object.values(dbSchedule)) {
+                        const entry = new RaceScheduleEntryState(race);
                         this.schedule.addRace(entry);
                     }
-                }
 
-                this.logger.info("[RaceScheduleService]: Loaded data from database.");
-            } catch (err: any) {
-                this.logger.error("[RaceScheduleService]: Failed to load races from database. Possible schema issue or corruption.", err.message);
+                    this.logger.info("[RaceScheduleService]: Loaded data from database.");
+                } catch (err: any) {
+                    this.logger.error("[RaceScheduleService]: Failed to load races from database.", err.message);
+                }
             }
-        }
+
 
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
@@ -150,7 +147,7 @@ export class RaceScheduleService {
                         isFinishing: false,
                         timeLeft: 0
                     });
-                    
+
                     // ✅ Insert contestants into database
                     for (const contestant of contestants) {
                         insertRaceContestant({
@@ -240,9 +237,9 @@ export class RaceScheduleService {
                     for (const [id, value] of Object.entries(existingSchedule)) {
 
                         if (id === raceId) continue; // ⛔ Skip checking against itself
-                        
+
                         console.log(value.raceScheduledStartTimeSlot);
-                        
+
                         if (value.raceScheduledStartTimeSlot === raceDateTime) {
                             timeslotTaken = true;
                         }

@@ -57,6 +57,8 @@ const logger = pino(
 
 const database = new DatabaseSync('racetrack.db')
 
+database.exec('PRAGMA foreign_keys = ON;');
+
 function initializeDatabase() {
   database.exec(`
       CREATE TABLE IF NOT EXISTS scheduled_races (
@@ -74,7 +76,7 @@ function initializeDatabase() {
         contestantId TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         racecarNumber INT NOT NULL,
-        FOREIGN KEY (raceId) REFERENCES scheduled_races(raceId)
+        FOREIGN KEY (raceId) REFERENCES scheduled_races(raceId) ON DELETE CASCADE
       );`)
 
   database.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
