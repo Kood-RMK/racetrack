@@ -161,8 +161,6 @@ export class ActiveRaceState {
     }
 
     public get isHazard() {
-
-        const updateRaceStateStatement = this._database.prepare(`UPDATE active_races SET raceState = @raceState WHERE raceId = @raceId`);
         return this._activeRace.isHazard;
     }
 

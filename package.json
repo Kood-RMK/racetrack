@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npm run dev --workspace packages/backend & npm run dev --workspace packages/frontend"
+    "dev": "pnpm -F racetrack-backend run dev  & pnpm -F racetrack-frontend run dev "
   },
   "repository": {
     "type": "git",

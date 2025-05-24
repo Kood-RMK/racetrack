@@ -81,8 +81,6 @@ export function deleteFromScheduledRace(race: { raceId: string }) {
     deleteScheduledRace.run(race.raceId);
 }
 
-
-
 export function modifyScheduledRace(race: {
     raceId: string;
     raceScheduledStartTimeSlot?: string;

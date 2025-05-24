@@ -86,6 +86,9 @@ echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /etc/bash.bashrc
 RUN echo 'neofetch --jp2a /workspace/.devcontainer/assets/logo-square.png --colors 3 3 3 7 7' >> /etc/bash.bashrc
 
 
+# Install pnpm.
+RUN npm install --global corepack@latest && corepack enable pnpm
+
 # Create a user matching host system.
 RUN set -e && \
     if [[ -z "$USER_UID" || -z "$USER_GID" || -z "$USERNAME" ]]; then \
