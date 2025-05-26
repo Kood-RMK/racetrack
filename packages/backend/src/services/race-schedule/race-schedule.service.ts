@@ -10,6 +10,10 @@ export class RaceScheduleService {
     private readonly schedule: RaceScheduleState;
     private readonly logger: Logger;
 
+    public get raceSchedule() {
+        return this.schedule;
+    }
+
     constructor(socketIO: SocketIOServer, parentLogger: Logger) {
 
         this.socketIO = socketIO;
@@ -72,7 +76,6 @@ export class RaceScheduleService {
                 // logging 
                 this.logger.info("📨 Received ScheduleNewRace command", command);
                 console.log("📦 Race data received from client:", command.message?.data?.race);
-
 
                 try {
 
@@ -191,7 +194,6 @@ export class RaceScheduleService {
                     };
 
                     socketNamespace.
-                    // to("raceServiceRoom").
                     emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                     // Remove from database

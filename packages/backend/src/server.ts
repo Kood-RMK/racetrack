@@ -93,7 +93,6 @@ function initializeDatabase() {
 
 initializeDatabase();
 
-
 const authService = new AuthService(app, logger);
 
 // leaderboardService(io);
