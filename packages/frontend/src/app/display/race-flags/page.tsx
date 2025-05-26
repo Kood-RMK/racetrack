@@ -2,7 +2,7 @@
 
 import { RaceFlagGreen, RaceFlagYellow, RaceFlagRed, RaceFlagCheckered } from "@/components/display/flags";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/state/activeRaceStateProvider";
-import { ActiveRace } from "racetrack-backend/types";
+import { ActiveRace } from "racetrack-shared/types";
 import { SocketProvider } from "@/app/providers/socket/socketProvider";
 
 // Mapping between race states and race flags
