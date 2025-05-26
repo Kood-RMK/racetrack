@@ -11,7 +11,8 @@ export class RaceScheduleService {
     private readonly logger: Logger;
 
     public get raceSchedule() {
-        return this.schedule;
+        //TODO: Sorteeri
+        Object.values(this.schedule.raceScheduleEntries);
     }
 
     constructor(socketIO: SocketIOServer, parentLogger: Logger) {
@@ -28,43 +29,28 @@ export class RaceScheduleService {
             next();
         })
 
+        try {
+            const dbSchedule = loadFromDatabase();
+
+            for (const race of Object.values(dbSchedule)) {
+                const entry = new RaceScheduleEntryState(race);
+                this.schedule.addRace(entry);
+            }
+
+            this.logger.info("[RaceScheduleService]: Loaded data from database.");
+        } catch (err: any) {
+            this.logger.error("[RaceScheduleService]: Failed to load races from database.", err.message);
+        }
+
         // Siia jäävad kõik commandid ja kasutavad sealt ülevalt evente
         socketNamespace.on("connection", (client) => {
 
             this.logger.info(`New client connected!, ID`, client.id);
 
-            function initializeClientRooms() {
-                // client.join("raceServiceRoom");
-            }
-
-            // Add new client to the raceControlRoom. 
-            // TODO: select room based on assigned role.
-            initializeClientRooms();
-
-            // ✅ Load data from DB (if any)
-            if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
-                try {
-                    const dbSchedule = loadFromDatabase();
-
-                    for (const race of Object.values(dbSchedule)) {
-                        const entry = new RaceScheduleEntryState(race);
-                        this.schedule.addRace(entry);
-                    }
-
-                    this.logger.info("[RaceScheduleService]: Loaded data from database.");
-                } catch (err: any) {
-                    this.logger.error("[RaceScheduleService]: Failed to load races from database.", err.message);
-                }
-            }
-
-
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
                     type: RaceScheduleEvents.RaceScheduleInitialState,
-                    schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                        acc[key] = value.scheduledRace
-                        return acc;
-                    }, {} as RaceScheduleEntries)
+                    schedule: this.raceSchedule
                 }
             }
 
