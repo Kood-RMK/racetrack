@@ -12,7 +12,6 @@ type ActiveContestantHandlers = Record<RaceContestantId, ActiveRaceContestantHan
 export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
-    private readonly _activeRaceRoom : string;
     private readonly _socketNamespace : Namespace;
     private readonly logger : Logger;
     private readonly _stopwatch : Stopwatch;
@@ -29,10 +28,6 @@ export class ActiveRaceHandler {
 
     public getActiveRaceContestantById(contestantId: RaceContestantId) {
         return this._activeRaceContestantHandlers[contestantId];
-    }
-
-    public get activeRaceRoom() {
-        return this._activeRaceRoom;
     }
 
     private onConnection : (client: Socket) => void;
@@ -96,8 +91,6 @@ export class ActiveRaceHandler {
             return contestantHandlers;
         }, {} as ActiveContestantHandlers);
 
-        // Create a room for the active race.
-        this._activeRaceRoom = `active-race-${this._activeRaceState.raceId}`;
         this._socketNamespace = socketNamespace;
 
         this.onConnection = (client : Socket) => {
@@ -130,10 +123,9 @@ export class ActiveRaceHandler {
                 }
 
                 this._socketNamespace
-                    .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceStateChanged, raceStateChangedMessage);
 
-                this.logger.info(raceStateChangedMessage, `Race state change broadcasted to: ${this._activeRaceRoom}.`);
+                this.logger.info(raceStateChangedMessage, `Race state change broadcasted.`);
 
             } catch (error) {
                 this.logger.error(error);
@@ -149,12 +141,10 @@ export class ActiveRaceHandler {
                     }
                 }
 
-                this._socketNamespace
-                    .to(this._activeRaceRoom)
-                    .emit(ActiveRaceEvents.RaceHazardChanged, raceHazardChangedMessage);
+                this._socketNamespace.emit(ActiveRaceEvents.RaceHazardChanged, raceHazardChangedMessage);
 
 
-                this.logger.info(raceHazardChangedMessage, `Race flag change broadcasted to: ${this._activeRaceRoom}.`);
+                this.logger.info(raceHazardChangedMessage, `Race flag change broadcasted to.`);
             } catch (error) {
                 this.logger.error(error);
             }
@@ -170,11 +160,10 @@ export class ActiveRaceHandler {
                 }
 
                 this._socketNamespace
-                    .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceIsFinishingChanged, raceIsFinishingChangedMessage);
 
 
-                this.logger.info(raceIsFinishingChangedMessage, `Race flag change broadcasted to: ${this._activeRaceRoom}.`);
+                this.logger.info(raceIsFinishingChangedMessage, `Race flag change broadcasted.`);
             } catch (error) {
                 this.logger.error(error);
             }
@@ -190,7 +179,6 @@ export class ActiveRaceHandler {
                 }
 
                 this._socketNamespace
-                    .to(this._activeRaceRoom)
                     .emit(ActiveRaceEvents.RaceTimeLeftChanged, timeLeftChangedMessage);
 
             } catch (error) {

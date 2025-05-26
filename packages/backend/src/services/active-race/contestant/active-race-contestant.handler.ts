@@ -9,7 +9,6 @@ export class ActiveRaceContestantHandler {
 
     private readonly _contestantState: ActiveRaceContestantState;
     private readonly _socketNamespace: Namespace;
-    private readonly _contestantRoom : string;
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _stopwatch : Stopwatch;
     private readonly logger : Logger;
@@ -19,9 +18,6 @@ export class ActiveRaceContestantHandler {
     private onContestantFastestLapChanged : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantFastestLapChanged];
     private onContestantLapStopwatchTick : ActiveRaceContestantStateCallbacks[ActiveRaceContestantStateEvents.ContestantLapStopwatchTime];
 
-    public get contestantRoom() {
-        return this._contestantRoom;
-    }
 
     public get contestantState() {
         return this._contestantState;
@@ -56,7 +52,6 @@ export class ActiveRaceContestantHandler {
         this._socketNamespace = socketNamespace;
         this._activeRaceState = activeRaceState;
         this.logger = parentLogger.child({ handlerName : this.constructor.name });
-        this._contestantRoom = `active-contestant-${this._contestantState.contestant.contestantId}`;
 
 
         activeRaceState.events.on(ActiveRaceStateEvents.RaceStateChanged, (newState) => {
@@ -85,10 +80,9 @@ export class ActiveRaceContestantHandler {
             }
 
             this._socketNamespace
-            .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantPlaceChanged, activeContestantPlaceChangedMessage);
 
-            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} place change to ${this._contestantRoom}.`)
+            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} place change .`)
         }
 
         this.onContestantLapCountChanged = (contestant, prevValue) => {
@@ -102,11 +96,10 @@ export class ActiveRaceContestantHandler {
             }
 
             this._socketNamespace
-            .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantLapCountChanged, activeContestantLapCountChangedMessage);
 
 
-            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} lap count change to ${this._contestantRoom}.`)            
+            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} lap count change.`)            
         }
 
         this.onContestantFastestLapChanged = (contestant, prevValue) => {
@@ -120,10 +113,9 @@ export class ActiveRaceContestantHandler {
             }
 
             this._socketNamespace
-            .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantFastestLapChanged, activeContestantFastestLapChangedMessage);
 
-            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} fastest lap change to ${this._contestantRoom}.`)            
+            this.logger.info(`Broadcasted contestant ${contestant.contestant.contestantId} fastest lap change.`)            
         }
 
         this.onContestantLapStopwatchTick = (contestant, prevValue) => {
@@ -137,7 +129,6 @@ export class ActiveRaceContestantHandler {
             }
 
             this._socketNamespace
-            .to(this._contestantRoom)
             .emit(ActiveRaceContestantEvents.ContestantLapStopwatchTick, activeContestantLapStopwatchTickMessage);
         }
     }

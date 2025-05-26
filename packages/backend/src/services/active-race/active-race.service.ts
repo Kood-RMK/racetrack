@@ -74,55 +74,16 @@ export class ActiveRaceService {
         })
 
         this._socketNamespace.on("connection", (client) => {
-            if (this._activeRaceHandler) {
-                this.addClientToActiveRaceRooms(client, this._activeRaceHandler);
-            }
         });
 
         // When there is a new race, we need to add all clients to the correct rooms depending on their data requirements.
         this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceSet, async (activeRace) => {
-            const clients = await this._socketNamespace.fetchSockets();
-            const raceHandler = this._activeRaceHandler;
- 
-            if (raceHandler) {
-                logger.info(`New race added, adding clients to active race room.`)
-                clients.forEach((client) => {
-                    this.addClientToActiveRaceRooms(client, raceHandler);
-                });
-            }
         })
 
         this._eventEmitter.on(ActiveRaceServiceEvents.ActiveRaceRemoved, async () => {
-            const clients = await this._socketNamespace.fetchSockets();
-
-            logger.info(`Race ended, removing clients from the active race room.`)
-            clients.forEach((client) => {
-                if (this._activeRaceHandler) {
-                    this.removeClientFromActiveRaceRooms(client, this._activeRaceHandler);
-                }
-            });
         });
     }
 
-    private addClientToActiveRaceRooms(client: RemoteSocket<DefaultEventsMap, any> | Socket, activeRaceHandler: ActiveRaceHandler) {
-
-        // Add client to the active race room, to get updates about the race state.
-        client.join(activeRaceHandler.activeRaceRoom);
-
-        // Add client to all contestant rooms, to get updates about their state.
-        activeRaceHandler.activeRaceContestants.forEach((contestant) => {
-            client.join(contestant.contestantRoom);
-        });
-    }
-
-    private removeClientFromActiveRaceRooms(client: RemoteSocket<DefaultEventsMap, any>, activeRaceHandler: ActiveRaceHandler) {
-        // Remove client from the active race room.
-        client.leave(activeRaceHandler.activeRaceRoom);
-        // Remove client from all contestant rooms.
-        activeRaceHandler.activeRaceContestants.forEach((contestant) => {
-            client.leave(contestant.contestantRoom);
-        });
-    }
 
     public get activeRace() {
         return this._activeRaceHandler;

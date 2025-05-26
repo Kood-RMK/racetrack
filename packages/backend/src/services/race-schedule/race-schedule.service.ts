@@ -30,7 +30,7 @@ export class RaceScheduleService {
             this.logger.info(`New client connected!, ID`, client.id);
 
             function initializeClientRooms() {
-                client.join("raceServiceRoom");
+                // client.join("raceServiceRoom");
             }
 
             // Add new client to the raceControlRoom. 
@@ -190,7 +190,9 @@ export class RaceScheduleService {
                         }
                     };
 
-                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+                    socketNamespace.
+                    // to("raceServiceRoom").
+                    emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                     // Remove from database
                     deleteFromScheduledRace({
