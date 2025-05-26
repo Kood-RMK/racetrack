@@ -11,7 +11,7 @@ export class AuthService {
         const logger = parentLogger.child({ serviceName: this.constructor.name });
         this.logger = logger;
 
-        app.post('/auth', (req, res) => {
+        app.post('/auth', async (req, res) => {
             const { token } = req.body as AuthenicationRequest;
 
             if (!token) {
@@ -27,7 +27,10 @@ export class AuthService {
                 res.header('Access-Control-Expose-Headers', RACETRACK_AUTH_HEADER);
                 res.status(200).send('Authenticated');
             } else {
-                res.status(401).send('Authentication failed');
+
+                setTimeout(() => {
+                    res.status(401).send('Authentication failed');
+                }, 500)
             }
         });
     }
