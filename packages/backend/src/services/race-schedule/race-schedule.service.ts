@@ -116,10 +116,7 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace;
-                                return acc;
-                            }, {} as RaceScheduleEntries)
+                            schedule: this.raceSchedule
                         }
                     };
 
@@ -172,10 +169,7 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace;
-                                return acc;
-                            }, {} as RaceScheduleEntries)
+                            schedule: this.raceSchedule
                         }
                     };
 
@@ -252,10 +246,7 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace;
-                                return acc;
-                            }, {} as RaceScheduleEntries)
+                            schedule: this.raceSchedule
                         }
                     };
 
