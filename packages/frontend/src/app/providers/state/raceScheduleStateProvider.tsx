@@ -6,7 +6,7 @@ import { RaceSchedule, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInit
 
 
 // Contexts
-const RaceScheduleContext = createContext<RaceSchedule | null>(null);
+const RaceScheduleContext = createContext<RaceScheduleEntries | null>(null);
 
 // Provider
 export const RaceScheduleStateProvider = ({ children }: { children: ReactNode }) => {
@@ -27,7 +27,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
         // receive the initial schedule state for new client
         const onScheduleInitialState = (data: RacetrackEvent<RaceScheduleInitialState>) => {
             const initialSchedule = data.message.schedule; // mis sisse tuleb?
-            setScheduleState(initialSchedule); // mis v'lja peab minema?
+            setScheduleState(initialSchedule); // mis välja peab minema?
 
             console.log(`[Race Schedule initial]: Initial Schedule State Received:`, initialSchedule);
         }
@@ -58,11 +58,12 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 // Hook to access the context easily
 export const useRaceScheduleState = (): RaceScheduleEntries | null => {
     const schedule = useContext(RaceScheduleContext);
+    console.log("Schedule in RaceScheduleContext: ", RaceScheduleContext)
 
     if (schedule === undefined) {
         throw new Error("useRaceScheduleState must be used within a RaceScheduleStateProvider");
     }
 
-    console.log(schedule);
+    // console.log(schedule);
     return schedule;
 };

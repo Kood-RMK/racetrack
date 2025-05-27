@@ -7,6 +7,9 @@ import { RacePendingButtons } from '@/components/card/race-card/Buttons'
 import { RaceScheduleControllerProvider, useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
+import { AuthenticationProvider } from '@/app/providers/auth/authProvider';
+import { LoginWrapper } from '@/components/authentication/Login';
+import { RacetrackClientRole } from 'racetrack-shared/types';
 
 
 function RaceSchedulePage() {
@@ -19,19 +22,18 @@ function RaceSchedulePage() {
   }
 
   // Sort the races by the raceDateTime (timeslot)
-  //TODO: Write sorting logic.
-  
-  // To get access to getters and setters
+  const parseTimeslot = (timeslot: string): number => {
+    const [start] = timeslot.split(' - ');
+    const [hours, minutes] = start.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
   const sortedRaces = Object.fromEntries(
     Object.entries(scheduleState)
-    
-    //Only show races that are pending:
-    .filter(([_, raceData]) => raceData.raceState === 'pending')
-
-    .map(([raceId, raceData]) => [
-      raceId,
-      raceData,
-    ])
+      .filter(([_, raceData]) => raceData.raceState === 'pending')
+      .sort(([, a], [, b]) => {
+        return parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot);
+      })
   );
 
   return (
@@ -42,19 +44,17 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        
-
         {Object.entries(sortedRaces).map(([raceId, raceData]) => {
 
           return (
             <RaceCard
               key={raceId}
               race={raceData}
-              tags={<RacePendingTags race={raceData}/>}
+              tags={<RacePendingTags race={raceData} />}
               buttons={<RacePendingButtons race={raceData} />}
             />
           );
-         })}
+        })}
 
       </div>
     </div>
@@ -63,14 +63,17 @@ function RaceSchedulePage() {
 
 export default function Page() {
   return (
-
-    <SocketProvider url="http://localhost:3001">
-      <RaceScheduleStateProvider>
-        <RaceScheduleControllerProvider>
-          <RaceSchedulePage />
-        </RaceScheduleControllerProvider>
-      </RaceScheduleStateProvider>
-    </SocketProvider>
+    <AuthenticationProvider>
+      <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.RECEPTIONIST] }}>
+        <SocketProvider url="http://localhost:3001">
+          <RaceScheduleStateProvider>
+            <RaceScheduleControllerProvider>
+              <RaceSchedulePage />
+            </RaceScheduleControllerProvider>
+          </RaceScheduleStateProvider>
+        </SocketProvider>
+      </LoginWrapper>
+    </AuthenticationProvider >
 
   )
 }

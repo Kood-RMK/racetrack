@@ -14,6 +14,7 @@ import { ActiveRaceService } from './services/active-race/active-race.service';
 import { RaceObserverService } from './services/race-observer/race-observer.service';
 import { RaceScheduleState } from './services/race-schedule/race-schedule.state';
 import { AuthService } from './services/auth';
+import { initPersistence } from './services/race-schedule/race-schedule.persistence';
 
 const app = express();
 
@@ -56,7 +57,6 @@ const logger = pino(
 );
 
 const database = new DatabaseSync('racetrack.db')
-
 database.exec('PRAGMA foreign_keys = ON;');
 
 function initializeDatabase() {
@@ -92,6 +92,8 @@ function initializeDatabase() {
 }
 
 initializeDatabase();
+
+initPersistence(database);
 
 const authService = new AuthService(app, logger);
 

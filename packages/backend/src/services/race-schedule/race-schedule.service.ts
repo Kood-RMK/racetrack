@@ -1,8 +1,9 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
-import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
+import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
 import { RaceScheduleEntryState, RaceScheduleState } from "./race-schedule.state";
 import { deleteFromScheduledRace, insertRaceContestant, insertScheduledRace, loadFromDatabase, modifyScheduledRace } from "./race-schedule.persistence";
+import { useRacetrackAuth } from "../auth";
 
 //Handlers
 export class RaceScheduleService {
@@ -10,10 +11,17 @@ export class RaceScheduleService {
     private readonly schedule: RaceScheduleState;
     private readonly logger: Logger;
 
-    public get raceSchedule() {
-        //TODO: Sorteeri
-        Object.values(this.schedule.raceScheduleEntries);
-    }
+        public get raceSchedule() {
+        return Object.values(this.schedule.raceScheduleEntries).sort((a, b) => {
+            return parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot);
+        });
+
+        function parseTimeslot(timeslot: string): number {
+        const [start] = timeslot.split(' - ');
+        const [hours, minutes] = start.split(':');
+        return parseInt(hours) * 60 + parseInt(minutes);
+        }
+        }
 
     constructor(socketIO: SocketIOServer, parentLogger: Logger) {
 
@@ -24,22 +32,36 @@ export class RaceScheduleService {
 
         const socketNamespace = this.socketIO.of("/race-schedule");
 
-        // Middleware to check if the user is authenticated.
-        socketNamespace.use((socket, next) => {
-            next();
-        })
+       
+             // Middleware to check if the user is authenticated.
+                this.socketIO.use((socket, next) => {
+                    useRacetrackAuth(
+                        socket, 
+                        next, 
+                        this.logger, 
+                        [
+                            RacetrackClientRole.OBSERVER,
+                            RacetrackClientRole.RECEPTIONIST,
+                            RacetrackClientRole.SAFETY
+                        ]);
+                })
+        
+                this.socketIO.on("connection", (client) => {
+                });
+        
+        if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
+            try {
+                const dbSchedule = loadFromDatabase();
 
-        try {
-            const dbSchedule = loadFromDatabase();
+                for (const race of Object.values(dbSchedule)) {
+                    const entry = new RaceScheduleEntryState(race);
+                    this.schedule.addRace(entry);
+                }
 
-            for (const race of Object.values(dbSchedule)) {
-                const entry = new RaceScheduleEntryState(race);
-                this.schedule.addRace(entry);
+                this.logger.info("[RaceScheduleService]: Loaded data from database.");
+            } catch (err: any) {
+                this.logger.error("[RaceScheduleService]: Failed to load races from database.", err.message);
             }
-
-            this.logger.info("[RaceScheduleService]: Loaded data from database.");
-        } catch (err: any) {
-            this.logger.error("[RaceScheduleService]: Failed to load races from database.", err.message);
         }
 
         // Siia jäävad kõik commandid ja kasutavad sealt ülevalt evente
@@ -50,7 +72,10 @@ export class RaceScheduleService {
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
                     type: RaceScheduleEvents.RaceScheduleInitialState,
-                    schedule: this.raceSchedule
+                    schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                                acc[key] = value.scheduledRace;
+                                return acc;
+                            }, {} as RaceScheduleEntries)
                 }
             }
 
@@ -116,7 +141,10 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.raceSchedule
+                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                                acc[key] = value.scheduledRace;
+                                return acc;
+                            }, {} as RaceScheduleEntries)
                         }
                     };
 
@@ -169,7 +197,10 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.raceSchedule
+                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                                acc[key] = value.scheduledRace;
+                                return acc;
+                            }, {} as RaceScheduleEntries)
                         }
                     };
 
@@ -246,7 +277,10 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.raceSchedule
+                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
+                                acc[key] = value.scheduledRace;
+                                return acc;
+                            }, {} as RaceScheduleEntries)
                         }
                     };
 
@@ -280,8 +314,6 @@ export class RaceScheduleService {
 //getRaceSchedule -> raceScheduleState 
 //scheduleRace
 
-//deleteRace
-//updateRace
 
 //Reminders
 // 1. Check timeslot overlaps.

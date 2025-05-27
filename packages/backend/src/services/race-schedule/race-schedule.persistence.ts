@@ -10,7 +10,11 @@
 import { DatabaseSync } from 'node:sqlite';
 import { RaceContestant, RaceSchedule, RaceState } from 'racetrack-shared/types';
 
-const db = new DatabaseSync('racetrack.db');
+let db: DatabaseSync;
+
+export function initPersistence(databaseInstance: DatabaseSync) {
+    db = databaseInstance;
+}
 
 export function insertScheduledRace(race: {
     raceId: string;
