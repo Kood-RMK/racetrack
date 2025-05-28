@@ -110,12 +110,11 @@ function raceButtons({ activeRace, activeRaceController }: { activeRace: ActiveR
 
 
 function RaceControlPage() {
-
-
     const activeRaceState = useActiveRaceState();
     const activeRaceController = useActiveRaceController();
-
+    
     if (!activeRaceState || !activeRaceController) {
+
       return <div>Loading...</div>;
     }
 

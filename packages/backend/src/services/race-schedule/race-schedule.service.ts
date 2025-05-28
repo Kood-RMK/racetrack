@@ -1,6 +1,6 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
-import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduleNewRace } from "racetrack-shared/types";
+import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
 import { RaceScheduleEntryState, RaceScheduleState } from "./race-schedule.state";
 import { deleteFromScheduledRace, insertRaceContestant, insertScheduledRace, loadFromDatabase, modifyScheduledRace } from "./race-schedule.persistence";
 import { useRacetrackAuth } from "../auth";
@@ -8,20 +8,9 @@ import { useRacetrackAuth } from "../auth";
 //Handlers
 export class RaceScheduleService {
     private readonly socketIO: SocketIOServer;
-    private readonly schedule: RaceScheduleState;
+    private schedule: RaceScheduleState;
     private readonly logger: Logger;
 
-        public get raceSchedule() {
-        return Object.values(this.schedule.raceScheduleEntries).sort((a, b) => {
-            return parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot);
-        });
-
-        function parseTimeslot(timeslot: string): number {
-        const [start] = timeslot.split(' - ');
-        const [hours, minutes] = start.split(':');
-        return parseInt(hours) * 60 + parseInt(minutes);
-        }
-        }
 
     constructor(socketIO: SocketIOServer, parentLogger: Logger) {
 
@@ -297,6 +286,31 @@ export class RaceScheduleService {
                 }
             })
         })
+    }
+
+     /** 🔐 Helper: Parses a timeslot string into minutes past midnight */
+    private parseTimeslot(timeslot: string): number {
+        const [start] = timeslot.split(" - ");
+        const [hours, minutes] = start.split(":").map(Number);
+        return hours * 60 + minutes;
+    }
+
+    /** 🏁 Public: Returns the next race based on sorted schedule entries */
+    public get nextRace(): ScheduledRace | null {
+        const entries = Object.values(this.schedule.raceScheduleEntries);
+
+        const sorted = entries
+            .filter(race => race.raceState === "pending" || race.raceState === "completed")
+            .sort((a, b) =>
+                this.parseTimeslot(a.raceScheduledStartTimeSlot) - this.parseTimeslot(b.raceScheduledStartTimeSlot)
+            );
+
+        if (sorted.length === 0) return null;
+
+        const hasCompleted = sorted.some(r => r.raceState === "completed");
+        const index = hasCompleted ? 1 : 0;
+
+        return sorted[index]?.scheduledRace ?? null;
     }
 }
 

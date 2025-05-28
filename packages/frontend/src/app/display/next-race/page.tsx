@@ -22,7 +22,6 @@ const AnnouncementCard = ({ driver, car }: AnnouncementCardProps) => (
     <div className="text-sm text-gray-400 font-medium flex justify-end">DRIVER</div>
     <div className="text-2xl font-bold mb-3 flex justify-end">{driver}</div>
   </div>
-
 );
 
 function parseTimeslot(timeslot: string): number {
@@ -34,42 +33,32 @@ function parseTimeslot(timeslot: string): number {
 function NextRacePage() {
 
   const scheduleState = useRaceScheduleState();
-  const activeRaceState = useActiveRaceState();
-
+  
   console.log("scheduleState: ", scheduleState)
-
-  const isRaceActive = activeRaceState?.raceState === ERaceState.Active;
 
   // Sort races by time
   const sortedRaces = scheduleState
     ? Object.values(scheduleState)
-      .filter(race => race.raceState === 'pending')
+      .filter(race => race.raceState === 'pending' || race.raceState === 'completed')
       .sort((a, b) =>
         parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot)
       )
     : [];
 
-
-  //const earliestRace = sortedRaces[0];
-
-
-  // const announcements = earliestRace?.contestants?.map((contestant: any) => ({
-
-  //   driver: contestant.name,
-  //   car: contestant.racecarNumber,
-  // })) ?? [];
-
   let nextRace: ScheduledRace | null = null;
 
-  if (isRaceActive && activeRaceState?.raceId) {
-    const activeRaceIndex = sortedRaces.findIndex(
-      (race) => race.raceId === activeRaceState.raceId
-    );
-    nextRace = sortedRaces[activeRaceIndex + 1] ?? null;
+  // If there is a completed race 
+  const hasCompletedRace = Object.values(scheduleState || {}).some(
+    (race) => race.raceState === 'completed'
+  );
 
-  } else if (sortedRaces.length > 0) {  // If no race is active, show the first upcoming race
-    nextRace = sortedRaces[0];
+  let nextRaceIndex = 0;
+  
+  if (hasCompletedRace) {
+    nextRaceIndex = 1;
   }
+
+  nextRace = sortedRaces[nextRaceIndex]
 
   const announcements =
     nextRace?.contestants?.map((contestant: any) => ({
@@ -77,12 +66,7 @@ function NextRacePage() {
       car: contestant.racecarNumber,
     })) ?? [];
 
-  // If there is a completed race 
-  const hasCompletedRace = Object.values(scheduleState || {}).some(
-    (race) => race.raceState === 'completed'
-  );
-
-
+  
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16 flex flex-col items-center">
       <NextRaceHeader />
