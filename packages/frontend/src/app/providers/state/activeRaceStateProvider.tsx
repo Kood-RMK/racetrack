@@ -1,11 +1,15 @@
 "use client";
 
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveContestantPlaceChanged, ActiveRace, ActiveRaceContestantEvents, ActiveRaceEvents, ActiveRaceInitialState, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, RaceControlEvents, RacetrackEvent } from "racetrack-shared/types";
+import { ActiveContestantFastestLapChanged, ActiveContestantLapCountChanged, ActiveContestantLapStopwatchTick, ActiveContestantPlaceChanged, ActiveRace, ActiveRaceContestantEvents, ActiveRaceEvents, ActiveRaceInitialState, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, RaceControlEvents, RaceState, RacetrackEvent } from "racetrack-shared/types";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 
-const ActiveRaceStateContext = createContext<ActiveRace | null>(null);
+export type ActiveRaceStateContextType = {
+  activeRaceState: ActiveRace | null;
+}
+
+const ActiveRaceStateContext = createContext<ActiveRaceStateContextType>({activeRaceState : null});
 
 
 export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => {
@@ -35,10 +39,16 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
     // Listens for race state updates. When "raceStateChanged" is received, the callback function is executed
     const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
 
-      setActiveRaceState(prevState => prevState ? {
-        ...prevState,
-        raceState: data.message.newState,
-      } : null);
+      // If race has been completed or canceled, it is not longer an active race.
+      if (data.message.newState === RaceState.Completed || data.message.newState === RaceState.Canceled) {
+        setActiveRaceState(null);
+      } else {
+
+        setActiveRaceState(prevState => prevState ? {
+          ...prevState,
+          raceState: data.message.newState,
+        } : null);
+      }
 
       console.log(`[📩 Active Race State]: Race State Changed to ${data.message.newState}`);
     }
@@ -166,19 +176,18 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
 
   return (
-    <ActiveRaceStateContext.Provider value={activeRaceState}>
+    <ActiveRaceStateContext.Provider value={{activeRaceState : activeRaceState}}>
         {children}
     </ActiveRaceStateContext.Provider>
   )
 };
 
-export const useActiveRaceState = () : ActiveRace | null => {
+export const useActiveRaceState = () : ActiveRaceStateContextType => {
+  const context = useContext(ActiveRaceStateContext);
 
-  const state = useContext(ActiveRaceStateContext);
-
-  if (state === undefined) {
+  if (context === undefined) {
     throw new Error("useActiveRaceState must be used within an ActiveRaceStateProvider");
   }
 
-  return state;
+  return context;
 };

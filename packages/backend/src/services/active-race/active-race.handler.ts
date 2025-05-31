@@ -200,10 +200,19 @@ export class ActiveRaceHandler {
         activeRaceStateEvents.on(ActiveRaceStateEvents.TimeLeftChanged, this.onTimeLeftChanged);
 
 
+        // Send intial state to new client.
         this._socketNamespace.on("connection", this.onConnection);
 
+        const initialStateMessage : RacetrackEvent<ActiveRaceInitialState> = {
+            message : {
+                type: ActiveRaceEvents.RaceInitialState,
+                race : this.activeRaceState.activeRace,
+            }
+        }
+        // Emit to all already connected clients that a race has started.
+        this._socketNamespace.emit(ActiveRaceEvents.RaceInitialState, initialStateMessage)
     
-        if (this._activeRaceState.raceState === 'active') {
+        if (this._activeRaceState.raceState === RaceState.Active) {
             this._stopwatch.start();
         }
 

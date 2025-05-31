@@ -1,9 +1,9 @@
 "use client";
 
-import { ActiveRace, RaceState, RacetrackClientRole, ScheduledRace } from "racetrack-shared/types";
+import { ActiveRace, RaceContestant, RaceState, RacetrackClientRole, ScheduledRace } from "racetrack-shared/types";
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
 import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, ResumeRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
-import { RefObject, useEffect } from "react";
+import { ReactNode, RefObject, useEffect, useState } from "react";
 import { RaceActiveTag, RaceCancelledTag, RaceCountdownTag, RaceDangerTag, RaceFinishingTag, RaceHazardTag, RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
 import { RaceController, RaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 import { SocketProvider } from "@providers/socket/socketProvider";
@@ -117,39 +117,33 @@ function RaceControlPage() {
 
       return <div>Loading...</div>;
     }
+    const [race, setRace] = useState<ScheduledRace | ActiveRace>()
+    const [contestants, setContestants] = useState<RaceContestant[]>([]);
 
-    // kui on active race siis peaks cardi täitma activeRacestateist, kui ei ole, siis lihtsalt schedulist
+    useEffect(() => {
 
-    if (!activeRaceState) {
+      if (activeRaceState.activeRaceState) {
+      console.log("Change", activeRaceState);
+        setContestants(Object.values(activeRaceState.activeRaceState.contestants).map(activeContestant => activeContestant.contestant));
+        setRace(activeRaceState.activeRaceState);
 
-      console.log(raceScheduleState);
+      } else if (raceScheduleState.nextRace) {
+        setContestants(raceScheduleState.nextRace.contestants);
+        setRace(raceScheduleState.nextRace)
+      }
+
+    }, [activeRaceState.activeRaceState, raceScheduleState]);
+
       return (
-
-        raceScheduleState.nextRace !== null ? 
-        <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
+        race ? <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
           <h1 className='text-center py-12'>Race Control</h1>
             <RaceCard 
               // tags={raceTags({})}
-              contestants={raceScheduleState.nextRace.contestants}
-              buttons={raceButtons({race: raceScheduleState.nextRace, raceController: raceController})}
+              contestants={contestants}
+              buttons={raceButtons({race : race, raceController})}
               />
         </div> : <div>Loading...</div>
       )
-    }
-
-    // Extract values from the activeRace object
-    const { raceState, isHazard } = activeRaceState;
-
-    return (
-      <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
-        <h1 className='text-center py-12'>Race Control</h1>
-          <RaceCard 
-            tags={raceTags({activeRace: activeRaceState})}
-            contestants={Object.values (activeRaceState.contestants).map(activeContestant => activeContestant.contestant)}
-            buttons={raceButtons({race: activeRaceState, raceController: raceController})}
-            />
-      </div>
-    )
 }
 
 

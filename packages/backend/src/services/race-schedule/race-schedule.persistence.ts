@@ -149,16 +149,3 @@ export function loadFromDatabase(): RaceSchedule {
     console.log(raceSchedule);
     return raceSchedule;
 }
-
-// export type ScheduledRaceId = string;
-
-// export type ScheduledRace = {
-//     raceId : ScheduledRaceId,
-//     contestants : RaceContestant[],
-//     raceScheduledStartTimeSlot : string 
-//     raceState : RaceState,
-// }
-
-
-// export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
-

@@ -3,9 +3,9 @@ import type { DefaultEventsMap, Namespace, RemoteSocket, Socket, Server as Socke
 import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
 import { Logger } from "pino";
-import { ActiveRace, RacetrackClientRole } from "racetrack-shared/types";
+import { ActiveRace, RaceState, RacetrackClientRole } from "racetrack-shared/types";
 import { DatabaseSync } from "node:sqlite";
-import { ActiveRaceState } from "./active-race.state";
+import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { useRacetrackAuth } from "../auth";
 
 export enum ActiveRaceServiceEvents {
@@ -96,8 +96,16 @@ export class ActiveRaceService {
     public setActiveRace(activeRace: ActiveRace) {
         this._activeRaceState = ActiveRaceState.createNew(activeRace, this.logger, this._database);
         this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
+
+        this._activeRaceHandler.activeRaceState.events.on(ActiveRaceStateEvents.RaceStateChanged, (newState) => {
+            if (newState === RaceState.Completed || newState === RaceState.Canceled) {
+                this.removeActiveRace();
+            }
+        })
+
         this._activeRaceHandler.initialize();
         this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceSet, activeRace);
+
     }
 
     public removeActiveRace() {

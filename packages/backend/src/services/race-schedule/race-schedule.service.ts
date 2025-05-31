@@ -1,7 +1,7 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
 import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
-import { RaceScheduleEntryState, RaceScheduleState } from "./race-schedule.state";
+import { RaceScheduleEntryState, RaceScheduleState, RaceScheduleStateEvents } from "./race-schedule.state";
 import { deleteFromScheduledRace, insertRaceContestant, insertScheduledRace, loadFromDatabase, modifyScheduledRace } from "./race-schedule.persistence";
 import { useRacetrackAuth } from "../auth";
 
@@ -85,78 +85,9 @@ export class RaceScheduleService {
 
                     const newData = command.message.data;
                     const newRace = newData.race;
-                    const { contestants, raceScheduledStartTimeSlot: raceDateTime } = newRace
-
-                    // Check to ensure there are no duplicate names in the new race
-                    const duplicates = contestants
-                        .map(contestant => contestant.name.trim().toLowerCase()) // Create a new array 'duplicates' 
-                        .reduce((accumulatorArray, name, _, arr) => {
-                            if (arr.indexOf(name) !== arr.lastIndexOf(name) && !accumulatorArray.includes(name)) {
-                                accumulatorArray.push(name);
-                            }
-                            return accumulatorArray;
-                        }, [] as string[]);
-
-                    if (duplicates.length > 0) {
-                        throw new Error(`❌ Duplicate contestant names found: ${duplicates.join(', ')}`);
-                    }
-
-                    // Check that there are no races with the same timeSlot
-                    const existingRaces = this.schedule.raceScheduleEntries;
-
-                    let timeslotTaken = false;
-
-                    for (const value of Object.values(existingRaces)) {
-
-                        if (value.raceScheduledStartTimeSlot === newData.race.raceScheduledStartTimeSlot) {
-                            timeslotTaken = true;
-                        }
-                    }
-
-                    if (timeslotTaken) {
-                        throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
-                    }
-
-                    // When checks are performed and there were no conflicts, add the new race to the schedule
-                    // ingredients (newRace) + recipe (RaceScheduleEntry) = cake (newRaceState)
                     const newRaceState = new RaceScheduleEntryState(newRace);
 
-                    // Call addRace method from .state to add cake to schedule
                     this.schedule.addRace(newRaceState);
-
-                    // TODO: I' think we'll need to sort the races according to Timeslots in the schedule before i emit the updated schedule
-
-                    //emit updated schedule
-                    const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
-                        message: {
-                            type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
-                        }
-                    };
-
-                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
-
-                    // ✅ Add to database AFTER emitting
-                    const insertedRace = newRaceState.scheduledRace;
-
-                    insertScheduledRace({
-                        raceId: insertedRace.raceId,
-                        raceScheduledStartTimeSlot: insertedRace.raceScheduledStartTimeSlot,
-                        raceState: insertedRace.raceState,
-                        isHazard: false,
-                        isFinishing: false,
-                        timeLeft: 0
-                    });
-
-                    // ✅ Insert contestants into database
-                    for (const contestant of contestants) {
-                        insertRaceContestant({
-                            raceId: insertedRace.raceId,
-                            contestantId: contestant.contestantId,
-                            name: contestant.name,
-                            racecarNumber: contestant.racecarNumber
-                        });
-                    }
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
@@ -179,21 +110,6 @@ export class RaceScheduleService {
                     this.schedule.deleteRace(idToRemove);
                     console.log("🗑️ Race deleted:", idToRemove);
 
-                    //emit updated schedule
-                    const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
-                        message: {
-                            type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
-                        }
-                    };
-
-                    socketNamespace.
-                        emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
-
-                    // Remove from database
-                    deleteFromScheduledRace({
-                        raceId: idToRemove,
-                    });
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.DeleteRace} command:`, error);
@@ -217,66 +133,71 @@ export class RaceScheduleService {
                         throw new Error("No raceID");
                     }
 
-                    // Check that the race exists in the schedule
-                    let existingSchedule = this.schedule.raceScheduleEntries;
-
-                    if (!(raceId in existingSchedule)) {
-                        throw new Error(`A race with id: ${raceId} does not exist in the schedule and therefore cannot be modified.`);
-                    }
-
-                    //Check that the race's current state is pending - actually ui button for modfying shouldn't exist for a race in any other state
-                    if (raceState !== "pending") {
-                        throw new Error("Only races in 'pending' state can be modified.");
-                    }
-
-                    // check for timeslot conflict
-                    let timeslotTaken = false;
-
-                    for (const [id, value] of Object.entries(existingSchedule)) {
-
-                        if (id === raceId) continue; // ⛔ Skip checking against itself
-
-                        console.log(value.raceScheduledStartTimeSlot);
-
-                        if (value.raceScheduledStartTimeSlot === raceDateTime) {
-                            timeslotTaken = true;
-                        }
-                    }
-
-                    if (timeslotTaken) {
-                        throw new Error(`❌ A race already exists at this time: ${raceDateTime}`);
-                    }
-
-                    //overwrite the race in schedule
                     // Create a new RaceScheduleEntry with the updated race data
                     const updatedRaceEntry = new RaceScheduleEntryState(updatedRace);
 
                     // Overwrite the existing race entry in the schedule
-                    this.schedule.addRace(updatedRaceEntry);
+                    this.schedule.modifyRace(updatedRace.raceId, updatedRaceEntry);
 
                     console.log(`✅ Race with ID ${raceId} modified successfully.`);
 
-                    //emit updated schedule
-                    const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
-                        message: {
-                            type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
-                        }
-                    };
-
-                    socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
-
-                    modifyScheduledRace({
-                        raceId,
-                        raceScheduledStartTimeSlot: updatedRace.raceScheduledStartTimeSlot,
-                        raceState,
-                    });
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);
                 }
             })
         })
+
+        this.schedule.events.on(RaceScheduleStateEvents.RaceScheduleChanged, (entries => {
+            const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
+                message: {
+                    type: RaceScheduleEvents.RaceScheduleUpdated,
+                    schedule: entries.sortedSchedule.map(entry => entry.scheduledRace)
+                }
+            };
+
+            socketNamespace.emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+        }));
+
+        this.schedule.events.on(RaceScheduleStateEvents.RaceAdded, (entry: RaceScheduleEntryState) => {
+
+                const {contestants, raceId, raceScheduledStartTimeSlot, raceState } = entry
+
+                insertScheduledRace({
+                    raceId: raceId,
+                    raceScheduledStartTimeSlot: raceScheduledStartTimeSlot,
+                    raceState: raceState,
+                    isHazard: false,
+                    isFinishing: false,
+                    timeLeft: 0
+                });
+
+                // ✅ Insert contestants into database
+                for (const contestant of contestants) {
+                    insertRaceContestant({
+                        raceId: raceId,
+                        contestantId: contestant.contestantId,
+                        name: contestant.name,
+                        racecarNumber: contestant.racecarNumber
+                    });
+                }
+        })
+
+        this.schedule.events.on(RaceScheduleStateEvents.RaceDeleted, (raceId: ScheduledRace['raceId']) => {
+
+            //Remove from database.
+            deleteFromScheduledRace({
+                raceId: raceId,
+            });
+        });
+
+        this.schedule.events.on(RaceScheduleStateEvents.RaceModified, (raceId: ScheduledRace['raceId'], entry: RaceScheduleEntryState) => {
+                modifyScheduledRace({
+                    raceId,
+                    raceScheduledStartTimeSlot: entry.raceScheduledStartTimeSlot,
+                    raceState : entry.raceState,
+                });
+        });
     }
 }
 
