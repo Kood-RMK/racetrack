@@ -34,7 +34,7 @@ export function ResumeRaceButton({race, raceController} : RaceButtonParams<Activ
             className="text-xl flex justify-center items-center bg-green-700 text-white p-2 rounded xl:w-56 w-full min-w-56 h-14 gap-1 whitespace-nowrap"
             onPress={() => {raceController.current.tryChangeRaceState(race.raceId, RaceState.Active)}}>
             <Icon path={mdiFlagCheckered} className="w-6 h-6 flex-shrink-0"/>
-            Safe
+            Resume Race
         </Button>
     )    
 }

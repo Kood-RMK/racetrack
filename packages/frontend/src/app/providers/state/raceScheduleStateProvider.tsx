@@ -2,11 +2,20 @@
 
 import { ReactNode, useEffect, useState, createContext, useContext, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { RaceSchedule, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent } from "racetrack-shared/types";
-
+import { RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
 
 // Contexts
-const RaceScheduleContext = createContext<RaceScheduleEntries | null>(null);
+
+
+export type RaceScheduleContextType = {
+    schedule: RaceScheduleEntries | null;
+    nextRace: ScheduledRace | null;
+}
+
+const RaceScheduleContext = createContext<RaceScheduleContextType>({
+    schedule: null,
+    nextRace: null,
+});
 
 // Provider
 export const RaceScheduleStateProvider = ({ children }: { children: ReactNode }) => {
@@ -14,8 +23,17 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
     // You are creating a piece of state called scheduleState that starts as an empty array [], 
     // and it must match the type RaceSchedule.
     const [scheduleState, setScheduleState] = useState<RaceScheduleEntries | null>(null);
-
+    const [nextRace, setNextRace] = useState<ScheduledRace | null>(null);
     const socket = useSocket("/race-schedule");
+
+
+    useEffect(() => {
+
+        if (scheduleState) {
+            setNextRace(scheduleState.filter(c => c.raceState === 'pending')[0] ?? null);
+        }
+
+    }, [scheduleState]);
 
     // useEffect to only mount the socket once and unhooklisteners when the component unmounts.
     useEffect(() => {
@@ -49,19 +67,22 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
     }, [socket]);
 
     return (
-        <RaceScheduleContext.Provider value={scheduleState}>
+        <RaceScheduleContext.Provider value={{
+            schedule: scheduleState,
+            nextRace: nextRace
+        }}>
             {children}
         </RaceScheduleContext.Provider>
     );
 };
 
 // Hook to access the context easily
-export const useRaceScheduleState = (): RaceScheduleEntries | null => {
-    const schedule = useContext(RaceScheduleContext);
+export const useRaceScheduleState = (): RaceScheduleContextType => {
+    const scheduleContext = useContext(RaceScheduleContext);
 
-    if (schedule === undefined) {
+    if (scheduleContext === undefined) {
         throw new Error("useRaceScheduleState must be used within a RaceScheduleStateProvider");
     }
 
-    return schedule;
+    return scheduleContext;
 };

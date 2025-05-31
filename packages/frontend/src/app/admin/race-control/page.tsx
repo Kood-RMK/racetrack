@@ -125,12 +125,13 @@ function RaceControlPage() {
       console.log(raceScheduleState);
       return (
 
-        raceScheduleState !== null ? 
+        raceScheduleState.nextRace !== null ? 
         <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
           <h1 className='text-center py-12'>Race Control</h1>
             <RaceCard 
               // tags={raceTags({})}
-              buttons={raceButtons({race: raceScheduleState[0], raceController: raceController})}
+              contestants={raceScheduleState.nextRace.contestants}
+              buttons={raceButtons({race: raceScheduleState.nextRace, raceController: raceController})}
               />
         </div> : <div>Loading...</div>
       )
@@ -144,6 +145,7 @@ function RaceControlPage() {
         <h1 className='text-center py-12'>Race Control</h1>
           <RaceCard 
             tags={raceTags({activeRace: activeRaceState})}
+            contestants={Object.values (activeRaceState.contestants).map(activeContestant => activeContestant.contestant)}
             buttons={raceButtons({race: activeRaceState, raceController: raceController})}
             />
       </div>

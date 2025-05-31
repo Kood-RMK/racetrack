@@ -17,10 +17,9 @@ function RaceSchedulePage() {
   const scheduleState = useRaceScheduleState();
   const scheduleController = useRaceScheduleController();
 
-  if (!scheduleState || !scheduleController) {
+  if (!scheduleState.schedule || !scheduleController) {
     return <div>Loading...</div>;
   }
-
 
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
@@ -30,9 +29,7 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        {scheduleState.map((raceData) => {
-
-          console.log(raceData);
+        {scheduleState.schedule.map((raceData) => {
           return (
             <RaceCard
               key={raceData.raceId}

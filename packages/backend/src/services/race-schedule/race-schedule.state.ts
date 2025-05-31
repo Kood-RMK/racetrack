@@ -73,10 +73,6 @@ export class RaceScheduleState {
             parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot)
         );
     }
-
-    public getNextRace(): ScheduledRace | null  {
-        return this.sortedSchedule.filter(c => c.raceState === 'pending')[0] ?? null;
-    }
 }
 
 export enum RaceScheduleEntryEvents {
