@@ -1,47 +1,47 @@
 "use client";
 
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ActiveRace, RacetrackCommand, RaceState, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands } from "racetrack-shared/types";
+import { ActiveRace, RacetrackCommand, RaceState, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, ScheduledRaceId, StartRace, ScheduledRace, ActiveRaceId } from "racetrack-shared/types";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 import { useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 
 
-export type ActiveRaceController = {
-  trySetHazard: (isHazard: boolean) => void;
-  trySetFinishing: (isFinishing: boolean) => void;
-  tryChangeRaceState: (newState: RaceState) => void;
+export type RaceController = {
+  trySetHazard: (raceId : ActiveRaceId, isHazard: boolean) => void;
+  trySetFinishing: (raceId : ActiveRaceId, isFinishing: boolean) => void;
+  tryChangeRaceState: (raceId : ActiveRaceId, newState: RaceState) => void;
+  tryStartRace: (scheduledRace : ScheduledRace) => void;
 }
 
-const ActiveRaceStateControllerContext = createContext<RefObject<ActiveRaceController> | null>(null);
+const RaceStateControllerContext = createContext<RefObject<RaceController> | null>(null);
 
 
-export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}) => {
+export const RaceControllerProvider = ({children} : {children : ReactNode}) => {
 
-  const activeRaceStateController = useRef<ActiveRaceController>({
-    trySetHazard: (isHazard: boolean) => {console.error("ActiveRaceStateController: trySetHazard not implemented.")},
-    trySetFinishing: (isFinishing: boolean) => {console.error("ActiveRaceStateController: trySetFinishing not implemented.")},
-    tryChangeRaceState: (newState: RaceState) => {console.error("ActiveRaceStateController: tryChangeRaceState not implemented.")},
+  const raceStateController = useRef<RaceController>({
+    trySetHazard: (raceId : ActiveRaceId, isHazard: boolean) => {console.error("ActiveRaceStateController: trySetHazard not implemented.")},
+    trySetFinishing: (raceId : ActiveRaceId, isFinishing: boolean) => {console.error("ActiveRaceStateController: trySetFinishing not implemented.")},
+    tryChangeRaceState: (raceId : ActiveRaceId, newState: RaceState) => {console.error("ActiveRaceStateController: tryChangeRaceState not implemented.")},
+    tryStartRace: (scheduledRace : ScheduledRace) => {console.error("ActiveRaceStateController: tryStartRace not implemented.")}
   });
 
   const socketRef = useSocket("/race-control");
-  const activeRace = useActiveRaceState();
 
   // useEffect to only mount the socket once and unhook listeners when the component unmounts.
   useEffect(() => {
-
     const socket = socketRef.current;
 
-    if (!socket || !activeRace) {
+    if (!socket) {
       return;
     }
 
-    activeRaceStateController.current = {
-      trySetHazard: (isHazard: boolean) => {
+    raceStateController.current = {
+      trySetHazard: (raceId : ActiveRaceId, isHazard: boolean) => {
         const command: RacetrackCommand<ChangeActiveRaceHazard> = {
           senderId: socket.id,
           message: {
             type: RaceControlCommands.ChangeRaceHazard,
-            raceId : activeRace.raceId,
+            raceId : raceId,
             isHazard: isHazard,
           }
         };
@@ -50,12 +50,12 @@ export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}
           socket.emit(command.message.type, command);
         }
       },
-      trySetFinishing : (isFinishing: boolean) => {
+      trySetFinishing : (raceId : ActiveRaceId, isFinishing: boolean) => {
         const command: RacetrackCommand<ChangeActiveRaceIsFinishing> = { 
           senderId: socket.id,
           message : {
             type: RaceControlCommands.ChangeRaceIsFinishing,
-            raceId : activeRace.raceId,
+            raceId : raceId,
             isFinishing: isFinishing,
           }
         }
@@ -64,12 +64,24 @@ export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}
           socket.emit(command.message.type, command);
         }
       },
-      tryChangeRaceState : (newState : RaceState) => {
+      tryStartRace: (scheduledRace : ScheduledRace) => {
+        const command: RacetrackCommand<StartRace> = {
+          senderId: socket.id,
+          message: {
+            type: RaceControlCommands.StartRace,
+            scheduledRace : scheduledRace
+          }
+        }
+        if (command.message?.type) { 
+          socket.emit(command.message.type, command);
+        }
+      },
+      tryChangeRaceState : (raceId : ActiveRaceId, newState : RaceState) => {
         const command : RacetrackCommand<ChangeActiveRaceState> = {
           senderId: socket.id,
           message : {
             type: RaceControlCommands.ChangeRaceState,
-            raceId : activeRace.raceId,
+            raceId : raceId,
             newState: newState,
           }
         }
@@ -80,19 +92,19 @@ export const ActiveRaceControllerProvider = ({children} : {children : ReactNode}
       }
     }
 
-  }, [socketRef, activeRace]);
+  }, [socketRef]);
 
 
   return (
-      <ActiveRaceStateControllerContext.Provider value={ activeRaceStateController }>
+      <RaceStateControllerContext.Provider value={ raceStateController }>
         {children}
-      </ActiveRaceStateControllerContext.Provider>
+      </RaceStateControllerContext.Provider>
   )
 };
 
-export const useActiveRaceController = () : RefObject<ActiveRaceController> | null => {
+export const useActiveRaceController = () : RefObject<RaceController> | null => {
 
-  const activeRaceController = useContext(ActiveRaceStateControllerContext);
+  const activeRaceController = useContext(RaceStateControllerContext);
 
   if (activeRaceController === undefined) {
     throw new Error("useActiveRaceController must be used within an ActiveRaceControllerProvider");

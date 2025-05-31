@@ -13,7 +13,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 
     // You are creating a piece of state called scheduleState that starts as an empty array [], 
     // and it must match the type RaceSchedule.
-    const [scheduleState, setScheduleState] = useState<RaceScheduleEntries>({});
+    const [scheduleState, setScheduleState] = useState<RaceScheduleEntries | null>(null);
 
     const socket = useSocket("/race-schedule");
 
@@ -29,7 +29,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
             const initialSchedule = data.message.schedule; // mis sisse tuleb?
             setScheduleState(initialSchedule); // mis välja peab minema?
 
-            console.log(`[Race Schedule initial]: Initial Schedule State Received:`, initialSchedule);
+            console.log(`[Race Schedule Provider]: Initial Schedule State Received:`, initialSchedule);
         }
         socket.current.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
 
@@ -58,12 +58,10 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 // Hook to access the context easily
 export const useRaceScheduleState = (): RaceScheduleEntries | null => {
     const schedule = useContext(RaceScheduleContext);
-    console.log("Schedule in RaceScheduleContext: ", RaceScheduleContext)
 
     if (schedule === undefined) {
         throw new Error("useRaceScheduleState must be used within a RaceScheduleStateProvider");
     }
 
-    // console.log(schedule);
     return schedule;
 };

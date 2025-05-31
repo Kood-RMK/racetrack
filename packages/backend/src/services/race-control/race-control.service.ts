@@ -1,7 +1,7 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRaceService } from "../active-race/active-race.service";
 import { Logger } from "pino";
-import { ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, RacetrackCommand } from "racetrack-shared/types";
+import { ActiveRace, ActiveRaceContestant, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, RaceState, RacetrackCommand, StartRace } from "racetrack-shared/types";
 
 // Handlers.
 export class RaceControlService {
@@ -25,8 +25,43 @@ export class RaceControlService {
         })
 
         socketNamespace.on("connection", (client) => {
-
             this.logger.info(`New client connected!, ID`, client.id)
+
+            client.on(RaceControlCommands.StartRace, (command : RacetrackCommand<StartRace>) => {
+                try {
+                    const scheduledRace = command.message?.scheduledRace;
+
+                    if (!scheduledRace) {
+                        throw new Error("message.scheduledRace is undefined.");
+                    }
+
+                    const activeRace : ActiveRace = {
+                        raceId: scheduledRace.raceId,
+                        isHazard: false,
+                        raceScheduledStartTimeSlot: scheduledRace.raceScheduledStartTimeSlot,
+                        timeLeft : 10,
+                        isFinishing: false,
+                        contestants: scheduledRace.contestants.reduce((obj, contestant) => {
+
+                            obj[contestant.contestantId] = {
+                                contestant : contestant,
+                                fastestLap : 0,
+                                lapCount: 0,
+                                lapStopwatchTime: 0,
+                                place : 0,
+                            } as ActiveRaceContestant;
+
+                            return obj;
+                        }, {} as Record<string, ActiveRaceContestant>),
+                        raceDurationSeconds : 10,
+                        raceState: RaceState.Active
+                    }
+
+                    this.activeRaceService.setActiveRace(activeRace);
+                } catch (error) {
+
+                }
+            });
 
             client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {
 

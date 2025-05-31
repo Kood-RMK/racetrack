@@ -1,4 +1,4 @@
-import { RaceState } from "./stateTypes";
+import { RaceState, RaceSchedule, ScheduledRace } from "./stateTypes";
 
 // Message Types
 export enum RaceControlEvents {
@@ -12,6 +12,7 @@ export enum RaceControlCommands {
     ChangeRaceState = 'changeRaceState',
     ChangeRaceHazard = 'changeRaceHazard',
     ChangeRaceIsFinishing = 'changeRaceIsFinishing',
+    StartRace = 'startRace',
 }
 
 
@@ -21,6 +22,12 @@ export type ChangeActiveRaceState = {
     raceId : string,
     newState : RaceState,
 };
+
+
+export type StartRace = {
+    type : RaceControlCommands.StartRace,
+    scheduledRace : ScheduledRace
+}
 
 export type ChangeActiveRaceHazard = {
     type : RaceControlCommands.ChangeRaceHazard,

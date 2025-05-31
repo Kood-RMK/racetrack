@@ -1,4 +1,4 @@
-import { ActiveRace, RaceState } from './stateTypes'
+import { ActiveRace, RaceState } from "./stateTypes";
 
 export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',

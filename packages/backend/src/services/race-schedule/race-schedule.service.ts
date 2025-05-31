@@ -21,23 +21,26 @@ export class RaceScheduleService {
 
         const socketNamespace = this.socketIO.of("/race-schedule");
 
-       
-             // Middleware to check if the user is authenticated.
-                this.socketIO.use((socket, next) => {
-                    useRacetrackAuth(
-                        socket, 
-                        next, 
-                        this.logger, 
-                        [
-                            RacetrackClientRole.OBSERVER,
-                            RacetrackClientRole.RECEPTIONIST,
-                            RacetrackClientRole.SAFETY
-                        ]);
-                })
+        // Middleware to check if the user is authenticated.
+        this.socketIO.use((socket, next) => {
+            useRacetrackAuth(
+                socket,
+                next,
+                this.logger,
+                [
+                    RacetrackClientRole.OBSERVER,
+                    RacetrackClientRole.RECEPTIONIST,
+                    RacetrackClientRole.SAFETY
+                ]);
+        })
+
+        this.socketIO.on("connection", (client) => {
+        });
+
+
+        console.log("Neccessary schedule:", this.schedule.raceScheduleEntries);
         
-                this.socketIO.on("connection", (client) => {
-                });
-        
+
         if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
             try {
                 const dbSchedule = loadFromDatabase();
@@ -61,10 +64,7 @@ export class RaceScheduleService {
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
                     type: RaceScheduleEvents.RaceScheduleInitialState,
-                    schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace;
-                                return acc;
-                            }, {} as RaceScheduleEntries)
+                    schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
                 }
             }
 
@@ -130,10 +130,7 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace;
-                                return acc;
-                            }, {} as RaceScheduleEntries)
+                            schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
                         }
                     };
 
@@ -186,15 +183,12 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace;
-                                return acc;
-                            }, {} as RaceScheduleEntries)
+                            schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
                         }
                     };
 
                     socketNamespace.
-                    emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
+                        emit(RaceScheduleEvents.RaceScheduleUpdated, updateMessage);
 
                     // Remove from database
                     deleteFromScheduledRace({
@@ -266,10 +260,7 @@ export class RaceScheduleService {
                     const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
                         message: {
                             type: RaceScheduleEvents.RaceScheduleUpdated,
-                            schedule: Object.entries(this.schedule.raceScheduleEntries).reduce((acc, [key, value]) => {
-                                acc[key] = value.scheduledRace;
-                                return acc;
-                            }, {} as RaceScheduleEntries)
+                            schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
                         }
                     };
 
@@ -286,31 +277,6 @@ export class RaceScheduleService {
                 }
             })
         })
-    }
-
-     /** 🔐 Helper: Parses a timeslot string into minutes past midnight */
-    private parseTimeslot(timeslot: string): number {
-        const [start] = timeslot.split(" - ");
-        const [hours, minutes] = start.split(":").map(Number);
-        return hours * 60 + minutes;
-    }
-
-    /** 🏁 Public: Returns the next race based on sorted schedule entries */
-    public get nextRace(): ScheduledRace | null {
-        const entries = Object.values(this.schedule.raceScheduleEntries);
-
-        const sorted = entries
-            .filter(race => race.raceState === "pending" || race.raceState === "completed")
-            .sort((a, b) =>
-                this.parseTimeslot(a.raceScheduledStartTimeSlot) - this.parseTimeslot(b.raceScheduledStartTimeSlot)
-            );
-
-        if (sorted.length === 0) return null;
-
-        const hasCompleted = sorted.some(r => r.raceState === "completed");
-        const index = hasCompleted ? 1 : 0;
-
-        return sorted[index]?.scheduledRace ?? null;
     }
 }
 

@@ -61,7 +61,7 @@ database.exec('PRAGMA foreign_keys = ON;');
 
 function initializeDatabase() {
   database.exec(`
-      CREATE TABLE IF NOT EXISTS scheduled_races (
+      CREATE TABLE IF NOT EXISTS races (
         raceId TEXT PRIMARY KEY,
         raceScheduledStartTimeSlot TEXT NOT NULL,
         raceState TEXT NOT NULL,
@@ -76,7 +76,7 @@ function initializeDatabase() {
         contestantId TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         racecarNumber INT NOT NULL,
-        FOREIGN KEY (raceId) REFERENCES scheduled_races(raceId) ON DELETE CASCADE
+        FOREIGN KEY (raceId) REFERENCES races(raceId) ON DELETE CASCADE
       );`)
 
   database.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
@@ -87,7 +87,7 @@ function initializeDatabase() {
       fastestLap INT,
       lapStopwatchTime INT NOT NULL,
       FOREIGN KEY (contestantId) REFERENCES race_contestants(contestantId),
-      FOREIGN KEY (activeRaceId) REFERENCES scheduled_races(raceId)
+      FOREIGN KEY (activeRaceId) REFERENCES races(raceId)
     );`)
 }
 

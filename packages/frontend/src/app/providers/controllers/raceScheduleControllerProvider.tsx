@@ -47,8 +47,6 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                     console.log("☀️ Emitting race schedule command:", command);
                 }
 
-
-
             },
             tryModifyRace: (raceId: string, updatedRace: ScheduledRace) => {
                 const command: RacetrackCommand<ModifyRace> = {

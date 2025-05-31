@@ -45,15 +45,16 @@ export class ActiveRaceState {
 
         const logger = baseLogger.child({handlerName : this.constructor.name})            
 
-        const activeRaceQuery = database.prepare("SELECT * FROM scheduled_races LIMIT 1;");
+        const activeRaceQuery = database.prepare("SELECT * FROM races WHERE raceState IN ('active', 'paused');");
         const activeRaceRow = activeRaceQuery.get();
 
         if (!activeRaceRow) {
+            logger.info("No persisted active races.")
             return null;
         }
 
         if (!(typeof activeRaceRow.raceId === 'string' 
-            && typeof activeRaceRow.raceScheduledStartUnixTime === 'number' 
+            && typeof activeRaceRow.raceScheduledStartTimeSlot === 'string' 
             && typeof activeRaceRow.raceState === 'string'
             && Object.values(RaceState).includes(activeRaceRow.raceState as RaceState)
             && typeof activeRaceRow.isHazard === 'number'
@@ -66,7 +67,7 @@ export class ActiveRaceState {
 
         const activeRace : ActiveRace = {
             raceId: activeRaceRow.raceId,
-            raceScheduledStartUnixTime: activeRaceRow.raceScheduledStartUnixTime,
+            raceScheduledStartTimeSlot: activeRaceRow.raceScheduledStartTimeSlot,
             raceState: activeRaceRow.raceState as RaceState, 
             isHazard: !!activeRaceRow.isHazard,
             isFinishing: !!activeRaceRow.isFinishing,
@@ -120,10 +121,18 @@ export class ActiveRaceState {
             activeRace.contestants[contestantRow.contestantId] = activeRaceContestant;
         }
 
+        console.log(`Active Race loaded from database: ${activeRace.raceId} with ${Object.keys(activeRace.contestants).length} contestants.`);
         return new ActiveRaceState(activeRace, logger, database);
     }
 
     public static createNew(activeRace: ActiveRace, baseLogger: Logger, database: DatabaseSync) {
+
+        const updateRaceStateStatement = database.prepare(`UPDATE races SET raceState = @raceState WHERE raceId = @raceId`);
+        updateRaceStateStatement.run({
+            raceState: RaceState.Active,
+            raceId: activeRace.raceId
+        });
+
         return new ActiveRaceState(activeRace, baseLogger, database);
 
     }
@@ -149,7 +158,7 @@ export class ActiveRaceState {
     }
 
     public get raceDateTime() {
-        return this._activeRace.raceScheduledStartUnixTime;
+        return this._activeRace.raceScheduledStartTimeSlot;
     }
 
     public get contestants() {
@@ -179,7 +188,7 @@ export class ActiveRaceState {
     public setRaceState(raceState: ActiveRace['raceState']) {
         this._activeRace.raceState = raceState;
 
-        const updateRaceStateStatement = this._database.prepare(`UPDATE active_races SET raceState = @raceState WHERE raceId = @raceId`);
+        const updateRaceStateStatement = this._database.prepare(`UPDATE races SET raceState = @raceState WHERE raceId = @raceId`);
         updateRaceStateStatement.run({
             raceState: raceState,
             raceId: this._activeRace.raceId
@@ -192,7 +201,7 @@ export class ActiveRaceState {
     public setIsHazard(isHazard: ActiveRace['isHazard']) {
         this._activeRace.isHazard = isHazard;
 
-        const updateIsHazardStatement = this._database.prepare(`UPDATE active_races SET isHazard = @isHazard WHERE raceId = @raceId`);
+        const updateIsHazardStatement = this._database.prepare(`UPDATE races SET isHazard = @isHazard WHERE raceId = @raceId`);
         updateIsHazardStatement.run({
             isHazard: isHazard ? 1 : 0,
             raceId: this._activeRace.raceId
@@ -210,7 +219,7 @@ export class ActiveRaceState {
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
         this._activeRace.isFinishing = isFinishing;
 
-        const updateIsFinishingStatement = this._database.prepare(`UPDATE active_races SET isFinishing = @isFinishing WHERE raceId = @raceId`);
+        const updateIsFinishingStatement = this._database.prepare(`UPDATE races SET isFinishing = @isFinishing WHERE raceId = @raceId`);
         updateIsFinishingStatement.run({
             isFinishing: isFinishing ? 1 : 0,
             raceId: this._activeRace.raceId
@@ -228,7 +237,7 @@ export class ActiveRaceState {
     public setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
         this._activeRace.timeLeft = timeLeft;
 
-        const updateTimeLeftStatement = this._database.prepare(`UPDATE active_races SET timeLeft = @timeLeft WHERE raceId = @raceId`);
+        const updateTimeLeftStatement = this._database.prepare(`UPDATE races SET timeLeft = @timeLeft WHERE raceId = @raceId`);
         updateTimeLeftStatement.run({
             timeLeft: timeLeft,
             raceId: this._activeRace.raceId

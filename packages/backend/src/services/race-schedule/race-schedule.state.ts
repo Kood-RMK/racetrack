@@ -9,7 +9,7 @@ export enum RaceScheduleEvents {
 }
 
 export interface RaceScheduleCallbacks {
-    [RaceScheduleEvents.RaceScheduleChanged] : (entries : RaceScheduleEntryState[]) => void;
+    [RaceScheduleEvents.RaceScheduleChanged]: (entries: RaceScheduleEntryState[]) => void;
 }
 
 export class RaceScheduleEventEmitter extends EventEmitter {
@@ -43,21 +43,39 @@ export class RaceScheduleState {
         return this._eventEmitter;
     }
 
-    public getRaceById(id : ScheduledRace['raceId']) {
+    public getRaceById(id: ScheduledRace['raceId']) {
         return this._raceScheduleStateEntries[id];
     }
 
-    public addRace(entry : RaceScheduleEntryState) {
+    public addRace(entry: RaceScheduleEntryState) {
         this._raceScheduleStateEntries[entry.raceId] = entry;
         return entry;
     }
 
-    public deleteRace(id : ScheduledRace['raceId']) {
+    public deleteRace(id: ScheduledRace['raceId']) {
         delete this._raceScheduleStateEntries[id];
     }
 
-    public modifyRace(id : ScheduledRace['raceId']) {
-        
+    public modifyRace(id: ScheduledRace['raceId']) {
+
+    }
+
+    public get sortedSchedule() {
+        function parseTimeslot(timeslot: string): number {
+            const [start] = timeslot.split(' - ');
+            const [hours, minutes] = start.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        return Object.values(this._raceScheduleStateEntries)
+        .filter(race => race.raceState === 'pending' || race.raceState === 'completed')
+        .sort((a, b) =>
+            parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot)
+        );
+    }
+
+    public getNextRace(): ScheduledRace | null  {
+        return this.sortedSchedule.filter(c => c.raceState === 'pending')[0] ?? null;
     }
 }
 
@@ -69,10 +87,10 @@ export enum RaceScheduleEntryEvents {
 }
 
 export interface RaceScheduleEntryCallbacks {
-    [RaceScheduleEntryEvents.RaceIdChanged] : (raceId: ScheduledRace['raceId']) => void;
-    [RaceScheduleEntryEvents.ContestantsChanged] : (contestants: ScheduledRace['contestants']) => void;
-    [RaceScheduleEntryEvents.RaceDateTimeChanged] : (raceDateTime: ScheduledRace['raceScheduledStartTimeSlot']) => void;
-    [RaceScheduleEntryEvents.RaceStateChanged] : (newState: ScheduledRace['raceState']) => void;
+    [RaceScheduleEntryEvents.RaceIdChanged]: (raceId: ScheduledRace['raceId']) => void;
+    [RaceScheduleEntryEvents.ContestantsChanged]: (contestants: ScheduledRace['contestants']) => void;
+    [RaceScheduleEntryEvents.RaceDateTimeChanged]: (raceDateTime: ScheduledRace['raceScheduledStartTimeSlot']) => void;
+    [RaceScheduleEntryEvents.RaceStateChanged]: (newState: ScheduledRace['raceState']) => void;
 }
 
 export class RaceScheduleEntryEventEmitter extends EventEmitter {
@@ -94,11 +112,11 @@ export class RaceScheduleEntryState {
     private _race: ScheduledRace;
     private _eventEmitter = new RaceScheduleEntryEventEmitter();
 
-    constructor(race : ScheduledRace) {
+    constructor(race: ScheduledRace) {
         this._race = race;
         console.log(`☀️ Race State: Initial state set: `, race);
     }
-    
+
     // Getters
     public get events() {
         return this._eventEmitter;

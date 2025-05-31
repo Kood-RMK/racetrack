@@ -1,15 +1,16 @@
 "use client";
 
-import { ActiveRace, RaceState, RacetrackClientRole } from "racetrack-shared/types";
+import { ActiveRace, RaceState, RacetrackClientRole, ScheduledRace } from "racetrack-shared/types";
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
-import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
+import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, ResumeRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
 import { RefObject, useEffect } from "react";
 import { RaceActiveTag, RaceCancelledTag, RaceCountdownTag, RaceDangerTag, RaceFinishingTag, RaceHazardTag, RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
-import { ActiveRaceController, ActiveRaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
+import { RaceController, RaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 import { LoginWrapper } from "@/components/authentication/Login";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
+import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers/state/raceScheduleStateProvider";
 
 
 // Mapping between race state and components for buttons and tags
@@ -17,20 +18,20 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
 
   const raceState = activeRace.raceState;
 
-  activeRace.raceScheduledStartUnixTime
-  const calculateTimeslot = (raceStartUnixTime : number, raceDurationSeconds : number) => {
-      const startDateTime = new Date(raceStartUnixTime * 1000); // Convert to milliseconds
-      const startHours = startDateTime.getHours().toString().padStart(2, '0');
-      const startMinutes = startDateTime.getMinutes().toString().padStart(2, '0');
-      const startSeconds = startDateTime.getSeconds().toString().padStart(2, '0');
+  activeRace.raceScheduledStartTimeSlot
+  // const calculateTimeslot = (raceStartUnixTime : number, raceDurationSeconds : number) => {
+  //     const startDateTime = new Date(raceStartUnixTime * 1000); // Convert to milliseconds
+  //     const startHours = startDateTime.getHours().toString().padStart(2, '0');
+  //     const startMinutes = startDateTime.getMinutes().toString().padStart(2, '0');
+  //     const startSeconds = startDateTime.getSeconds().toString().padStart(2, '0');
 
-      const endDateTime = new Date(startDateTime.getTime() + (raceDurationSeconds * 1000)); // Convert to milliseconds
-      const endHours = endDateTime.getHours().toString().padStart(2, '0');
-      const endMinutes = endDateTime.getMinutes().toString().padStart(2, '0');
-      const endSeconds = endDateTime.getSeconds().toString().padStart(2, '0');
+  //     const endDateTime = new Date(startDateTime.getTime() + (raceDurationSeconds * 1000)); // Convert to milliseconds
+  //     const endHours = endDateTime.getHours().toString().padStart(2, '0');
+  //     const endMinutes = endDateTime.getMinutes().toString().padStart(2, '0');
+  //     const endSeconds = endDateTime.getSeconds().toString().padStart(2, '0');
       
-      return `${startHours}:${startMinutes}:${startSeconds} - ${endHours}:${endMinutes}:${endSeconds}`;
-  }
+  //     return `${startHours}:${startMinutes}:${startSeconds} - ${endHours}:${endMinutes}:${endSeconds}`;
+  // }
 
   const calculateTimeleft = (timeLeft : number) => {
      const hours = Math.floor(timeLeft / 3_600_000);
@@ -44,14 +45,14 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
     case RaceState.Pending: {
       return <>
         <RacePendingTag></RacePendingTag>
-        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
       </>;
     }
 
     case RaceState.Active : {
       return <>
         <RaceActiveTag></RaceActiveTag>
-        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
         <RaceCountdownTag timeLeft={calculateTimeleft(activeRace.timeLeft)}></RaceCountdownTag>
         {activeRace.isHazard && <RaceHazardTag></RaceHazardTag>}
         {activeRace.isFinishing && <RaceFinishingTag></RaceFinishingTag>}
@@ -60,13 +61,13 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
     case RaceState.Paused : {
       return <>
         <RaceActiveTag></RaceActiveTag>
-        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
         <RaceDangerTag></RaceDangerTag>
       </>;
     }
     case RaceState.Canceled : {
       return <>
-        <RaceTimeslotTag timeslot={calculateTimeslot(activeRace.raceScheduledStartUnixTime, activeRace.raceDurationSeconds)}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
         <RaceCancelledTag></RaceCancelledTag>
       </>;
     }
@@ -76,30 +77,28 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
 };
 
 
-function raceButtons({ activeRace, activeRaceController }: { activeRace: ActiveRace, activeRaceController : RefObject<ActiveRaceController>}) {
+function raceButtons({ race, raceController }: { race: ActiveRace | ScheduledRace, raceController : RefObject<RaceController>}) {
 
-    switch (activeRace.raceState) {
+    switch (race.raceState) {
         case 'pending':
             return <>
-                <CancelRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></CancelRaceButton>
-                <StartRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StartRaceButton>
+                <StartRaceButton race={(race as ScheduledRace)} raceController={raceController}></StartRaceButton>
             </>;
         case 'active':
             return <>
-                <StopRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StopRaceButton>
+                <StopRaceButton race={(race as ActiveRace)} raceController={raceController}></StopRaceButton>
 
-
-                {!activeRace.isHazard && <FinishRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></FinishRaceButton>}
-                {!activeRace.isFinishing && <HazardRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></HazardRaceButton>}
-                {activeRace.isFinishing && <EndRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></EndRaceButton>}
+                {!(race as ActiveRace).isHazard && <FinishRaceButton race={(race as ActiveRace)} raceController={raceController}></FinishRaceButton>}
+                {!(race as ActiveRace).isFinishing && <HazardRaceButton race={(race as ActiveRace)} raceController={raceController}></HazardRaceButton>}
+                {(race as ActiveRace).isFinishing && <EndRaceButton race={(race as ActiveRace)} raceController={raceController}></EndRaceButton>}
             </>;
         case 'completed':
             return <></>;
 
         case 'paused':
             return <>
-                <CancelRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></CancelRaceButton>
-                <StartRaceButton activeRace={activeRace} activeRaceController={activeRaceController}></StartRaceButton>
+                <CancelRaceButton race={race as ActiveRace} raceController={raceController}></CancelRaceButton>
+                <ResumeRaceButton race={race as ActiveRace} raceController={raceController}></ResumeRaceButton>
             </>;
         case 'canceled':
             return <></>;
@@ -110,12 +109,31 @@ function raceButtons({ activeRace, activeRaceController }: { activeRace: ActiveR
 
 
 function RaceControlPage() {
+    const raceScheduleState = useRaceScheduleState();
     const activeRaceState = useActiveRaceState();
-    const activeRaceController = useActiveRaceController();
+    const raceController = useActiveRaceController();
     
-    if (!activeRaceState || !activeRaceController) {
+    if (!raceController || !raceScheduleState) {
 
       return <div>Loading...</div>;
+    }
+
+    // kui on active race siis peaks cardi täitma activeRacestateist, kui ei ole, siis lihtsalt schedulist
+
+    if (!activeRaceState) {
+
+      console.log(raceScheduleState);
+      return (
+
+        raceScheduleState !== null ? 
+        <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
+          <h1 className='text-center py-12'>Race Control</h1>
+            <RaceCard 
+              // tags={raceTags({})}
+              buttons={raceButtons({race: raceScheduleState[0], raceController: raceController})}
+              />
+        </div> : <div>Loading...</div>
+      )
     }
 
     // Extract values from the activeRace object
@@ -126,7 +144,7 @@ function RaceControlPage() {
         <h1 className='text-center py-12'>Race Control</h1>
           <RaceCard 
             tags={raceTags({activeRace: activeRaceState})}
-            buttons={raceButtons({activeRace: activeRaceState, activeRaceController: activeRaceController})}
+            buttons={raceButtons({race: activeRaceState, raceController: raceController})}
             />
       </div>
     )
@@ -138,11 +156,13 @@ export default function Page() {
     <AuthenticationProvider>
       <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.SAFETY] }}>
         <SocketProvider url="http://localhost:3001">
-          <ActiveRaceStateProvider>
-            <ActiveRaceControllerProvider>
-              <RaceControlPage />
-            </ActiveRaceControllerProvider>
-          </ActiveRaceStateProvider>
+          <RaceScheduleStateProvider>
+            <ActiveRaceStateProvider>
+              <RaceControllerProvider>
+                <RaceControlPage />
+              </RaceControllerProvider>
+            </ActiveRaceStateProvider>
+          </RaceScheduleStateProvider>
         </SocketProvider>
       </LoginWrapper>
     </AuthenticationProvider>

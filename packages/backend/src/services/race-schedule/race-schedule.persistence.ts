@@ -26,7 +26,7 @@ export function insertScheduledRace(race: {
 }) {
     // stmt = statement
     const stmt = db.prepare(` 
-        INSERT INTO scheduled_races (
+        INSERT INTO races (
         raceId,
         raceScheduledStartTimeSlot,
         raceState,
@@ -78,7 +78,7 @@ export function deleteFromScheduledRace(race: { raceId: string }) {
     `);
 
     const deleteScheduledRace = db.prepare(`
-        DELETE FROM scheduled_races WHERE raceId = ?
+        DELETE FROM races WHERE raceId = ?
     `);
     
     deleteScheduledRaceContestants.run(race.raceId);
@@ -109,7 +109,7 @@ export function modifyScheduledRace(race: {
     values.push(race.raceId);
 
     const sql = `
-        UPDATE scheduled_races
+        UPDATE races
         SET ${fieldsToUpdate.join(", ")}
         WHERE raceId = ?
     `;
@@ -120,7 +120,7 @@ export function modifyScheduledRace(race: {
 
 
 export function loadFromDatabase(): RaceSchedule {
-    const scheduledRacesStmt = db.prepare(`SELECT * FROM scheduled_races`);
+    const scheduledRacesStmt = db.prepare(`SELECT * FROM races`);
     const raceContestantsStmt = db.prepare(`SELECT * FROM race_contestants`);
 
     const rawScheduledRaces = scheduledRacesStmt.all();

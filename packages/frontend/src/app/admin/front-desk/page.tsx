@@ -21,20 +21,6 @@ function RaceSchedulePage() {
     return <div>Loading...</div>;
   }
 
-  // Sort the races by the raceDateTime (timeslot)
-  const parseTimeslot = (timeslot: string): number => {
-    const [start] = timeslot.split(' - ');
-    const [hours, minutes] = start.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-
-  const sortedRaces = Object.fromEntries(
-    Object.entries(scheduleState)
-      .filter(([_, raceData]) => raceData.raceState === 'pending')
-      .sort(([, a], [, b]) => {
-        return parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot);
-      })
-  );
 
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
@@ -44,11 +30,12 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        {Object.entries(sortedRaces).map(([raceId, raceData]) => {
+        {scheduleState.map((raceData) => {
 
+          console.log(raceData);
           return (
             <RaceCard
-              key={raceId}
+              key={raceData.raceId}
               race={raceData}
               tags={<RacePendingTags race={raceData} />}
               buttons={<RacePendingButtons race={raceData} />}
@@ -74,6 +61,5 @@ export default function Page() {
         </SocketProvider>
       </LoginWrapper>
     </AuthenticationProvider >
-
   )
 }

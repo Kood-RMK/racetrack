@@ -23,7 +23,6 @@ export type ScheduledRace = {
     raceState : RaceState,
 }
 
-
 export type RaceSchedule = Record<ScheduledRaceId, ScheduledRace>;
 
 export type ActiveRaceContestant = {
@@ -38,7 +37,7 @@ export type ActiveRaceId = string;
 export type ActiveRaceContestants = Record<RaceContestantId, ActiveRaceContestant>;
 export type ActiveRace = {
     raceId : ActiveRaceId,
-    raceScheduledStartUnixTime : number // Unix timestamp. 
+    raceScheduledStartTimeSlot : string,
     raceDurationSeconds : number, // in seconds.
     contestants : ActiveRaceContestants,
     raceState : RaceState,
