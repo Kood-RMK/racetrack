@@ -121,7 +121,7 @@ export class RaceScheduleState {
         }
 
         return Object.values(this._raceScheduleStateEntries)
-        .filter(race => race.raceState === 'pending' || race.raceState === 'completed')
+        .filter(race => race.raceState === 'pending')
         .sort((a, b) =>
             parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot)
         );

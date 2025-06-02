@@ -105,7 +105,6 @@ export class ActiveRaceService {
 
         this._activeRaceHandler.initialize();
         this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceSet, activeRace);
-
     }
 
     public removeActiveRace() {

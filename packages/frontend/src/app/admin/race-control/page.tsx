@@ -137,10 +137,12 @@ function RaceControlPage() {
       return (
         race ? <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
           <h1 className='text-center py-12'>Race Control</h1>
+          <h2 className='text-center py-10'>{race.raceScheduledStartTimeSlot}</h2>
             <RaceCard 
               // tags={raceTags({})}
               contestants={contestants}
               buttons={raceButtons({race : race, raceController})}
+              
               />
         </div> : <div>Loading...</div>
       )

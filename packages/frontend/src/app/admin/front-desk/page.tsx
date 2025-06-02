@@ -21,6 +21,8 @@ function RaceSchedulePage() {
     return <div>Loading...</div>;
   }
 
+  
+
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
       <p className='text-center py-10'>Race Schedule</p>

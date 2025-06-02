@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState, createContext, useContext, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
+import { ActiveRaceEvents, ActiveRaceStateChanged, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
 
 // Contexts
 
@@ -44,8 +44,8 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 
         // receive the initial schedule state for new client
         const onScheduleInitialState = (data: RacetrackEvent<RaceScheduleInitialState>) => {
-            const initialSchedule = data.message.schedule; // mis sisse tuleb?
-            setScheduleState(initialSchedule); // mis välja peab minema?
+            const initialSchedule = data.message.schedule;
+            setScheduleState(initialSchedule);
 
             console.log(`[Race Schedule Provider]: Initial Schedule State Received:`, initialSchedule);
         }
@@ -60,9 +60,24 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
         }
         socket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
 
+        // const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
+        //     const { race, newState } = data.message;
+
+        //     setScheduleState(prev => {
+        //         if (!prev) return prev;
+        //         return prev.map(scheduledRace =>
+        //             scheduledRace.raceId === race.raceId
+        //                 ? { ...scheduledRace, raceState: newState }
+        //                 : scheduledRace
+        //         );
+        //     });
+        // };
+        // socket.current?.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
+
         return () => {
             socket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
             socket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
+            // socket.current?.off(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
         };
     }, [socket]);
 

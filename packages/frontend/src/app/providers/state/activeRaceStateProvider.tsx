@@ -50,6 +50,8 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
         } : null);
       }
 
+      // Siin kuskil tahame settida scheduleState'i muudatuse ka
+
       console.log(`[📩 Active Race State]: Race State Changed to ${data.message.newState}`);
     }
     socket.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);

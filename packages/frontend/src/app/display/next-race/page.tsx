@@ -2,12 +2,11 @@
 
 import React from 'react';
 import NextRaceHeader from '@/components/display/next-race-header';
-import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
 import { ActiveRaceStateProvider, useActiveRaceState } from '@/app/providers/state/activeRaceStateProvider';
-import { RaceState as ERaceState, ScheduledRace } from 'racetrack-shared/types';
 import { AuthenticationProvider } from '@/app/providers/auth/authProvider';
-import { error } from 'console';
+import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
+import { useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 
 type AnnouncementCardProps = {
   driver: string;
@@ -25,54 +24,20 @@ const AnnouncementCard = ({ driver, car }: AnnouncementCardProps) => (
   </div>
 );
 
-// function parseTimeslot(timeslot: string): number {
-//   const [start] = timeslot.split(' - ');
-//   const [hours, minutes] = start.split(':').map(Number);
-//   return hours * 60 + minutes;
-// }
-
 function NextRacePage() {
 
   const scheduleState = useRaceScheduleState();
-
-  console.log("Type of scheduleState.getNextRace:", typeof scheduleState.getNextRace);
-
-  console.log("scheduleState: ", scheduleState)
-
-  // // Sort races by time
-  // const sortedRaces = scheduleState
-  //   ? Object.values(scheduleState)
-  //     .filter(race => race.raceState === 'pending' || race.raceState === 'completed')
-  //     .sort((a, b) =>
-  //       parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot)
-  //     )
-  //   : [];
-
-  // let nextRace: ScheduledRace | null = null;
-
-  // // If there is a completed race 
-  // const hasCompletedRace = Object.values(scheduleState || {}).some(
-  //   (race) => race.raceState === 'completed'
-  // );
-
-  // let nextRaceIndex = 0;
-
-  // if (hasCompletedRace) {
-  //   nextRaceIndex = 1;
-  // }
-
-  // nextRace = sortedRaces[nextRaceIndex]
-
- if (!scheduleState) {
-  return <div>Error loading schedule</div>; // Or a proper error component
-}
-
-  const { race: upcomingRace, hasCompletedRace } = scheduleState.getNextRace() ?? {};
+  const activeRaceState = useActiveRaceState();
 
 
-  if (upcomingRace) {
-    console.log("🎯 Next race is:", upcomingRace.raceId);
+  // 1. Näita esimest pending racei
+  // 2. Kui active raceis ei ole näita please proceed to paddock
+
+  if (!scheduleState.nextRace) {
+    return <div>Loading...</div>;
   }
+
+  const upcomingRace = scheduleState.nextRace
 
   const announcements =
     upcomingRace?.contestants?.map((contestant: any) => ({
@@ -80,10 +45,13 @@ function NextRacePage() {
       car: contestant.racecarNumber,
     })) ?? [];
 
+  
+  const hasActiveRace = activeRaceState.activeRaceState? 1 : null;
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16 flex flex-col items-center">
       <NextRaceHeader />
+      <h2 className='text-center py-10'>{upcomingRace.raceScheduledStartTimeSlot}</h2>
 
       <main className="flex flex-col items-center space-y-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 m-20 pt-10">
@@ -92,11 +60,13 @@ function NextRacePage() {
           ))}
         </div>
 
-        {hasCompletedRace && (
+        {!hasActiveRace && (
           <h3 className="text-2xl md:text-2xl font-semibold text-center text-white tracking-wide uppercase font-cairo md:pt-40 pt-80">
             Please proceed to the paddock
           </h3>
         )}
+
+
       </main>
     </div>
   );

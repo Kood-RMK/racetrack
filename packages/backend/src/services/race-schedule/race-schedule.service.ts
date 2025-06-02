@@ -189,6 +189,8 @@ export class RaceScheduleService {
             deleteFromScheduledRace({
                 raceId: raceId,
             });
+
+            
         });
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceModified, (raceId: ScheduledRace['raceId'], entry: RaceScheduleEntryState) => {
