@@ -16,12 +16,21 @@ function RaceSchedulePage() {
 
   const scheduleState = useRaceScheduleState();
   const scheduleController = useRaceScheduleController();
+  const { sortedSchedule } = useRaceScheduleState();
 
   if (!scheduleState.schedule || !scheduleController) {
     return <div>Loading...</div>;
   }
 
-  
+  if (sortedSchedule === null) {
+    return <div>No sorted schedule...</div>;
+  }
+
+  // Debug logs to verify race states
+  console.log("Sorted Schedule:", sortedSchedule);
+  sortedSchedule.forEach(race => {
+    console.log(`Race ID: ${race.raceId}, State: ${race.raceState}`);
+  });
 
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
@@ -31,7 +40,7 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        {scheduleState.schedule.map((raceData) => {
+        {scheduleState.sortedSchedule.map((raceData) => {
           return (
             <RaceCard
               key={raceData.raceId}

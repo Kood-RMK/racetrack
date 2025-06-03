@@ -1,20 +1,21 @@
 "use client";
 
-import { ReactNode, useEffect, useState, createContext, useContext, useRef } from "react";
+import { ReactNode, useEffect, useState, createContext, useContext, useMemo } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { ActiveRaceEvents, ActiveRaceStateChanged, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
+import { ActiveRaceEvents, ActiveRaceStateChanged, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
 
 // Contexts
-
 
 export type RaceScheduleContextType = {
     schedule: RaceScheduleEntries | null;
     nextRace: ScheduledRace | null;
+    sortedSchedule: ScheduledRace[] | [];
 }
 
 const RaceScheduleContext = createContext<RaceScheduleContextType>({
     schedule: null,
     nextRace: null,
+    sortedSchedule: [],
 });
 
 // Provider
@@ -86,10 +87,26 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
         };
     }, [raceScheduleSocket]);
 
+    // Calculate sortedSchedule here
+    const sortedSchedule = useMemo(() => {
+        if (!scheduleState) return [];
+
+        function parseTimeslot(timeslot: string): number {
+            const [start] = timeslot.split(' - ');
+            const [hours, minutes] = start.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        return scheduleState
+            .filter(race => race.raceState === 'pending')
+            .sort((a, b) => parseTimeslot(a.raceScheduledStartTimeSlot) - parseTimeslot(b.raceScheduledStartTimeSlot));
+    }, [scheduleState]);
+
     return (
         <RaceScheduleContext.Provider value={{
             schedule: scheduleState,
-            nextRace: nextRace
+            nextRace: nextRace,
+            sortedSchedule: sortedSchedule,
         }}>
             {children}
         </RaceScheduleContext.Provider>
