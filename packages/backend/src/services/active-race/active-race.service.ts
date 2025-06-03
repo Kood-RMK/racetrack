@@ -41,12 +41,15 @@ export class ActiveRaceService {
     private readonly _socketServer: SocketIOServer;
     private readonly _eventEmitter = new ActiveRaceServiceEventEmitter();
     private readonly _socketNamespace: Namespace;
+    private readonly _raceScheduleNamespace: Namespace;//
     private readonly _database: DatabaseSync;
     private readonly logger : Logger;
 
     constructor(io: SocketIOServer, parentLogger : Logger, database: DatabaseSync) {
         this._socketServer = io;
         this._socketNamespace = this._socketServer.of("/active-race");
+        this._raceScheduleNamespace = this._socketServer.of("/race-schedule");//
+        const raceScheduleNamespace = this._socketServer.of("/race-schedule");
         const logger = parentLogger.child({serviceName: this.constructor.name});
         this._database = database;
         this.logger = logger;
@@ -55,7 +58,7 @@ export class ActiveRaceService {
 
         // Create active race handler if an active race is found in the database.
         if (this._activeRaceState) {
-            this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
+            this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, raceScheduleNamespace, this.logger);
             this._activeRaceHandler.initialize();
         }
 
@@ -95,7 +98,7 @@ export class ActiveRaceService {
 
     public setActiveRace(activeRace: ActiveRace) {
         this._activeRaceState = ActiveRaceState.createNew(activeRace, this.logger, this._database);
-        this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
+        this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this._raceScheduleNamespace, this.logger);
 
         this._activeRaceHandler.activeRaceState.events.on(ActiveRaceStateEvents.RaceStateChanged, (newState) => {
             if (newState === RaceState.Completed || newState === RaceState.Canceled) {

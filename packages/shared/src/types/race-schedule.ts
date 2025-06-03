@@ -3,7 +3,6 @@ import { ScheduledRace } from "./stateTypes";
 
 // Message Types
 export enum RaceScheduleEvents {
-    // NewRaceScheduled = "newRaceScheduled",
     RaceScheduleInitialState = "raceScheduleinitialState",
     RaceScheduleUpdated = "raceScheduleUpdated",
 }
@@ -11,7 +10,8 @@ export enum RaceScheduleEvents {
 export enum RaceScheduleCommands {
     ScheduleNewRace = "scheduleNewRace",
     DeleteRace = "deleteRace",
-    ModifyRace = "ModifyRace"
+    ModifyRace = "ModifyRace",
+    ChangeRaceState = "raceStateChanged"
 }
 
 
@@ -50,3 +50,11 @@ export type ModifyRace = {
         updates: ScheduledRace;
     }
 };
+
+export type ChangeRaceState = {
+    type: RaceScheduleCommands.ChangeRaceState
+    data: {
+        raceId: string;
+        state: string;
+    }
+}

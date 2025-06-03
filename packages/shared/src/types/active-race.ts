@@ -1,4 +1,4 @@
-import { ActiveRace, RaceState } from "./stateTypes";
+import { ActiveRace, ActiveRaceId, RaceState } from "./stateTypes";
 
 export enum ActiveRaceEvents {
     RaceStateChanged = 'raceStateChanged',
@@ -16,6 +16,7 @@ export enum ActiveRaceCommands {
 export type ActiveRaceStateChanged = {
     type : ActiveRaceEvents.RaceStateChanged,
     newState : RaceState,
+    raceId : ActiveRaceId,  // Saadame Id ka välja
 };
 
 export type ActiveRaceHazardChanged = {

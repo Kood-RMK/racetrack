@@ -2,7 +2,7 @@ import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { Namespace, Socket } from "socket.io";
 import { ActiveRaceContestantStateEvents } from "./contestant/active-race-contestant.state";
 import { Logger } from "pino";
-import { ActiveRace, ActiveRaceEvents, ActiveRaceHazardChanged, ActiveRaceInitialState, ActiveRaceIsFinishingChanged, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, RaceContestantId, RaceState, RacetrackEvent } from "racetrack-shared/types";
+import { ActiveRace, ActiveRaceEvents, ActiveRaceHazardChanged, ActiveRaceInitialState, ActiveRaceIsFinishingChanged, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, RaceContestantId, RaceScheduleCommands, RaceState, RacetrackEvent } from "racetrack-shared/types";
 import { ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
 import { Stopwatch, StopwatchEvents } from "@racetrack/utils/stopwatch";
 
@@ -12,9 +12,10 @@ type ActiveContestantHandlers = Record<RaceContestantId, ActiveRaceContestantHan
 export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
-    private readonly _socketNamespace : Namespace;
-    private readonly logger : Logger;
-    private readonly _stopwatch : Stopwatch;
+    private readonly _socketNamespace: Namespace;
+    private readonly _raceScheduleNamespace: Namespace;
+    private readonly logger: Logger;
+    private readonly _stopwatch: Stopwatch;
 
     private readonly _activeRaceContestantHandlers: ActiveContestantHandlers;
 
@@ -23,20 +24,20 @@ export class ActiveRaceHandler {
     }
 
     public get activeRaceContestants() {
-        return Object.entries (this._activeRaceContestantHandlers).map(([contestantId, contestantHandler]) => {return contestantHandler});
+        return Object.entries(this._activeRaceContestantHandlers).map(([contestantId, contestantHandler]) => { return contestantHandler });
     }
 
     public getActiveRaceContestantById(contestantId: RaceContestantId) {
         return this._activeRaceContestantHandlers[contestantId];
     }
 
-    private onConnection : (client: Socket) => void;
-    private onRaceStateChanged : (newState: ActiveRace['raceState']) => void;
-    private onRaceHazardChanged : (isHazard: ActiveRace['isHazard']) => void;
-    private onRaceIsFinishingChanged : (isFinishing: ActiveRace['isFinishing']) => void;
-    private onTimeLeftChanged : (timeLeft: ActiveRace['timeLeft']) => void;
+    private onConnection: (client: Socket) => void;
+    private onRaceStateChanged: (newState: ActiveRace['raceState']) => void;
+    private onRaceHazardChanged: (isHazard: ActiveRace['isHazard']) => void;
+    private onRaceIsFinishingChanged: (isFinishing: ActiveRace['isFinishing']) => void;
+    private onTimeLeftChanged: (timeLeft: ActiveRace['timeLeft']) => void;
 
-    private refreshContestantPlacement(contestantHandlers : ActiveContestantHandlers) {
+    private refreshContestantPlacement(contestantHandlers: ActiveContestantHandlers) {
         const contestants = Object.entries(contestantHandlers).map(([contestantId, contestantHandler]) => {
             return contestantHandler.contestantState;
         });
@@ -61,7 +62,7 @@ export class ActiveRaceHandler {
         });
     }
 
-    constructor(activeRaceState : ActiveRaceState, socketNamespace : Namespace, baseLogger : Logger) {
+    constructor(activeRaceState: ActiveRaceState, socketNamespace: Namespace, raceScheduleNamespace: Namespace, baseLogger: Logger) {
         this.logger = baseLogger.child(
             {
                 handlerName: this.constructor.name
@@ -69,7 +70,7 @@ export class ActiveRaceHandler {
         );
 
         // Create a stopwatch to track the time left.
-        this._stopwatch = new Stopwatch(Number (process.env.STOPWATCH_TICK));
+        this._stopwatch = new Stopwatch(Number(process.env.STOPWATCH_TICK));
         this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
             this._activeRaceState.setTimeLeft(this._activeRaceState.timeLeft - elapsed);
             this._stopwatch.reset();
@@ -79,7 +80,7 @@ export class ActiveRaceHandler {
 
         // Create a handler for each active contestant.
         this._activeRaceContestantHandlers = this._activeRaceState.contestants.reduce((contestantHandlers, contestantState) => {
-            const contestantHandler  = new ActiveRaceContestantHandler(contestantState, this._activeRaceState, socketNamespace, baseLogger);
+            const contestantHandler = new ActiveRaceContestantHandler(contestantState, this._activeRaceState, socketNamespace, baseLogger);
 
             // When a contestant crosses the line, we need to recalculate the placement of all contestants.
             contestantHandler.contestantState.events.on(ActiveRaceContestantStateEvents.ContestantFastestLapChanged, (contestant, preValue) => {
@@ -92,14 +93,15 @@ export class ActiveRaceHandler {
         }, {} as ActiveContestantHandlers);
 
         this._socketNamespace = socketNamespace;
+        this._raceScheduleNamespace = raceScheduleNamespace; //
 
-        this.onConnection = (client : Socket) => {
+        this.onConnection = (client: Socket) => {
             this.logger.info(`New Connection! Client: ${client.id}`);
 
-            const initialStateMessage : RacetrackEvent<ActiveRaceInitialState> = {
-                message : {
+            const initialStateMessage: RacetrackEvent<ActiveRaceInitialState> = {
+                message: {
                     type: ActiveRaceEvents.RaceInitialState,
-                    race : this.activeRaceState.activeRace,
+                    race: this.activeRaceState.activeRace,
                 }
             }
 
@@ -115,15 +117,20 @@ export class ActiveRaceHandler {
             }
 
             try {
-                const raceStateChangedMessage : RacetrackEvent<ActiveRaceStateChanged> = {
-                    message : {
+                const raceStateChangedMessage: RacetrackEvent<ActiveRaceStateChanged> = {
+                    message: {
                         type: ActiveRaceEvents.RaceStateChanged,
                         newState: newState,
+                        raceId: this._activeRaceState.activeRace.raceId,
                     }
                 }
 
+                // Emit to /active-race
                 this._socketNamespace
                     .emit(ActiveRaceEvents.RaceStateChanged, raceStateChangedMessage);
+
+                // Also emit to /race-schedule
+                this._raceScheduleNamespace.emit(RaceScheduleCommands.ChangeRaceState, raceStateChangedMessage);
 
                 this.logger.info(raceStateChangedMessage, `Race state change broadcasted.`);
 
@@ -134,8 +141,8 @@ export class ActiveRaceHandler {
 
         this.onRaceHazardChanged = (isHazard: ActiveRace['isHazard']) => {
             try {
-                const raceHazardChangedMessage : RacetrackEvent<ActiveRaceHazardChanged> = {
-                    message : {
+                const raceHazardChangedMessage: RacetrackEvent<ActiveRaceHazardChanged> = {
+                    message: {
                         type: ActiveRaceEvents.RaceHazardChanged,
                         isHazard: isHazard,
                     }
@@ -152,8 +159,8 @@ export class ActiveRaceHandler {
 
         this.onRaceIsFinishingChanged = (isFinishing: ActiveRace['isFinishing']) => {
             try {
-                const raceIsFinishingChangedMessage : RacetrackEvent<ActiveRaceIsFinishingChanged> = {
-                    message : {
+                const raceIsFinishingChangedMessage: RacetrackEvent<ActiveRaceIsFinishingChanged> = {
+                    message: {
                         type: ActiveRaceEvents.RaceIsFinishingChanged,
                         isFinishing: isFinishing,
                     }
@@ -171,8 +178,8 @@ export class ActiveRaceHandler {
 
         this.onTimeLeftChanged = (timeLeft: ActiveRace['timeLeft']) => {
             try {
-                const timeLeftChangedMessage : RacetrackEvent<ActiveRaceTimeLeftChanged> = {
-                    message : {
+                const timeLeftChangedMessage: RacetrackEvent<ActiveRaceTimeLeftChanged> = {
+                    message: {
                         type: ActiveRaceEvents.RaceTimeLeftChanged,
                         timeLeft: timeLeft,
                     }
@@ -203,15 +210,15 @@ export class ActiveRaceHandler {
         // Send intial state to new client.
         this._socketNamespace.on("connection", this.onConnection);
 
-        const initialStateMessage : RacetrackEvent<ActiveRaceInitialState> = {
-            message : {
+        const initialStateMessage: RacetrackEvent<ActiveRaceInitialState> = {
+            message: {
                 type: ActiveRaceEvents.RaceInitialState,
-                race : this.activeRaceState.activeRace,
+                race: this.activeRaceState.activeRace,
             }
         }
         // Emit to all already connected clients that a race has started.
         this._socketNamespace.emit(ActiveRaceEvents.RaceInitialState, initialStateMessage)
-    
+
         if (this._activeRaceState.raceState === RaceState.Active) {
             this._stopwatch.start();
         }

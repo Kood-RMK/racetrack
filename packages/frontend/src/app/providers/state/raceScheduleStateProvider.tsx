@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState, createContext, useContext, useRef } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { ActiveRaceEvents, ActiveRaceStateChanged, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
+import { ActiveRaceEvents, ActiveRaceStateChanged, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
 
 // Contexts
 
@@ -24,7 +24,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
     // and it must match the type RaceSchedule.
     const [scheduleState, setScheduleState] = useState<RaceScheduleEntries | null>(null);
     const [nextRace, setNextRace] = useState<ScheduledRace | null>(null);
-    const socket = useSocket("/race-schedule");
+    const raceScheduleSocket = useSocket("/race-schedule");
 
 
     useEffect(() => {
@@ -38,9 +38,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
     // useEffect to only mount the socket once and unhooklisteners when the component unmounts.
     useEffect(() => {
 
-        if (!socket.current) {
-            return;
-        }
+        if (!raceScheduleSocket.current) return;
 
         // receive the initial schedule state for new client
         const onScheduleInitialState = (data: RacetrackEvent<RaceScheduleInitialState>) => {
@@ -49,7 +47,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 
             console.log(`[Race Schedule Provider]: Initial Schedule State Received:`, initialSchedule);
         }
-        socket.current.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
+        raceScheduleSocket.current.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
 
 
         const onRaceScheduleUpdated = (data: RacetrackEvent<RaceScheduleUpdated>) => {
@@ -58,28 +56,35 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
 
             console.log(`[📩 Race Schedule updated]: Race Schedule update received:`, updatedSchedule);
         }
-        socket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
+        raceScheduleSocket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
 
-        // const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
-        //     const { race, newState } = data.message;
+        const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
+            const { raceId, newState } = data.message;
 
-        //     setScheduleState(prev => {
-        //         if (!prev) return prev;
-        //         return prev.map(scheduledRace =>
-        //             scheduledRace.raceId === race.raceId
-        //                 ? { ...scheduledRace, raceState: newState }
-        //                 : scheduledRace
-        //         );
-        //     });
-        // };
-        // socket.current?.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
+            setScheduleState(prev => {
+                if (!prev) return prev;
+
+                const updatedSchedule = prev.map(scheduledRace =>
+                    scheduledRace.raceId === raceId
+                        ? { ...scheduledRace, raceState: newState }
+                        : scheduledRace
+                );
+
+                console.log(`[🟢 Race State Changed]: Race ${raceId} changed to "${newState}"`);
+                console.log("📋 Updated schedule state:", updatedSchedule);
+
+                return updatedSchedule;
+            });
+        };
+
+        raceScheduleSocket.current.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged); // see siin sees on kahtlane
 
         return () => {
-            socket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
-            socket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
-            // socket.current?.off(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
+            raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
+            raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
+            raceScheduleSocket.current?.off(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
         };
-    }, [socket]);
+    }, [raceScheduleSocket]);
 
     return (
         <RaceScheduleContext.Provider value={{
