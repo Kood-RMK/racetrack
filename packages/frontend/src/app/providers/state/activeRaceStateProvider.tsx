@@ -73,7 +73,7 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
         timeLeft: data.message.timeLeft,
       } : null);
 
-      console.log(data.message.timeLeft)
+      // console.log(data.message.timeLeft)
     }
     socket.on(ActiveRaceEvents.RaceTimeLeftChanged, onTimeLeftChanged);
 

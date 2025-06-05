@@ -123,7 +123,7 @@ function RaceControlPage() {
     useEffect(() => {
 
       if (activeRaceState.activeRaceState) {
-      console.log("Change", activeRaceState);
+      // console.log("Change", activeRaceState);
         setContestants(Object.values(activeRaceState.activeRaceState.contestants).map(activeContestant => activeContestant.contestant));
         setRace(activeRaceState.activeRaceState);
 

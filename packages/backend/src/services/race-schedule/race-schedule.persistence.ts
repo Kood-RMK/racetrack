@@ -26,23 +26,15 @@ export function insertScheduledRace(race: {
 }) {
     // stmt = statement
     const stmt = db.prepare(` 
-        INSERT INTO races (
+        INSERT INTO scheduled-races (
         raceId,
         raceScheduledStartTimeSlot,
-        raceState,
-        isHazard,
-        isFinishing,
-        timeLeft
-        ) VALUES (?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?)
   `);
 
     stmt.run(
         race.raceId,
         race.raceScheduledStartTimeSlot,
-        race.raceState,
-        race.isHazard ? 1 : 0,
-        race.isFinishing ? 1 : 0,
-        race.timeLeft
     );
 }
 
@@ -78,7 +70,7 @@ export function deleteFromScheduledRace(race: { raceId: string }) {
     `);
 
     const deleteScheduledRace = db.prepare(`
-        DELETE FROM races WHERE raceId = ?
+        DELETE FROM scheduled-races WHERE raceId = ?
     `);
     
     deleteScheduledRaceContestants.run(race.raceId);
@@ -88,10 +80,6 @@ export function deleteFromScheduledRace(race: { raceId: string }) {
 export function modifyScheduledRace(race: {
     raceId: string;
     raceScheduledStartTimeSlot?: string;
-    raceState?: string;
-    isHazard?: boolean;
-    isFinishing?: boolean;
-    timeLeft?: number;
 }) {
     // Build dynamic SQL update parts depending on which fields are passed in
     const fieldsToUpdate: string[] = [];
@@ -120,7 +108,7 @@ export function modifyScheduledRace(race: {
 
 
 export function loadFromDatabase(): RaceSchedule {
-    const scheduledRacesStmt = db.prepare(`SELECT * FROM races`);
+    const scheduledRacesStmt = db.prepare(`SELECT * FROM scheduled-races`);
     const raceContestantsStmt = db.prepare(`SELECT * FROM race_contestants`);
 
     const rawScheduledRaces = scheduledRacesStmt.all();
@@ -141,7 +129,7 @@ export function loadFromDatabase(): RaceSchedule {
          raceSchedule[race.raceId as string] = {
             raceId: race.raceId as string,
             raceScheduledStartTimeSlot: race.raceScheduledStartTimeSlot as string,
-            raceState: race.raceState as RaceState,
+            raceState: RaceState.Pending,
             contestants,
         };
     }

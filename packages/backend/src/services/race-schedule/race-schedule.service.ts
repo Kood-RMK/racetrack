@@ -1,6 +1,6 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
-import { DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
+import { ActiveRaceEvents, ActiveRaceStateChanged, DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
 import { RaceScheduleEntryState, RaceScheduleState, RaceScheduleStateEvents } from "./race-schedule.state";
 import { deleteFromScheduledRace, insertRaceContestant, insertScheduledRace, loadFromDatabase, modifyScheduledRace } from "./race-schedule.persistence";
 import { useRacetrackAuth } from "../auth";
@@ -38,9 +38,6 @@ export class RaceScheduleService {
         });
 
 
-        console.log("Neccessary schedule:", this.schedule.raceScheduleEntries);
-        
-
         if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
             try {
                 const dbSchedule = loadFromDatabase();
@@ -61,10 +58,14 @@ export class RaceScheduleService {
 
             this.logger.info(`New client connected!, ID`, client.id);
 
+            // Only display pending races
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
                 message: {
                     type: RaceScheduleEvents.RaceScheduleInitialState,
-                    schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
+                    // schedule: this.schedule.sortedSchedule.map(entry => entry.scheduledRace)
+                    schedule: this.schedule.sortedSchedule
+                        .map(entry => entry.scheduledRace)
+                        .filter(race => race.raceState === 'pending')
                 }
             }
 
@@ -146,6 +147,36 @@ export class RaceScheduleService {
                     console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);
                 }
             })
+
+            // Update the race state
+            client.on(ActiveRaceEvents.RaceStateChanged, (data: RacetrackEvent<ActiveRaceStateChanged>) => {
+
+                const { raceId, newState } = data.message;
+
+                console.log("Race SChedule Service inRaceStateChanged", data.message)
+
+                // Find and update the race in memory
+                const existingEntry = this.schedule.raceScheduleEntries[raceId];
+                if (!existingEntry) {
+                    this.logger.warn(`Race with ID ${raceId} not found in schedule.`);
+                    return;
+                }
+
+                // Clone the race and apply the new state
+                const updatedRace = {
+                    ...existingEntry.scheduledRace, // this is a plain object
+                    raceState: newState
+                };
+
+                // Create a new RaceScheduleEntryState
+                const updatedRaceEntry = new RaceScheduleEntryState(updatedRace);
+
+                // Update the in-memory schedule (and trigger DB + broadcast)
+                this.schedule.modifyRace(raceId, updatedRaceEntry);
+
+                this.logger.info(`[✅ Race State Changed in this.schedule] Race ID: ${raceId}, New State: ${newState}`);
+            });
+
         })
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceScheduleChanged, (entries => {
@@ -161,26 +192,26 @@ export class RaceScheduleService {
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceAdded, (entry: RaceScheduleEntryState) => {
 
-                const {contestants, raceId, raceScheduledStartTimeSlot, raceState } = entry
+            const { contestants, raceId, raceScheduledStartTimeSlot, raceState } = entry
 
-                insertScheduledRace({
+            insertScheduledRace({
+                raceId: raceId,
+                raceScheduledStartTimeSlot: raceScheduledStartTimeSlot,
+                raceState: raceState,
+                isHazard: false,
+                isFinishing: false,
+                timeLeft: 0
+            });
+
+            // Insert contestants into database
+            for (const contestant of contestants) {
+                insertRaceContestant({
                     raceId: raceId,
-                    raceScheduledStartTimeSlot: raceScheduledStartTimeSlot,
-                    raceState: raceState,
-                    isHazard: false,
-                    isFinishing: false,
-                    timeLeft: 0
+                    contestantId: contestant.contestantId,
+                    name: contestant.name,
+                    racecarNumber: contestant.racecarNumber
                 });
-
-                // ✅ Insert contestants into database
-                for (const contestant of contestants) {
-                    insertRaceContestant({
-                        raceId: raceId,
-                        contestantId: contestant.contestantId,
-                        name: contestant.name,
-                        racecarNumber: contestant.racecarNumber
-                    });
-                }
+            }
         })
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceDeleted, (raceId: ScheduledRace['raceId']) => {
@@ -189,16 +220,14 @@ export class RaceScheduleService {
             deleteFromScheduledRace({
                 raceId: raceId,
             });
-
-            
         });
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceModified, (raceId: ScheduledRace['raceId'], entry: RaceScheduleEntryState) => {
-                modifyScheduledRace({
-                    raceId,
-                    raceScheduledStartTimeSlot: entry.raceScheduledStartTimeSlot,
-                    raceState : entry.raceState,
-                });
+            modifyScheduledRace({
+                raceId,
+                raceScheduledStartTimeSlot: entry.raceScheduledStartTimeSlot,
+                raceState: entry.raceState,
+            });
         });
     }
 }

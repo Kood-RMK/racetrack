@@ -72,6 +72,9 @@ export const RaceControllerProvider = ({children} : {children : ReactNode}) => {
             scheduledRace : scheduledRace
           }
         }
+
+        console.log("raceControlProvider button press sends out:", command.message);
+
         if (command.message?.type) { 
           socket.emit(command.message.type, command);
         }

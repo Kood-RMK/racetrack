@@ -13,7 +13,7 @@ export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _socketNamespace: Namespace;
-    private readonly _raceScheduleNamespace: Namespace;
+        private readonly _raceScheduleNamespace: Namespace;
     private readonly logger: Logger;
     private readonly _stopwatch: Stopwatch;
 
@@ -130,7 +130,7 @@ export class ActiveRaceHandler {
                     .emit(ActiveRaceEvents.RaceStateChanged, raceStateChangedMessage);
 
                 // Also emit to /race-schedule
-                this._raceScheduleNamespace.emit(RaceScheduleCommands.ChangeRaceState, raceStateChangedMessage);
+                // this._raceScheduleNamespace.emit(RaceScheduleCommands.ChangeRaceState, raceStateChangedMessage);
 
                 this.logger.info(raceStateChangedMessage, `Race state change broadcasted.`);
 

@@ -31,7 +31,6 @@ export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
         <div className="grid grid-cols-2 p-10 w-full h-full justify-center items-center gap-y-4">
           {Array(maxDrivers).fill(null).map((_, index) => {
             const driver = contestants[index];
-            console.log("drivers:", driver);
 
             return (
               <div key={index} className="text-center text-sm font-medium">

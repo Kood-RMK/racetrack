@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState, createContext, useContext, useMemo } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { ActiveRaceEvents, ActiveRaceStateChanged, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
+import { ActiveRaceEvents, ActiveRaceInitialState, ActiveRaceStateChanged, RaceControlCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace, StartRace } from "racetrack-shared/types";
 
 // Contexts
 
@@ -44,18 +44,25 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
         // receive the initial schedule state for new client
         const onScheduleInitialState = (data: RacetrackEvent<RaceScheduleInitialState>) => {
             const initialSchedule = data.message.schedule;
-            setScheduleState(initialSchedule);
 
-            console.log(`[Race Schedule Provider]: Initial Schedule State Received:`, initialSchedule);
+            // Only show pending races
+            const pendingSchedule = initialSchedule.filter(race => race.raceState === 'pending');
+
+            setScheduleState(pendingSchedule);
+
+            console.log(`[Race Schedule Provider]: Initial Schedule State Received (filtered):`, pendingSchedule);
         }
         raceScheduleSocket.current.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
 
 
         const onRaceScheduleUpdated = (data: RacetrackEvent<RaceScheduleUpdated>) => {
             const updatedSchedule = data.message.schedule;
-            setScheduleState(updatedSchedule);
 
-            console.log(`[📩 Race Schedule updated]: Race Schedule update received:`, updatedSchedule);
+            const pendingSchedule = updatedSchedule.filter(race => race.raceState === 'pending');
+
+            setScheduleState(pendingSchedule);
+
+            console.log(`[📩 Race Schedule updated]: Filtered update received:`, pendingSchedule);
         }
         raceScheduleSocket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
 
@@ -77,13 +84,35 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
                 return updatedSchedule;
             });
         };
+        raceScheduleSocket.current.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
 
-        raceScheduleSocket.current.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged); // see siin sees on kahtlane
+
+        const onRaceInitialState = (data: RacetrackEvent<ActiveRaceInitialState>) => {
+        const activeRace = data.message.race;
+        const { raceId, raceState } = activeRace;
+
+
+        // Update schedule state too
+        setScheduleState(prev => {
+            if (!prev) return prev;
+
+            const updatedSchedule = prev.map(race =>
+                race.raceId === raceId
+                    ? { ...race, raceState } // use the server-provided state
+                    : race
+            );
+
+            console.log(`[🟢 Synced Schedule]: Updated race ${raceId} to state "${raceState}"`);
+            return updatedSchedule;
+        });
+        raceScheduleSocket.current?.on(ActiveRaceEvents.RaceInitialState, onRaceInitialState);
+    };
 
         return () => {
             raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
             raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
             raceScheduleSocket.current?.off(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
+            raceScheduleSocket.current?.off(ActiveRaceEvents.RaceInitialState, onRaceInitialState);
         };
     }, [raceScheduleSocket]);
 

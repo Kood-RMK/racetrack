@@ -18,6 +18,8 @@ function RaceSchedulePage() {
   const scheduleController = useRaceScheduleController();
   const { sortedSchedule } = useRaceScheduleState();
 
+  const pendingSortedSchedule = sortedSchedule?.filter(race => race.raceState !== 'active') ?? [];
+
   if (!scheduleState.schedule || !scheduleController) {
     return <div>Loading...</div>;
   }
@@ -27,7 +29,7 @@ function RaceSchedulePage() {
   }
 
   // Debug logs to verify race states
-  console.log("Sorted Schedule:", sortedSchedule);
+  console.log("Sorted Schedule:", pendingSortedSchedule);
   sortedSchedule.forEach(race => {
     console.log(`Race ID: ${race.raceId}, State: ${race.raceState}`);
   });
@@ -40,7 +42,7 @@ function RaceSchedulePage() {
 
         <NewRaceDialog />
 
-        {scheduleState.sortedSchedule.map((raceData) => {
+        {pendingSortedSchedule.map((raceData) => {
           return (
             <RaceCard
               key={raceData.raceId}

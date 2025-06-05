@@ -45,7 +45,7 @@ export class ActiveRaceState {
 
         const logger = baseLogger.child({handlerName : this.constructor.name})            
 
-        const activeRaceQuery = database.prepare("SELECT * FROM races WHERE raceState IN ('active', 'paused');");
+        const activeRaceQuery = database.prepare("SELECT * FROM active-race LIMIT 1;");
         const activeRaceRow = activeRaceQuery.get();
 
         if (!activeRaceRow) {
@@ -127,7 +127,7 @@ export class ActiveRaceState {
 
     public static createNew(activeRace: ActiveRace, baseLogger: Logger, database: DatabaseSync) {
 
-        const updateRaceStateStatement = database.prepare(`UPDATE races SET raceState = @raceState WHERE raceId = @raceId`);
+        const updateRaceStateStatement = database.prepare(`UPDATE active-race SET raceState = @raceState WHERE raceId = @raceId`);
         updateRaceStateStatement.run({
             raceState: RaceState.Active,
             raceId: activeRace.raceId
@@ -188,7 +188,7 @@ export class ActiveRaceState {
     public setRaceState(raceState: ActiveRace['raceState']) {
         this._activeRace.raceState = raceState;
 
-        const updateRaceStateStatement = this._database.prepare(`UPDATE races SET raceState = @raceState WHERE raceId = @raceId`);
+        const updateRaceStateStatement = this._database.prepare(`UPDATE active-race SET raceState = @raceState WHERE raceId = @raceId`);
         updateRaceStateStatement.run({
             raceState: raceState,
             raceId: this._activeRace.raceId
@@ -201,7 +201,7 @@ export class ActiveRaceState {
     public setIsHazard(isHazard: ActiveRace['isHazard']) {
         this._activeRace.isHazard = isHazard;
 
-        const updateIsHazardStatement = this._database.prepare(`UPDATE races SET isHazard = @isHazard WHERE raceId = @raceId`);
+        const updateIsHazardStatement = this._database.prepare(`UPDATE active-race SET isHazard = @isHazard WHERE raceId = @raceId`);
         updateIsHazardStatement.run({
             isHazard: isHazard ? 1 : 0,
             raceId: this._activeRace.raceId
@@ -219,7 +219,7 @@ export class ActiveRaceState {
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
         this._activeRace.isFinishing = isFinishing;
 
-        const updateIsFinishingStatement = this._database.prepare(`UPDATE races SET isFinishing = @isFinishing WHERE raceId = @raceId`);
+        const updateIsFinishingStatement = this._database.prepare(`UPDATE active-race SET isFinishing = @isFinishing WHERE raceId = @raceId`);
         updateIsFinishingStatement.run({
             isFinishing: isFinishing ? 1 : 0,
             raceId: this._activeRace.raceId
@@ -237,7 +237,7 @@ export class ActiveRaceState {
     public setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
         this._activeRace.timeLeft = timeLeft;
 
-        const updateTimeLeftStatement = this._database.prepare(`UPDATE races SET timeLeft = @timeLeft WHERE raceId = @raceId`);
+        const updateTimeLeftStatement = this._database.prepare(`UPDATE active-race SET timeLeft = @timeLeft WHERE raceId = @raceId`);
         updateTimeLeftStatement.run({
             timeLeft: timeLeft,
             raceId: this._activeRace.raceId
