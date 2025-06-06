@@ -37,32 +37,45 @@ import { ScheduledRace, RaceContestant, RaceState } from "racetrack-shared/types
 export function RacePendingButtons({ race }: { race: ScheduledRace }) {
 
   const driverCount = 8;
-  const [driverNames, setDriverNames] = useState<string[]>([""]);
+  const [contestants, setContestants] = useState<RaceContestant[]>(race.contestants);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  console.log(contestants);
+
   useEffect(() => {
     if (isDialogOpen) {
-      setDriverNames(race.contestants.map(c => c.name));
+      setContestants(race.contestants);
       setSelectedTimeSlot(race.raceScheduledStartTimeSlot);
     }
   }, [isDialogOpen]);
 
-  useEffect(() => {
-    setDriverNames((prev) => {
-      if (prev.length < driverCount) {
-        return [...prev, ...Array(driverCount - prev.length).fill("")];
-      }
-      return prev;
-    });
-  }, [driverCount]);
+  // useEffect(() => {
+  //   setContestants((prev) => {
+  //     if (prev.length < driverCount) {
+  //       return [...prev, ...Array(driverCount - prev.length).fill("")];
+  //     }
+  //     return prev;
+  //   });
+  // }, [driverCount]);
 
   const scheduleControllerRef = useRaceScheduleController();
 
   const handleNameChange = (index: number, value: string) => {
-    setDriverNames((prev) => {
+    setContestants((prev) => {
       const updated = [...prev];
-      updated[index] = value;
+      const contestantIndex = contestants.findIndex(c => c?.racecarNumber == index + 1);
+
+      if (contestantIndex !== -1) {
+          updated[contestantIndex].name = value;
+      } else {
+        updated.push ( {
+          contestantId : `driver-${index}-${Date.now()}`,
+          name : value,
+          racecarNumber : index + 1
+        })
+      } 
+
       return updated;
     });
   };
@@ -83,19 +96,18 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
       return;
     }
 
-    const contestants: RaceContestant[] = driverNames
-      .filter(name => name.trim() !== "")
-      .map((name, index) => ({
-        contestantId: `driver-${index}-${Date.now()}`,
-        name,
-        racecarNumber: index + 1,
-      }));
+    // const filteredContestants: RaceContestant[] = 
+      // .map((name, index) => ({
+      //   contestantId: `driver-${index}-${Date.now()}`,
+      //   name,
+      //   racecarNumber: index + 1,
+      // }));
 
     // Create the new race object 
     const updatedRace: ScheduledRace = {
       raceId: race.raceId,
       raceScheduledStartTimeSlot: selectedTimeSlot,
-      contestants,
+      contestants : contestants.filter(contestant => contestant.name.trim() !== ""),
       raceState: RaceState.Pending,
     };
 
@@ -109,6 +121,9 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
 
     setIsDialogOpen(false);
   }
+
+
+
 
 
   return (
@@ -219,8 +234,11 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                           id={`driver-${i}`}
                           className="border border-gray-300 rounded-lg pl-8 py-1 w-full"
                           placeholder="Name"
-                          value={driverNames[i] || ""}
-                          onChange={(e) => handleNameChange(i, e.target.value)}
+                          value={contestants.find(c => c?.racecarNumber == i + 1)?.name || ""}
+                          onChange={(e) => 
+                              handleNameChange(i, e.target.value
+                              )}
+                            
                         />
                       </div>
                     </TextField>

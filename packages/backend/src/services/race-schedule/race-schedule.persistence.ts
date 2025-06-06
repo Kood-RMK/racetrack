@@ -7,8 +7,10 @@
     Pay attention to:
         1) Are the tables properly joined where they have to be?
 */
+
+// TODO: race_contestants modification in db isn't implemented atm, only the scheduled_races gets updated
 import { DatabaseSync } from 'node:sqlite';
-import { RaceContestant, RaceSchedule, RaceState } from 'racetrack-shared/types';
+import { RaceContestant, RaceContestantId, RaceSchedule, RaceState, ScheduledRaceId } from 'racetrack-shared/types';
 
 let db: DatabaseSync;
 
@@ -19,47 +21,23 @@ export function initPersistence(databaseInstance: DatabaseSync) {
 export function insertScheduledRace(race: {
     raceId: string;
     raceScheduledStartTimeSlot: string;
-    raceState: string;
-    isHazard: boolean;
-    isFinishing: boolean;
-    timeLeft: number;
 }) {
     // stmt = statement
     const stmt = db.prepare(` 
-        INSERT INTO scheduled-races (
+        INSERT INTO scheduled_races (
         raceId,
-        raceScheduledStartTimeSlot,
+        raceScheduledStartTimeSlot
         ) VALUES (?, ?)
   `);
-
-    stmt.run(
-        race.raceId,
-        race.raceScheduledStartTimeSlot,
-    );
-}
-
-
-export function insertRaceContestant(contestant: {
-    raceId: string;
-    contestantId: string;
-    name: string;
-    racecarNumber: number;
-}) {
-    const stmt = db.prepare(`
-        INSERT INTO race_contestants (
-            raceId,
-            contestantId,
-            name,
-            racecarNumber
-        ) VALUES (?, ?, ?, ?)
-    `);
-
-    stmt.run(
-        contestant.raceId,
-        contestant.contestantId,
-        contestant.name,
-        contestant.racecarNumber
-    );
+    
+    try {
+        stmt.run(
+            race.raceId,
+            race.raceScheduledStartTimeSlot,
+        );
+    } catch (err) {
+        console.error("Failed to insert scheduled race:", err);
+    }
 }
 
 
@@ -70,7 +48,7 @@ export function deleteFromScheduledRace(race: { raceId: string }) {
     `);
 
     const deleteScheduledRace = db.prepare(`
-        DELETE FROM scheduled-races WHERE raceId = ?
+        DELETE FROM scheduled_races WHERE raceId = ?
     `);
     
     deleteScheduledRaceContestants.run(race.raceId);
@@ -97,7 +75,7 @@ export function modifyScheduledRace(race: {
     values.push(race.raceId);
 
     const sql = `
-        UPDATE races
+        UPDATE scheduled_races
         SET ${fieldsToUpdate.join(", ")}
         WHERE raceId = ?
     `;
@@ -106,9 +84,40 @@ export function modifyScheduledRace(race: {
     stmt.run(...values);
 }
 
+export function upsertRaceContestant(raceId : ScheduledRaceId, contestant: RaceContestant) {
+
+    const sql = `
+        INSERT INTO race_contestants(raceId, contestantId, name, racecarNumber)
+        VALUES(@raceId, @contestantId, @name, @racecarNumber)
+        ON CONFLICT(contestantId)
+        DO
+        UPDATE SET name = @name, racecarNumber = @racecarNumber
+        WHERE contestantId = @contestantId
+    `;
+    const stmt = db.prepare(sql);
+
+    stmt.run({
+        name: contestant.name,
+        racecarNumber : contestant.racecarNumber,
+        raceId : raceId,
+        contestantId : contestant.contestantId
+    });
+}
+
+export function clearRemovedRaceContestants(raceId : ScheduledRaceId, existingContestantIds : RaceContestantId[])  {
+
+    const placeholders = existingContestantIds.map(() => '?').join(',');
+    const sql = `
+        DELETE FROM race_contestants
+        WHERE raceId = ? AND contestantId NOT IN (${placeholders})
+    `
+    const stmt = db.prepare(sql);
+    stmt.run(raceId, ...existingContestantIds);
+}
+
 
 export function loadFromDatabase(): RaceSchedule {
-    const scheduledRacesStmt = db.prepare(`SELECT * FROM scheduled-races`);
+    const scheduledRacesStmt = db.prepare(`SELECT * FROM scheduled_races`);
     const raceContestantsStmt = db.prepare(`SELECT * FROM race_contestants`);
 
     const rawScheduledRaces = scheduledRacesStmt.all();

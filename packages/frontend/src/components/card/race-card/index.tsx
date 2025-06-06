@@ -34,9 +34,9 @@ export default function RaceCard({ race, tags, buttons }: RaceCardProps) {
 
             return (
               <div key={index} className="text-center text-sm font-medium">
-                <p>Racecar {`${driver?.racecarNumber ?? index + 1}`}</p>
+                <p>Racecar {`${index + 1}`}</p>
                 <p className="text-black font-medium text-base max-w-xs md:max-w-sm">
-                  {driver?.name ?? "-"}
+                  {`${contestants.find(c => c.racecarNumber == index + 1)?.name ?? "-"}` }
                 </p>
               </div>
             );

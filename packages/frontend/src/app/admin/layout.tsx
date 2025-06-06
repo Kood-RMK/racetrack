@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <body className="flex h-screen">
+    <div className="flex h-screen">
         
         <div className="flex-shrink-0">
           <Sidebar/>
@@ -24,6 +24,6 @@ export default function RootLayout({
             {children}
           </Overlay>
         </div>
-    </body>
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
-import { ActiveRaceEvents, ActiveRaceStateChanged, DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
+import { ActiveRaceEvents, ActiveRaceStateChanged, DeleteRace, ModifyRace, RaceControlCommands, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace, StartRace } from "racetrack-shared/types";
 import { RaceScheduleEntryState, RaceScheduleState, RaceScheduleStateEvents } from "./race-schedule.state";
-import { deleteFromScheduledRace, insertRaceContestant, insertScheduledRace, loadFromDatabase, modifyScheduledRace } from "./race-schedule.persistence";
+import { deleteFromScheduledRace, insertScheduledRace, loadFromDatabase, upsertRaceContestant, modifyScheduledRace, clearRemovedRaceContestants } from "./race-schedule.persistence";
 import { useRacetrackAuth } from "../auth";
 
 //Handlers
@@ -93,7 +93,7 @@ export class RaceScheduleService {
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ScheduleNewRace} command:`, error);
                 }
-            })
+            });
 
             // Delete Race
             client.on(RaceScheduleCommands.DeleteRace, (command: RacetrackCommand<DeleteRace>) => {
@@ -115,7 +115,7 @@ export class RaceScheduleService {
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.DeleteRace} command:`, error);
                 }
-            })
+            });
 
             // Modify Race
             client.on(RaceScheduleCommands.ModifyRace, (command: RacetrackCommand<ModifyRace>) => {
@@ -141,43 +141,60 @@ export class RaceScheduleService {
                     this.schedule.modifyRace(updatedRace.raceId, updatedRaceEntry);
 
                     console.log(`✅ Race with ID ${raceId} modified successfully.`);
+                    console.log(command.message.data.updates.contestants);
 
 
                 } catch (error) {
                     console.error(`Error processing ${RaceScheduleCommands.ModifyRace} command:`, error);
                 }
-            })
-
-            // Update the race state
-            client.on(ActiveRaceEvents.RaceStateChanged, (data: RacetrackEvent<ActiveRaceStateChanged>) => {
-
-                const { raceId, newState } = data.message;
-
-                console.log("Race SChedule Service inRaceStateChanged", data.message)
-
-                // Find and update the race in memory
-                const existingEntry = this.schedule.raceScheduleEntries[raceId];
-                if (!existingEntry) {
-                    this.logger.warn(`Race with ID ${raceId} not found in schedule.`);
-                    return;
-                }
-
-                // Clone the race and apply the new state
-                const updatedRace = {
-                    ...existingEntry.scheduledRace, // this is a plain object
-                    raceState: newState
-                };
-
-                // Create a new RaceScheduleEntryState
-                const updatedRaceEntry = new RaceScheduleEntryState(updatedRace);
-
-                // Update the in-memory schedule (and trigger DB + broadcast)
-                this.schedule.modifyRace(raceId, updatedRaceEntry);
-
-                this.logger.info(`[✅ Race State Changed in this.schedule] Race ID: ${raceId}, New State: ${newState}`);
             });
 
+            // Delete the race from this.chedule upon receiving raceState: active from the active race namespace
+            client.on(RaceControlCommands.StartRace, (command: RacetrackCommand<StartRace>) => {
+                try {
+                    if (!command.message || !command.message.scheduledRace) {
+                        throw new Error("StartRace command missing scheduledRace.");
+                    }
+
+                    const raceIdToDelete = command.message.scheduledRace.raceId;
+                    this.schedule.deleteRace(raceIdToDelete);
+                    console.log("🗑️ Race deleted on StartRace:", raceIdToDelete);
+
+                } catch (error) {
+                    console.error(`Error processing ${RaceControlCommands.StartRace} command:`, error);
+                }
+            });
         })
+        // Update the race state
+        //     client.on(ActiveRaceEvents.RaceStateChanged, (data: RacetrackEvent<ActiveRaceStateChanged>) => {
+
+        //         const { raceId, newState } = data.message;
+
+        //         console.log("Race SChedule Service inRaceStateChanged", data.message)
+
+        //         // Find and update the race in memory
+        //         const existingEntry = this.schedule.raceScheduleEntries[raceId];
+        //         if (!existingEntry) {
+        //             this.logger.warn(`Race with ID ${raceId} not found in schedule.`);
+        //             return;
+        //         }
+
+        //         // Clone the race and apply the new state
+        //         const updatedRace = {
+        //             ...existingEntry.scheduledRace, // this is a plain object
+        //             raceState: newState
+        //         };
+
+        //         // Create a new RaceScheduleEntryState
+        //         const updatedRaceEntry = new RaceScheduleEntryState(updatedRace);
+
+        //         // Update the in-memory schedule (and trigger DB + broadcast)
+        //         this.schedule.modifyRace(raceId, updatedRaceEntry);
+
+        //         this.logger.info(`[✅ Race State Changed in this.schedule] Race ID: ${raceId}, New State: ${newState}`);
+        //     });
+
+
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceScheduleChanged, (entries => {
             const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {
@@ -192,30 +209,23 @@ export class RaceScheduleService {
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceAdded, (entry: RaceScheduleEntryState) => {
 
-            const { contestants, raceId, raceScheduledStartTimeSlot, raceState } = entry
+            const { contestants, raceId, raceScheduledStartTimeSlot } = entry
 
             insertScheduledRace({
                 raceId: raceId,
                 raceScheduledStartTimeSlot: raceScheduledStartTimeSlot,
-                raceState: raceState,
-                isHazard: false,
-                isFinishing: false,
-                timeLeft: 0
             });
 
             // Insert contestants into database
             for (const contestant of contestants) {
-                insertRaceContestant({
-                    raceId: raceId,
-                    contestantId: contestant.contestantId,
-                    name: contestant.name,
-                    racecarNumber: contestant.racecarNumber
-                });
+                upsertRaceContestant(
+                    raceId,
+                    contestant
+                );
             }
-        })
+        });
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceDeleted, (raceId: ScheduledRace['raceId']) => {
-
             //Remove from database.
             deleteFromScheduledRace({
                 raceId: raceId,
@@ -226,8 +236,18 @@ export class RaceScheduleService {
             modifyScheduledRace({
                 raceId,
                 raceScheduledStartTimeSlot: entry.raceScheduledStartTimeSlot,
-                raceState: entry.raceState,
             });
+
+            clearRemovedRaceContestants(raceId, entry.contestants.map(contestant => contestant.contestantId));
+
+            if (entry.contestants && Array.isArray(entry.contestants)) {
+                for (const contestant of entry.contestants) {
+                    upsertRaceContestant(
+                        raceId,
+                        contestant
+                    );
+                }
+            }
         });
     }
 }
