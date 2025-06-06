@@ -4,20 +4,23 @@ import { ActiveRaceEvents, ActiveRaceStateChanged, DeleteRace, ModifyRace, RaceC
 import { RaceScheduleEntryState, RaceScheduleState, RaceScheduleStateEvents } from "./race-schedule.state";
 import { deleteFromScheduledRace, insertScheduledRace, loadFromDatabase, upsertRaceContestant, modifyScheduledRace, clearRemovedRaceContestants } from "./race-schedule.persistence";
 import { useRacetrackAuth } from "../auth";
+import { ActiveRaceService, ActiveRaceServiceEvents } from "../active-race";
 
 //Handlers
 export class RaceScheduleService {
     private readonly socketIO: SocketIOServer;
     private schedule: RaceScheduleState;
     private readonly logger: Logger;
+    private readonly activeRace : ActiveRaceService;
 
 
-    constructor(socketIO: SocketIOServer, parentLogger: Logger) {
+    constructor(socketIO: SocketIOServer, parentLogger: Logger, activeRaceService : ActiveRaceService) {
 
         this.socketIO = socketIO;
         this.schedule = new RaceScheduleState();
         const logger = parentLogger.child({ serviceName: this.constructor.name })
         this.logger = logger;
+        this.activeRace = activeRaceService;
 
         const socketNamespace = this.socketIO.of("/race-schedule");
 
@@ -33,6 +36,12 @@ export class RaceScheduleService {
                     RacetrackClientRole.SAFETY
                 ]);
         })
+
+        activeRaceService.events.on(ActiveRaceServiceEvents.ActiveRaceSet, (activeRace) => {
+            const raceId = activeRace.raceId;
+
+            this.schedule.deleteRace(raceId);
+        }) 
 
         this.socketIO.on("connection", (client) => {
         });
@@ -149,21 +158,7 @@ export class RaceScheduleService {
                 }
             });
 
-            // Delete the race from this.chedule upon receiving raceState: active from the active race namespace
-            client.on(RaceControlCommands.StartRace, (command: RacetrackCommand<StartRace>) => {
-                try {
-                    if (!command.message || !command.message.scheduledRace) {
-                        throw new Error("StartRace command missing scheduledRace.");
-                    }
-
-                    const raceIdToDelete = command.message.scheduledRace.raceId;
-                    this.schedule.deleteRace(raceIdToDelete);
-                    console.log("🗑️ Race deleted on StartRace:", raceIdToDelete);
-
-                } catch (error) {
-                    console.error(`Error processing ${RaceControlCommands.StartRace} command:`, error);
-                }
-            });
+           
         })
         // Update the race state
         //     client.on(ActiveRaceEvents.RaceStateChanged, (data: RacetrackEvent<ActiveRaceStateChanged>) => {
@@ -249,6 +244,8 @@ export class RaceScheduleService {
                 }
             }
         });
+
+
     }
 }
 
