@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState, createContext, useContext, useMemo } from "react";
 import { useSocket } from "../socket/socketProvider";
-import { ActiveRaceEvents, ActiveRaceInitialState, ActiveRaceStateChanged, RaceControlCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace, StartRace } from "racetrack-shared/types";
+import { RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackEvent, ScheduledRace } from "racetrack-shared/types";
 
 // Contexts
 
@@ -10,12 +10,14 @@ export type RaceScheduleContextType = {
     schedule: RaceScheduleEntries | null;
     nextRace: ScheduledRace | null;
     sortedSchedule: ScheduledRace[] | [];
-}
+    isPaddockMessageVisible: boolean;
+};
 
 const RaceScheduleContext = createContext<RaceScheduleContextType>({
     schedule: null,
     nextRace: null,
     sortedSchedule: [],
+    isPaddockMessageVisible: false,
 });
 
 // Provider
@@ -26,6 +28,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
     const [scheduleState, setScheduleState] = useState<RaceScheduleEntries | null>(null);
     const [nextRace, setNextRace] = useState<ScheduledRace | null>(null);
     const raceScheduleSocket = useSocket("/race-schedule");
+    const [isPaddockMessageVisible, setIsPaddockMessageVisible] = useState(false);
 
 
     useEffect(() => {
@@ -51,9 +54,8 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
             setScheduleState(pendingSchedule);
 
             console.log(`[Race Schedule Provider]: Initial Schedule State Received (filtered):`, pendingSchedule);
-        }
+        };
         raceScheduleSocket.current.on(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
-
 
         const onRaceScheduleUpdated = (data: RacetrackEvent<RaceScheduleUpdated>) => {
             const updatedSchedule = data.message.schedule;
@@ -63,58 +65,33 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
             setScheduleState(pendingSchedule);
 
             console.log(`[📩 Race Schedule updated]: Filtered update received:`, pendingSchedule);
-        }
+        };
         raceScheduleSocket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
 
-        const onRaceStateChanged = (data: RacetrackEvent<ActiveRaceStateChanged>) => {
-            const { raceId, newState } = data.message;
+        const onActiveRaceAdded = (data: { raceId: string; message: string }) => {
 
-            setScheduleState(prev => {
-                if (!prev) return prev;
+            console.log("[CLIENT]: Received 'activeRaceAdded'", data);
 
-                const updatedSchedule = prev.map(scheduledRace =>
-                    scheduledRace.raceId === raceId
-                        ? { ...scheduledRace, raceState: newState }
-                        : scheduledRace
-                );
-
-                console.log(`[🟢 Race State Changed]: Race ${raceId} changed to "${newState}"`);
-                console.log("📋 Updated schedule state:", updatedSchedule);
-
-                return updatedSchedule;
-            });
+            setIsPaddockMessageVisible(false);
         };
-        raceScheduleSocket.current.on(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
+        raceScheduleSocket.current.on("activeRaceAdded", onActiveRaceAdded);
+
+        const onActiveRaceRemoved = (data: { raceId: string; message: string }) => {
+
+            console.log("[CLIENT]: Received 'activeRaceRemoved'", data);
+
+            setIsPaddockMessageVisible(true);
+        };
+        raceScheduleSocket.current.on("activeRaceRemoved", onActiveRaceRemoved);
 
 
-        const onRaceInitialState = (data: RacetrackEvent<ActiveRaceInitialState>) => {
-        const activeRace = data.message.race;
-        const { raceId, raceState } = activeRace;
-
-
-        // Update schedule state too
-        setScheduleState(prev => {
-            if (!prev) return prev;
-
-            const updatedSchedule = prev.map(race =>
-                race.raceId === raceId
-                    ? { ...race, raceState } // use the server-provided state
-                    : race
-            );
-
-            console.log(`[🟢 Synced Schedule]: Updated race ${raceId} to state "${raceState}"`);
-            return updatedSchedule;
-        });
-        raceScheduleSocket.current?.on(ActiveRaceEvents.RaceInitialState, onRaceInitialState);
+    return () => {
+        raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
+        raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
+        raceScheduleSocket.current?.off("activeRaceAdded", onActiveRaceAdded);
+        raceScheduleSocket.current?.off("activeRaceRemoved", onActiveRaceRemoved);
     };
-
-        return () => {
-            raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
-            raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
-            raceScheduleSocket.current?.off(ActiveRaceEvents.RaceStateChanged, onRaceStateChanged);
-            raceScheduleSocket.current?.off(ActiveRaceEvents.RaceInitialState, onRaceInitialState);
-        };
-    }, [raceScheduleSocket]);
+}, [raceScheduleSocket]);
 
     // Calculate sortedSchedule here
     const sortedSchedule = useMemo(() => {
@@ -136,6 +113,7 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
             schedule: scheduleState,
             nextRace: nextRace,
             sortedSchedule: sortedSchedule,
+            isPaddockMessageVisible,
         }}>
             {children}
         </RaceScheduleContext.Provider>

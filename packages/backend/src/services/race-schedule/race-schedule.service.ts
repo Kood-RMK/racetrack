@@ -1,6 +1,6 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { Logger } from "pino";
-import { ActiveRaceEvents, ActiveRaceStateChanged, DeleteRace, ModifyRace, RaceControlCommands, RaceScheduleCommands, RaceScheduleEntries, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace, StartRace } from "racetrack-shared/types";
+import {  DeleteRace, ModifyRace, RaceScheduleCommands, RaceScheduleEvents, RaceScheduleInitialState, RaceScheduleUpdated, RacetrackClientRole, RacetrackCommand, RacetrackEvent, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
 import { RaceScheduleEntryState, RaceScheduleState, RaceScheduleStateEvents } from "./race-schedule.state";
 import { deleteFromScheduledRace, insertScheduledRace, loadFromDatabase, upsertRaceContestant, modifyScheduledRace, clearRemovedRaceContestants } from "./race-schedule.persistence";
 import { useRacetrackAuth } from "../auth";
@@ -11,10 +11,10 @@ export class RaceScheduleService {
     private readonly socketIO: SocketIOServer;
     private schedule: RaceScheduleState;
     private readonly logger: Logger;
-    private readonly activeRace : ActiveRaceService;
+    private readonly activeRace: ActiveRaceService;
 
 
-    constructor(socketIO: SocketIOServer, parentLogger: Logger, activeRaceService : ActiveRaceService) {
+    constructor(socketIO: SocketIOServer, parentLogger: Logger, activeRaceService: ActiveRaceService) {
 
         this.socketIO = socketIO;
         this.schedule = new RaceScheduleState();
@@ -38,10 +38,26 @@ export class RaceScheduleService {
         })
 
         activeRaceService.events.on(ActiveRaceServiceEvents.ActiveRaceSet, (activeRace) => {
-            const raceId = activeRace.raceId;
+            console.log("[SERVER]: Emitting 'activeRaceAdded' for race", activeRace.raceId);
 
+            const raceId = activeRace.raceId;
             this.schedule.deleteRace(raceId);
-        }) 
+
+            this.socketIO.of("/race-schedule").emit("activeRaceAdded", {
+                raceId: activeRace.raceId,
+                message: "Active race was added",
+            });
+        })
+
+        activeRaceService.events.on(ActiveRaceServiceEvents.ActiveRaceRemoved, (activeRace) => {
+            console.log("[SERVER]: Emitting 'activeRaceRemoved' for race", activeRace.raceId);
+
+            this.socketIO.of("/race-schedule").emit("activeRaceRemoved", {
+                raceId: activeRace.raceId,
+                message: "Active race was removed",
+            });
+        })
+
 
         this.socketIO.on("connection", (client) => {
         });
@@ -158,38 +174,8 @@ export class RaceScheduleService {
                 }
             });
 
-           
+
         })
-        // Update the race state
-        //     client.on(ActiveRaceEvents.RaceStateChanged, (data: RacetrackEvent<ActiveRaceStateChanged>) => {
-
-        //         const { raceId, newState } = data.message;
-
-        //         console.log("Race SChedule Service inRaceStateChanged", data.message)
-
-        //         // Find and update the race in memory
-        //         const existingEntry = this.schedule.raceScheduleEntries[raceId];
-        //         if (!existingEntry) {
-        //             this.logger.warn(`Race with ID ${raceId} not found in schedule.`);
-        //             return;
-        //         }
-
-        //         // Clone the race and apply the new state
-        //         const updatedRace = {
-        //             ...existingEntry.scheduledRace, // this is a plain object
-        //             raceState: newState
-        //         };
-
-        //         // Create a new RaceScheduleEntryState
-        //         const updatedRaceEntry = new RaceScheduleEntryState(updatedRace);
-
-        //         // Update the in-memory schedule (and trigger DB + broadcast)
-        //         this.schedule.modifyRace(raceId, updatedRaceEntry);
-
-        //         this.logger.info(`[✅ Race State Changed in this.schedule] Race ID: ${raceId}, New State: ${newState}`);
-        //     });
-
-
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceScheduleChanged, (entries => {
             const updateMessage: RacetrackEvent<RaceScheduleUpdated> = {

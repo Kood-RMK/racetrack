@@ -1,12 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import NextRaceHeader from '@/components/display/next-race-header';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
 import { ActiveRaceStateProvider, useActiveRaceState } from '@/app/providers/state/activeRaceStateProvider';
 import { AuthenticationProvider } from '@/app/providers/auth/authProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
-import { useRaceScheduleController } from '@/app/providers/controllers/raceScheduleControllerProvider';
 
 type AnnouncementCardProps = {
   driver: string;
@@ -24,29 +23,23 @@ const AnnouncementCard = ({ driver, car }: AnnouncementCardProps) => (
   </div>
 );
 
+
 function NextRacePage() {
 
-  const scheduleState = useRaceScheduleState();
-  const activeRaceState = useActiveRaceState();
+  const { nextRace, isPaddockMessageVisible } = useRaceScheduleState();
+  console.log("[PAGE]: isPaddockMessageVisible:", isPaddockMessageVisible);
 
+  const upcomingRace = nextRace;
 
-  // 1. Näita esimest pending racei
-  // 2. Kui active raceis ei ole näita please proceed to paddock
-
-  if (!scheduleState.nextRace) {
-    return <div>Loading...</div>;
+  if (upcomingRace === null) {
+    return "No upcoming races";
   }
-
-  const upcomingRace = scheduleState.nextRace
 
   const announcements =
     upcomingRace?.contestants?.map((contestant: any) => ({
       driver: contestant.name,
       car: contestant.racecarNumber,
     })) ?? [];
-
-  
-  const hasActiveRace = activeRaceState.activeRaceState? 1 : null;
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16 flex flex-col items-center">
@@ -60,12 +53,11 @@ function NextRacePage() {
           ))}
         </div>
 
-        {!hasActiveRace && (
+        {isPaddockMessageVisible && (
           <h3 className="text-2xl md:text-2xl font-semibold text-center text-white tracking-wide uppercase font-cairo md:pt-40 pt-80">
             Please proceed to the paddock
           </h3>
         )}
-
 
       </main>
     </div>
