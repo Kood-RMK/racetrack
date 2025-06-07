@@ -11,7 +11,7 @@
 
 // export default function RaceTimerPage() {
   
-  // Use the custom hook to manage socket and race state
+//   Use the custom hook to manage socket and race state
 //   const { activeRace, connectSocket, disconnectSocket } = useRaceSocket();
   
 //   // Connect to the socket server
@@ -24,7 +24,7 @@
 // }, []);
 
 
-  // Mapping between race state and word displayed
+//   Mapping between race state and word displayed
 //   const getStateLabel = (raceState: RaceState, isHazard: boolean, isDanger: boolean, isFinishing: boolean): string => {
 
 //     switch (raceState) {
