@@ -7,32 +7,20 @@ import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/ac
 import { LoginWrapper } from "@/components/authentication/Login";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
 import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers/state/raceScheduleStateProvider";
-import { RaceFlagCheckered, RaceFlagGreen, RaceFlagRed, RaceFlagYellow } from "@/components/display/flags";
-
-const raceFlagMap = ({ activeRace }: { activeRace: ActiveRace }) => {
-  const raceState = activeRace.raceState;
-
-  switch (raceState) {
-    case RaceState.Pending:
-    case RaceState.Paused:
-    case RaceState.Completed:
-    case RaceState.Canceled:
-      return <RaceFlagRed />;
-    case RaceState.Active:
-      if (activeRace.isFinishing) return <RaceFlagCheckered />;
-      if (activeRace.isHazard) return <RaceFlagYellow />;
-      return <RaceFlagGreen />;
-    default:
-      return <RaceFlagRed />;
-  }
-};
+import LeaderboardTable from "@/components/table/leaderboard";
+import Header from "@/components/display/leaderboard-header";
+import { SmallCheckeredFlag, SmallGreenFlag, SmallRedFlag, SmallYellowFlag } from "@/components/display/small-flags";
 
 
-function RaceControlPage() {
+
+
+
+function LeaderboardPage() {
   const raceScheduleState = useRaceScheduleState();
   const activeRaceState = useActiveRaceState();
   const raceController = useActiveRaceController();
   
+
   if (!raceController || !raceScheduleState) {
     return <div>Loading...</div>;
   }
@@ -46,17 +34,25 @@ function RaceControlPage() {
 
   }, [activeRaceState.activeRaceState, raceScheduleState]);
 
-  return (
-    race ? <div>
+    console.log("raceState: ", race?.raceState)
 
-      <div className="min-h-screen w-full">
-        {race ? raceFlagMap({ activeRace: race }) : <RaceFlagRed />}
+    return (
+      race ? <div>
+        <div className="bg-black min-h-screen min-w-screen text-white flex flex-col items-center pt-10">
+          <Header activeRaceData={race} 
+          
+          />
+          <div>
+        {/* {race ? raceFlagMap({ activeRace: race }) : <SmallRedFlag />} */}
       </div>
-    </div> : <div>Loading...</div>
-  )
-}
+          <LeaderboardTable />
+        </div>
+      </div> : "Loading ..."
+    );
+  }
 
 
+      
 export default function Page() {
   return (
     <AuthenticationProvider>
@@ -65,7 +61,7 @@ export default function Page() {
           <RaceScheduleStateProvider>
             <ActiveRaceStateProvider>
               <RaceControllerProvider>
-                <RaceControlPage />
+                <LeaderboardPage />
               </RaceControllerProvider>
             </ActiveRaceStateProvider>
           </RaceScheduleStateProvider>

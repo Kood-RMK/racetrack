@@ -33,13 +33,17 @@ function RaceControlPage() {
   const raceScheduleState = useRaceScheduleState();
   const activeRaceState = useActiveRaceState();
   const raceController = useActiveRaceController();
-  const [race, setRace] = useState<ActiveRace>()
   
-  if (!raceController || !raceScheduleState || !race) {
+  
+  if (!raceController || !raceScheduleState) {
     return <RaceFlagRed />;
   }
 
-  
+  const [race, setRace] = useState<ActiveRace>()
+
+  // if (!race) {
+  //   return <RaceFlagRed />;
+  // }
   useEffect(() => {
 
     if (activeRaceState.activeRaceState) {

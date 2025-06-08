@@ -135,11 +135,12 @@ function RaceControlPage() {
       } else if (raceScheduleState.nextRace) {
         setContestants(raceScheduleState.nextRace.contestants);
         setRace(raceScheduleState.nextRace)
-        
-      } else if (!raceScheduleState.nextRace){
-        setContestants([]);
-        setRace(undefined);   
+      
       }
+      // } else if (!raceScheduleState.nextRace){
+      //   setContestants([]);
+      //   setRace(undefined);   
+      // }
 
     }, [activeRaceState.activeRaceState, raceScheduleState]);
 
