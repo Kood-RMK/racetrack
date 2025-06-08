@@ -40,7 +40,11 @@ interface HeaderProps {
 
 export default function Header({ activeRaceData }: HeaderProps) {
 
+  const formattedTime = formatTimeLeft(activeRaceData.timeLeft);
+
+
   const flag = raceFlagMap({ activeRace: activeRaceData });
+
   return (
     <div className="bg-black text-white px-6 py-4 w-full max-w-screen-lg mx-auto">
       <div className="flex justify-between items-center">
@@ -71,7 +75,8 @@ export default function Header({ activeRaceData }: HeaderProps) {
         {/* Right Section */}
         <div className="flex flex-col items-end">
           <span className="text-sm">TIME LEFT</span>
-          <span className="font-bold text-lg">08:05:03</span>
+          <span className="font-bold text-lg">{formattedTime}</span>
+          <span className="font-bold text-lg">{activeRaceData.timeLeft}</span>
         </div>
       </div>
     </div>
@@ -79,3 +84,12 @@ export default function Header({ activeRaceData }: HeaderProps) {
   );
 };
 
+function formatTimeLeft(ms: number): string {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}

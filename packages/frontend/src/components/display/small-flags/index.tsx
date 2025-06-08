@@ -10,7 +10,7 @@ export function SmallCheckeredFlag () {
 
     return (
         <div
-      className="w-10 h-10"
+      className="w-40 h-28"
       style={{
         backgroundColor: "#fff",
         backgroundImage: [
@@ -29,14 +29,14 @@ export function SmallCheckeredFlag () {
 export function SmallRedFlag () {
 
     return (
-        <div className="w-10 h-10 bg-red-700"></div>
+        <div className="w-40 h-28 bg-red-700"></div>
     );
 }
 
 export function SmallYellowFlag () {
 
     return (
-        <div className="w-10 h-10 bg-amber-300"></div>
+        <div className="w-40 h-28 bg-amber-300"></div>
     );
 }
 
