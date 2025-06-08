@@ -109,7 +109,6 @@ const activeRaceService = new ActiveRaceService(io, logger, database);
 const raceControlService = new RaceControlService(io, activeRaceService, logger);
 const raceObserverService = new RaceObserverService(io, activeRaceService, logger);
 
-// new RaceScheduleService(io);
 const raceScheduleService = new RaceScheduleService(io, logger, activeRaceService);
 
 server.listen(3001, () => {

@@ -110,15 +110,20 @@ function raceButtons({ race, raceController }: { race: ActiveRace | ScheduledRac
 
 function RaceControlPage() {
     const raceScheduleState = useRaceScheduleState();
+
+  
     const activeRaceState = useActiveRaceState();
     const raceController = useActiveRaceController();
-    
+    console.log("activeRaceState: ", activeRaceState)
     if (!raceController || !raceScheduleState) {
 
       return <div>Loading...</div>;
     }
     const [race, setRace] = useState<ScheduledRace | ActiveRace>()
     const [contestants, setContestants] = useState<RaceContestant[]>([]);
+
+
+    console.log("race: ", raceScheduleState)
 
     useEffect(() => {
 

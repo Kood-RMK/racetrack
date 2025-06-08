@@ -13,7 +13,7 @@ export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _socketNamespace: Namespace;
-        private readonly _raceScheduleNamespace: Namespace;
+    private readonly _raceScheduleNamespace: Namespace;
     private readonly logger: Logger;
     private readonly _stopwatch: Stopwatch;
 
@@ -93,7 +93,7 @@ export class ActiveRaceHandler {
         }, {} as ActiveContestantHandlers);
 
         this._socketNamespace = socketNamespace;
-        this._raceScheduleNamespace = raceScheduleNamespace; //
+        this._raceScheduleNamespace = raceScheduleNamespace;
 
         this.onConnection = (client: Socket) => {
             this.logger.info(`New Connection! Client: ${client.id}`);

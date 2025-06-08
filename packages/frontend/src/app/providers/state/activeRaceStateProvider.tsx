@@ -21,9 +21,13 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
   useEffect(() => {
 
     const socket = socketRef.current;
+    console.log("socketRef.current", socketRef.current);
+
+
     
     if (!socket) {
       // Socket is not yet available.
+      console.log("acticeRaceStateProvider, // Socket is not yet available.")
       return;
     }
 
@@ -184,6 +188,8 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 
 export const useActiveRaceState = () : ActiveRaceStateContextType => {
   const context = useContext(ActiveRaceStateContext);
+
+  console.log("context", context);
 
   if (context === undefined) {
     throw new Error("useActiveRaceState must be used within an ActiveRaceStateProvider");
