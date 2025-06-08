@@ -53,20 +53,22 @@ function RaceObserverPanel({contestants, raceObserverController} : {raceObserver
 function RaceObserverPage() {
 
     const activeRace = useActiveRaceState();
+
+    console.log("activeRace: ", activeRace)
     const raceObserverController = useRaceObserverController();
 
     if (!activeRace || !raceObserverController) {
         return <div className="bg-white w-full h-full p-2">Loading...</div>
     }
 
-    let contestants = Object.entries (activeRace.contestants).map(([contestantId, contestant]) => {
-        return contestant;
-    });
+    // let contestants = Object.entries (activeRace.contestants).map(([contestantId, contestant]) => {
+    //     return contestant;
+    // });
 
-    // Sort contestants by car number.
-    contestants = contestants.sort((a, b) => {
-        return a.contestant.racecarNumber - b.contestant.racecarNumber;
-    });
+    // // Sort contestants by car number.
+    // contestants = contestants.sort((a, b) => {
+    //     return a.contestant.racecarNumber - b.contestant.racecarNumber;
+    // });
 
     return (
         <div className="bg-white flex justify-center flex-col w-full h-full py-12 px-12">

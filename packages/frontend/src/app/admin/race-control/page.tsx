@@ -128,13 +128,17 @@ function RaceControlPage() {
     useEffect(() => {
 
       if (activeRaceState.activeRaceState) {
-      // console.log("Change", activeRaceState);
+      console.log("Change", activeRaceState);
         setContestants(Object.values(activeRaceState.activeRaceState.contestants).map(activeContestant => activeContestant.contestant));
         setRace(activeRaceState.activeRaceState);
 
       } else if (raceScheduleState.nextRace) {
         setContestants(raceScheduleState.nextRace.contestants);
         setRace(raceScheduleState.nextRace)
+        
+      } else if (!raceScheduleState.nextRace){
+        setContestants([]);
+        setRace(undefined);   
       }
 
     }, [activeRaceState.activeRaceState, raceScheduleState]);
@@ -149,7 +153,7 @@ function RaceControlPage() {
               buttons={raceButtons({race : race, raceController})}
               
               />
-        </div> : <div>Loading...</div>
+        </div> : <div>No upcoming races</div>
       )
 }
 
