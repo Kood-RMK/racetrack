@@ -2,9 +2,10 @@ import { ActiveRaceState, ActiveRaceStateEvents } from "./active-race.state";
 import { Namespace, Socket } from "socket.io";
 import { ActiveRaceContestantStateEvents } from "./contestant/active-race-contestant.state";
 import { Logger } from "pino";
-import { ActiveRace, ActiveRaceEvents, ActiveRaceHazardChanged, ActiveRaceInitialState, ActiveRaceIsFinishingChanged, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, RaceContestantId, RaceScheduleCommands, RaceState, RacetrackEvent } from "racetrack-shared/types";
+import { ActiveRace, ActiveRaceEvents, ActiveRaceHazardChanged, ActiveRaceInitialState, ActiveRaceIsFinishingChanged, ActiveRaceStateChanged, ActiveRaceTimeLeftChanged, RaceContestantId, RaceScheduleCommands, RaceState, RacetrackClientRole, RacetrackEvent } from "racetrack-shared/types";
 import { ActiveRaceContestantHandler } from "./contestant/active-race-contestant.handler";
 import { Stopwatch, StopwatchEvents } from "@racetrack/utils/stopwatch";
+import { useRacetrackAuth } from "../auth";
 
 
 type ActiveContestantHandlers = Record<RaceContestantId, ActiveRaceContestantHandler>;
@@ -13,7 +14,6 @@ export class ActiveRaceHandler {
 
     private readonly _activeRaceState: ActiveRaceState;
     private readonly _socketNamespace: Namespace;
-    private readonly _raceScheduleNamespace: Namespace;
     private readonly logger: Logger;
     private readonly _stopwatch: Stopwatch;
 
@@ -62,7 +62,7 @@ export class ActiveRaceHandler {
         });
     }
 
-    constructor(activeRaceState: ActiveRaceState, socketNamespace: Namespace, raceScheduleNamespace: Namespace, baseLogger: Logger) {
+    constructor(activeRaceState: ActiveRaceState, socketNamespace: Namespace, baseLogger: Logger) {
         this.logger = baseLogger.child(
             {
                 handlerName: this.constructor.name
@@ -93,10 +93,14 @@ export class ActiveRaceHandler {
         }, {} as ActiveContestantHandlers);
 
         this._socketNamespace = socketNamespace;
-        this._raceScheduleNamespace = raceScheduleNamespace;
 
-        this.onConnection = (client: Socket) => {
+        this.onConnection = async (client: Socket) => {
             this.logger.info(`New Connection! Client: ${client.id}`);
+
+            if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.GUEST])){
+                this.logger.error("Unauthorized access to RaceControlCommands.ChangeRaceState");
+                return;
+            }
 
             const initialStateMessage: RacetrackEvent<ActiveRaceInitialState> = {
                 message: {

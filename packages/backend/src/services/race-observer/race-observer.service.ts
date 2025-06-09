@@ -1,13 +1,13 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRaceService } from "../active-race/active-race.service";
 import { Logger } from "pino";
-import { ActiveRaceId, HandleLineCrossed, LineCrossingHandeledEvent, RaceContestantId, RaceObserverCommands, RaceObserverEvents, RacetrackCommand } from "racetrack-shared/types";
+import { ActiveRaceId, HandleLineCrossed, LineCrossingHandeledEvent, RaceContestantId, RaceObserverCommands, RaceObserverEvents, RacetrackClientRole, RacetrackCommand } from "racetrack-shared/types";
+import { useRacetrackAuth } from "../auth";
 
 export class RaceObserverService {
 
     private readonly _socketIO: SocketIOServer;
     private readonly _activeRaceService : ActiveRaceService;
-    private readonly _raceObserverRoom : string;
     private readonly logger : Logger;
 
     constructor(socketIO : SocketIOServer, activeRaceService : ActiveRaceService, parentLogger : Logger) {
@@ -17,18 +17,17 @@ export class RaceObserverService {
         this.logger = logger;
 
         const socketNamespace = this._socketIO.of("/race-observer");
-        this._raceObserverRoom = "race-observer-room";
-
-        // Middleware to check if the user is authenticated.
-        socketNamespace.use((socket, next) => {
-            next();
-        })
 
         socketNamespace.on("connection", (client) => {
 
             this.logger.info(`New Client Connected ID: ${client.id}`)
-            client.on(RaceObserverCommands.HandleLineCrossed, (command : RacetrackCommand<HandleLineCrossed>) => {
+            client.on(RaceObserverCommands.HandleLineCrossed, async (command : RacetrackCommand<HandleLineCrossed>) => {
                 try {
+
+                    if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.OBSERVER])){
+                        this.logger.error("Unauthorized access to Race.ChangeRaceIsFinishing");
+                        return;
+                    }
 
                     // TODO: Validate the command.
                     if (!command.message) {
@@ -55,7 +54,7 @@ export class RaceObserverService {
                         contestantId: contestantId,
                     }
 
-                    socketIO.to(this._raceObserverRoom).emit(event.type, event);
+                    socketNamespace.emit(event.type, event);
                 } catch (error) {
                     this.logger.error(`Error processing ${RaceObserverCommands.HandleLineCrossed}.`, error)
                 }

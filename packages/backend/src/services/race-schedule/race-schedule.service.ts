@@ -24,10 +24,6 @@ export class RaceScheduleService {
 
         const socketNamespace = this.socketIO.of("/race-schedule");
 
-        // Middleware to check if the user is authenticated.
-        this.socketIO.use((socket, next) => {
-        })
-
         activeRaceService.events.on(ActiveRaceServiceEvents.ActiveRaceSet, (activeRace) => {
             console.log("[SERVER]: Emitting 'activeRaceAdded' for race", activeRace.raceId);
 
@@ -49,11 +45,6 @@ export class RaceScheduleService {
             });
         })
 
-
-        this.socketIO.on("connection", (client) => {
-        });
-
-
         if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
             try {
                 const dbSchedule = loadFromDatabase();
@@ -70,9 +61,15 @@ export class RaceScheduleService {
         }
 
         // Siia jäävad kõik commandid ja kasutavad sealt ülevalt evente
-        socketNamespace.on("connection", (client) => {
+        socketNamespace.on("connection", async (client) => {
 
             this.logger.info(`New client connected!, ID`, client.id);
+
+            if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.SAFETY, RacetrackClientRole.RECEPTIONIST])){
+                this.logger.error("Unauthorized access to RaceSchedule.InitalState");
+                client.disconnect(true);
+                return;
+            }
 
             // Only display pending races
             const stateMessage: RacetrackEvent<RaceScheduleInitialState> = {
@@ -88,13 +85,18 @@ export class RaceScheduleService {
             client.emit(RaceScheduleEvents.RaceScheduleInitialState, stateMessage)
 
             // New Race 
-            client.on(RaceScheduleCommands.ScheduleNewRace, (command: RacetrackCommand<ScheduleNewRace>) => {
+            client.on(RaceScheduleCommands.ScheduleNewRace, async (command: RacetrackCommand<ScheduleNewRace>) => {
 
                 // logging 
                 this.logger.info("📨 Received ScheduleNewRace command", command);
                 console.log("📦 Race data received from client:", command.message?.data?.race);
 
                 try {
+
+                    if (!await useRacetrackAuth(client, this.logger,  [RacetrackClientRole.RECEPTIONIST])){
+                        this.logger.error("Unauthorized access to RaceSchedule.ScheduleNewRace");
+                        return;
+                    }
 
                     if (!command.message) {
                         throw new Error("message is undefined.");
@@ -112,9 +114,13 @@ export class RaceScheduleService {
             });
 
             // Delete Race
-            client.on(RaceScheduleCommands.DeleteRace, (command: RacetrackCommand<DeleteRace>) => {
-
+            client.on(RaceScheduleCommands.DeleteRace, async (command: RacetrackCommand<DeleteRace>) => {
                 try {
+
+                    if (!await useRacetrackAuth(client, this.logger,  [RacetrackClientRole.RECEPTIONIST])){
+                        this.logger.error("Unauthorized access to RaceSchedule.DeleteRace");
+                        return;
+                    }
 
                     if (!command.message) {
                         throw new Error("message is undefined.");
@@ -134,9 +140,13 @@ export class RaceScheduleService {
             });
 
             // Modify Race
-            client.on(RaceScheduleCommands.ModifyRace, (command: RacetrackCommand<ModifyRace>) => {
-
+            client.on(RaceScheduleCommands.ModifyRace, async (command: RacetrackCommand<ModifyRace>) => {
                 try {
+
+                    if (!await useRacetrackAuth(client, this.logger,  [RacetrackClientRole.RECEPTIONIST])){
+                        this.logger.error("Unauthorized access to RaceSchedule.ModifyRace");
+                        return;
+                    }
 
                     if (!command.message) {
                         throw new Error("message is undefined.");
@@ -221,30 +231,5 @@ export class RaceScheduleService {
                 }
             }
         });
-
-
     }
 }
-
-
-
-//NAMESPACE : /race-schedule
-
-// Now race is a full copy of data
-
-//EVENTS (server --> frontend)
-//raceScheduleUpdated (Frontendis Listen To Yourself põhimõttega (frontend client#1 muudatus --> muudatus backendis --> muudatus client#1...kõik teised kuulajad.))
-//raceScheduleState (same as above, but only for new clients)
-
-//COMMANDS (frontend --> server)
-//getRaceSchedule -> raceScheduleState 
-//scheduleRace
-
-
-//Reminders
-// 1. Check timeslot overlaps.
-// 2. Avoid duplicate drivers.
-// 3. Make types for events!!!
-// 4. wrap in message types
-// 5. sort by timeslot
-

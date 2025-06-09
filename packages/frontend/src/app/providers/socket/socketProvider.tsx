@@ -67,7 +67,7 @@ export function SocketProvider({ url, options = {}, children }: SocketProviderPr
   );
 }
 
-export function useSocket(namespace: string = '/', secure : boolean = false): RefObject<Socket | null> {
+export function useSocket(namespace: string = '/', secure : boolean = true): RefObject<Socket | null> {
   const { getSocket } = useContext(SocketContext);
   const socketRef = useRef<Socket | null>(null);
 

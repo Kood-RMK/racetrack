@@ -18,6 +18,8 @@ export function verifyRacetrackClientToken(token: string): Promise<RacetrackAuth
 export async function useRacetrackAuth(socket: Socket, logger : Logger, permittedRoles : RacetrackClientRole[]) : Promise<boolean> {
     const token = socket.handshake.auth.token;
 
+    console.log(socket.handshake.auth);
+
     if (permittedRoles.includes(RacetrackClientRole.GUEST)) {
         return true;   
     }
@@ -29,10 +31,6 @@ export async function useRacetrackAuth(socket: Socket, logger : Logger, permitte
 
     return await verifyRacetrackClientToken(token)
         .then((client) => {
-            if (!client.role) {
-                logger.error('Authentication error: Client role is not defined');
-                return false;
-            }
 
             // Return the role for further processing if needed
             if (client.role && permittedRoles.includes(client.role)) {

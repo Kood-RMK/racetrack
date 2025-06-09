@@ -1,7 +1,8 @@
 import type { Server as SocketIOServer } from "socket.io";
 import { ActiveRaceService } from "../active-race/active-race.service";
 import { Logger } from "pino";
-import { ActiveRace, ActiveRaceContestant, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, RaceState, RacetrackCommand, StartRace } from "racetrack-shared/types";
+import { ActiveRace, ActiveRaceContestant, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, RaceState, RacetrackClientRole, RacetrackCommand, StartRace } from "racetrack-shared/types";
+import { useRacetrackAuth } from "../auth";
 
 // Handlers.
 export class RaceControlService {
@@ -18,17 +19,17 @@ export class RaceControlService {
 
         const socketNamespace = this.socketIO.of("/race-control");
 
-        // Middleware to check if the user is authenticated.
-        socketNamespace.use((socket, next) => {
-            console.log(socket.handshake.auth);
-            next();
-        })
-
         socketNamespace.on("connection", (client) => {
             this.logger.info(`New client connected!, ID`, client.id)
 
-            client.on(RaceControlCommands.StartRace, (command : RacetrackCommand<StartRace>) => {
+            client.on(RaceControlCommands.StartRace, async (command : RacetrackCommand<StartRace>) => {
                 try {
+
+                    if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.SAFETY])){
+                        this.logger.error("Unauthorized access to RaceControlCommands.ChangeRaceState");
+                        return;
+                    }
+
                     const scheduledRace = command.message?.scheduledRace;
 
                     if (!scheduledRace) {
@@ -63,9 +64,14 @@ export class RaceControlService {
                 }
             });
 
-            client.on(RaceControlCommands.ChangeRaceState, (command : RacetrackCommand<ChangeActiveRaceState>) => {
-
+            client.on(RaceControlCommands.ChangeRaceState, async (command : RacetrackCommand<ChangeActiveRaceState>) => {
                 try {
+
+                    if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.SAFETY])){
+                        this.logger.error("Unauthorized access to RaceControlCommands.ChangeRaceState");
+                        return;
+                    }
+
                     // TODO: Validate the command.
                     if (!command.message) {
                         throw new Error("message is undefined.");
@@ -88,10 +94,14 @@ export class RaceControlService {
                 }
             })
 
-            client.on(RaceControlCommands.ChangeRaceHazard, (command : RacetrackCommand<ChangeActiveRaceHazard>) => {
+            client.on(RaceControlCommands.ChangeRaceHazard, async (command : RacetrackCommand<ChangeActiveRaceHazard>) => {
 
                 try {
                     // TODO: Validate the command.
+                    if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.SAFETY])){
+                        this.logger.error("Unauthorized access to RaceControlCommands.ChangeRaceHazard");
+                        return;
+                    }
 
                     if (!command.message) {
                         throw new Error("message is undefined.");
@@ -114,8 +124,14 @@ export class RaceControlService {
             });
 
 
-            client.on(RaceControlCommands.ChangeRaceIsFinishing, (command : RacetrackCommand<ChangeActiveRaceIsFinishing>) => {
+            client.on(RaceControlCommands.ChangeRaceIsFinishing, async (command : RacetrackCommand<ChangeActiveRaceIsFinishing>) => {
                 try {
+
+                    if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.SAFETY])){
+                        this.logger.error("Unauthorized access to RaceControlCommands.ChangeRaceIsFinishing");
+                        return;
+                    }
+
                     if (!command.message) {
                         throw new Error("message is undefined.");
                     }
