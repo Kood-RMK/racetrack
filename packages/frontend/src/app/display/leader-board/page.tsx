@@ -13,8 +13,6 @@ import { SmallCheckeredFlag, SmallGreenFlag, SmallRedFlag, SmallYellowFlag } fro
 
 
 
-
-
 function LeaderboardPage() {
   const raceScheduleState = useRaceScheduleState();
   const activeRaceState = useActiveRaceState();

@@ -5,13 +5,6 @@ import React from "react";
 import { SmallRedFlag, SmallCheckeredFlag, SmallYellowFlag, SmallGreenFlag } from "../small-flags";
 
 
-// 1. ActiveRaceData tuleb sisse
-// 2. Dekonstrueerime timeriks ja raceStateiks ja isHazard ja isFinsihingiks
-// 3. Timeri panna Headeri komponenti
-// 4. raceStateid + isHazard & isFinishing panna raceFlagMapi
-// 5. Mapist ssadud lipu panna Headeri komponenti
-
-
 const raceFlagMap = ({ activeRace }: { activeRace: ActiveRace }) => {
   const raceState = activeRace.raceState;
 
@@ -36,33 +29,26 @@ interface HeaderProps {
 
 }
 
-
-
 export default function Header({ activeRaceData }: HeaderProps) {
 
   const formattedTime = formatTimeLeft(activeRaceData.timeLeft);
-
-
   const flag = raceFlagMap({ activeRace: activeRaceData });
 
   return (
     <div className="bg-black text-white px-6 py-4 w-full max-w-screen-lg mx-auto">
-      <div className="flex justify-between items-center">
+      <div className="relative h-20 flex items-center justify-center">
 
-        <div className="flex justify-between items-center">
+        {/* Left Section */}
+        <div className="absolute left-0 flex items-center gap-2">
           {flag}
-          {/* Left Section */}
           <div className="flex flex-col items-start">
             <span className="text-sm">TRACK STATE</span>
             <div className="flex items-center gap-2">
-
               <span className="font-bold text-lg capitalize">
                 {activeRaceData.raceState}
               </span>
             </div>
           </div>
-
-
         </div>
 
         {/* Center Section */}
@@ -73,10 +59,10 @@ export default function Header({ activeRaceData }: HeaderProps) {
         </div>
 
         {/* Right Section */}
-        <div className="flex flex-col items-end">
-          <span className="text-sm">TIME LEFT</span>
+        <div className="absolute right-0 flex flex-col items-end">
+          <span className="text-sm">TIME ELAPSED</span>
           <span className="font-bold text-lg">{formattedTime}</span>
-          <span className="font-bold text-lg">{activeRaceData.timeLeft}</span>
+          {/* <span className="font-bold text-lg">{activeRaceData.timeLeft}</span> */}
         </div>
       </div>
     </div>
@@ -85,11 +71,14 @@ export default function Header({ activeRaceData }: HeaderProps) {
 };
 
 function formatTimeLeft(ms: number): string {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+  const clampedMs = Math.min(ms, 10 * 60 * 1000); // Cap at 10 min max
 
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  const absMs = Math.abs(clampedMs); // Always positive for display
+  const totalSeconds = Math.floor(absMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const milliseconds = Math.floor((absMs % 1000) / 10); // centiseconds
+
+  const pad = (n: number, len = 2) => n.toString().padStart(len, '0');
+  return `${pad(minutes)}:${pad(seconds)}:${pad(milliseconds)}`;
 }
