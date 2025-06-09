@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { RacetrackAuthenticatedClient } from 'racetrack-shared/types';
-
+import { Logger } from 'pino';
+import { RacetrackAuthenticatedClient, RacetrackClientRole } from 'racetrack-shared/types';
+import { Socket } from 'socket.io';
 
 export function verifyRacetrackClientToken(token: string): Promise<RacetrackAuthenticatedClient> {
     return new Promise((resolve, reject) => {
@@ -12,4 +13,36 @@ export function verifyRacetrackClientToken(token: string): Promise<RacetrackAuth
             }
         });
     });
+}
+
+export async function useRacetrackAuth(socket: Socket, logger : Logger, permittedRoles : RacetrackClientRole[]) : Promise<boolean> {
+    const token = socket.handshake.auth.token;
+
+    if (permittedRoles.includes(RacetrackClientRole.GUEST)) {
+        return true;   
+    }
+
+    if (!token) {
+        logger.error('Authentication error: No token provided');
+        return false;
+    }
+
+    return await verifyRacetrackClientToken(token)
+        .then((client) => {
+            if (!client.role) {
+                logger.error('Authentication error: Client role is not defined');
+                return false;
+            }
+
+            // Return the role for further processing if needed
+            if (client.role && permittedRoles.includes(client.role)) {
+                return true;
+            }
+
+            return false;
+        })
+        .catch((err) => {
+            logger.error('Authentication error:', err);
+            return false;
+        });
 }

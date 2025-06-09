@@ -5,7 +5,9 @@ export enum RacetrackClientRole  {
     OBSERVER = 'OBSERVER',
     RECEPTIONIST = 'RECEPTIONIST',
     SAFETY = 'SAFETY',
+    GUEST = 'GUEST'
 } 
+
 export type SignedToken = string;
 
 export type AuthenicationRequest = {

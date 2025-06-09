@@ -26,15 +26,6 @@ export class RaceScheduleService {
 
         // Middleware to check if the user is authenticated.
         this.socketIO.use((socket, next) => {
-            useRacetrackAuth(
-                socket,
-                next,
-                this.logger,
-                [
-                    RacetrackClientRole.OBSERVER,
-                    RacetrackClientRole.RECEPTIONIST,
-                    RacetrackClientRole.SAFETY
-                ]);
         })
 
         activeRaceService.events.on(ActiveRaceServiceEvents.ActiveRaceSet, (activeRace) => {

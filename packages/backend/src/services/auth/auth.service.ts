@@ -57,7 +57,7 @@ export class AuthService {
         else if (token === process.env.SAFETY_KEY) {
             this.logger.info(`${token} authenticated as SAFETY.`);
             return signToken(token, RacetrackClientRole.SAFETY);
-        }
+        } 
 
         this.logger.error('Client authentication failed. Invalid token.');
         return null;
