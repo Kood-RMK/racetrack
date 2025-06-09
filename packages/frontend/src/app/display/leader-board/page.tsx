@@ -9,8 +9,6 @@ import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
 import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers/state/raceScheduleStateProvider";
 import LeaderboardTable from "@/components/table/leaderboard";
 import Header from "@/components/display/leaderboard-header";
-import { SmallCheckeredFlag, SmallGreenFlag, SmallRedFlag, SmallYellowFlag } from "@/components/display/small-flags";
-
 
 
 function LeaderboardPage() {
@@ -36,16 +34,12 @@ function LeaderboardPage() {
 
     return (
       race ? <div>
-        <div className="bg-black min-h-screen min-w-screen text-white flex flex-col items-center pt-10">
-          <Header activeRaceData={race} 
-          
-          />
-          <div>
-        {/* {race ? raceFlagMap({ activeRace: race }) : <SmallRedFlag />} */}
-      </div>
-          <LeaderboardTable />
-        </div>
-      </div> : "Loading ..."
+                <div className="bg-black min-h-screen min-w-screen text-white flex flex-col items-center pt-10">
+                  <Header activeRaceData={race}/>
+                    
+                  <LeaderboardTable activeRaceData={race}/>
+                </div>
+             </div> : "Loading ..."
     );
   }
 

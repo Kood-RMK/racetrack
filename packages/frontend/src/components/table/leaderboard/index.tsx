@@ -1,5 +1,6 @@
 "use client";
 
+import { ActiveRace } from "racetrack-shared/types";
 import React from "react";
 import {
   Cell,
@@ -11,8 +12,14 @@ import {
 } from 'react-aria-components';
 
 
-export default function LeaderboardTable() {
-    return (
+interface HeaderProps {
+  activeRaceData: ActiveRace;
+
+}
+
+export default function LeaderboardTable({ activeRaceData }: HeaderProps) {
+  
+  return (
   <div className="bg-black w-3/4 h-3/5 gap-16 font-cairo p-2 text-white content-evenly">
     <Table aria-label="Leaderboard" selectionMode="none" className="w-full text-center mt-12">
   
@@ -26,81 +33,37 @@ export default function LeaderboardTable() {
   </TableHeader>
 
   <TableBody>
-    <Row className="h-20 w-[1232px] bg-gold border-y-8 border-black">
-      <Cell className="text-start pl-4">001</Cell>
-      <Cell className="text-start pl-4">Racecar 1</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">3</Cell>
-    </Row>
+    {Object.values(activeRaceData.contestants)
+      .sort((a, b) => a.place - b.place) // sort by place
+      .map((driver, index) => {
+        const bgColors = ["bg-gold", "bg-silver", "bg-bronze"];
+        const defaultBg = index % 2 === 0 ? "bg-black" : "bg-[#0A0A0A]";
+        const bg = bgColors[driver.place - 1] || defaultBg;
 
-    <Row className="h-20 bg-silver border-y-8 border-black">
-      <Cell className="text-start pl-4">002</Cell>
-      <Cell className="text-start pl-4">Racecar 2</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">3</Cell>
-    </Row>
-
-    <Row className="h-20 bg-bronze border-y-8 border-black">
-      <Cell className="text-start pl-4">003</Cell>
-      <Cell className="text-start pl-4">Racecar 3</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">2</Cell>
-    </Row>
-
-    <Row className="h-20 bg-black border-y-8 border-black">
-      <Cell className="text-start pl-4">004</Cell>
-      <Cell className="text-start pl-4">Racecar 4</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">2</Cell>
-    </Row>
-
-    <Row className="h-20 bg-[#0A0A0A] border-y-8 border-black">
-      <Cell className="text-start pl-4">005</Cell>
-      <Cell className="text-start pl-4">Racecar 5</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">2</Cell>
-    </Row>
-
-    <Row className="h-20 bg-black border-y-8 border-black">
-      <Cell className="text-start pl-4">006</Cell>
-      <Cell className="text-start pl-4">Racecar 6</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">2</Cell>
-    </Row>
-
-    <Row className="h-20 bg-[#0A0A0A] border-y-8 border-black">
-      <Cell className="text-start pl-4">007</Cell>
-      <Cell className="text-start pl-4">Racecar 7</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">1</Cell>
-    </Row>
-
-    <Row className="h-20 bg-black border-y-8 border-black">
-      <Cell className="text-start pl-4">008</Cell>
-      <Cell className="text-start pl-4">Racecar 8</Cell>
-      <Cell className="text-start pl-4">Test Driver</Cell>
-      <Cell></Cell>
-      <Cell className="text-start pl-4">00:00:00</Cell>
-      <Cell className="text-end pr-4">1</Cell>
-    </Row>
-
+        return (
+          <Row key={driver.contestant.contestantId} className={`h-20 ${bg} border-y-8 border-black`}>
+            <Cell className="text-start pl-4">{String(driver.place).padStart(3, "0")}</Cell>
+            <Cell className="text-start pl-4">Racecar {driver.contestant.racecarNumber}</Cell>
+            <Cell className="text-start pl-4">{driver.contestant.name}</Cell>
+            <Cell></Cell>
+            <Cell className="text-start pl-4">{formatLapTime(driver.fastestLap)}</Cell>
+            <Cell className="text-end pr-4">{driver.lapCount}</Cell>
+          </Row>
+        );
+      })}
   </TableBody>
 </Table>
 
   </div>
  );
+
+ function formatLapTime(ms: number | null): string {
+  if (ms === null) return "—";
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const milliseconds = Math.floor((ms % 1000) / 10); // Show centiseconds
+  const pad = (n: number, len = 2) => n.toString().padStart(len, "0");
+  return `${pad(minutes)}:${pad(seconds)}:${pad(milliseconds)}`;
+}
 }
