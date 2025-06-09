@@ -36,7 +36,7 @@ export default function LeaderboardTable({ activeRaceData }: HeaderProps) {
     {Object.values(activeRaceData.contestants)
       .sort((a, b) => a.place - b.place) // sort by place
       .map((driver, index) => {
-        const bgColors = ["bg-gold", "bg-silver", "bg-bronze"];
+        const bgColors = ["bg-[gold]", "bg-silver", "bg-bronze"];
         const defaultBg = index % 2 === 0 ? "bg-black" : "bg-[#0A0A0A]";
         const bg = bgColors[driver.place - 1] || defaultBg;
 

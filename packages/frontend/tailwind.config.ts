@@ -9,16 +9,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        "bg-gold" : "#3A2F05",
-        "bg-silver" : "#292E37",
-        "bg-bronze" : "#271304",
-        "bg-primary" : "#000000",
-        "bg-secondary" : "#0A0A0A"
-      },
-      backgroundColor : {
+        gold : "#3A2F05",
+        silver : "#292E37",
+        bronze : "#271304",
         "primary" : "#000000",
         "secondary" : "#0A0A0A"
       },
+      // backgroundColor : {
+      //   gold : "#3A2F05",
+      //   silver : "#292E37",
+      //   bronze : "#271304",
+      //   primary : "#000000",
+      //   secondary : "#0A0A0A"
+      // },
       fontFamily : {
         cairo : ["var(--font-cairo)"]
       }
