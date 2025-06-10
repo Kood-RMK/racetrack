@@ -65,7 +65,7 @@ export class RaceScheduleService {
 
             this.logger.info(`New client connected!, ID`, client.id);
 
-            if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.SAFETY, RacetrackClientRole.RECEPTIONIST])){
+            if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.SAFETY, RacetrackClientRole.RECEPTIONIST, RacetrackClientRole.GUEST])){
                 this.logger.error("Unauthorized access to RaceSchedule.InitalState");
                 client.disconnect(true);
                 return;

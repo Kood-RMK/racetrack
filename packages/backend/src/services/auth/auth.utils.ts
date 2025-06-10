@@ -18,8 +18,6 @@ export function verifyRacetrackClientToken(token: string): Promise<RacetrackAuth
 export async function useRacetrackAuth(socket: Socket, logger : Logger, permittedRoles : RacetrackClientRole[]) : Promise<boolean> {
     const token = socket.handshake.auth.token;
 
-    console.log(socket.handshake.auth);
-
     if (permittedRoles.includes(RacetrackClientRole.GUEST)) {
         return true;   
     }

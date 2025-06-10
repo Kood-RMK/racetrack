@@ -20,13 +20,11 @@ const AuthenicationStateContext = createContext<AuthenticationStateContext | nul
 
 export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
 
-
     const [authState, setAuthState] = useState<AuthenticationState>({
         isAuthenticated: false,
         racetrackClient: null,
         jwt: null,
     });
-
 
     function tryExtractJwtData(signedJwt: string) : RacetrackAuthenticatedClient | null {
         const data = jwt.decode(signedJwt);

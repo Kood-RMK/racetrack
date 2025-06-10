@@ -36,11 +36,16 @@ export class RaceControlService {
                         throw new Error("message.scheduledRace is undefined.");
                     }
 
+                    if (!process.env.RACE_DURATION_SECONDS) {
+                        throw new Error('RACE_DURATION_SECONDS environment variable is not set.');
+                    }
+
                     const activeRace : ActiveRace = {
                         raceId: scheduledRace.raceId,
                         isHazard: false,
                         raceScheduledStartTimeSlot: scheduledRace.raceScheduledStartTimeSlot,
-                        timeLeft : 10,
+                        // Convert timeLeft to milliseconds.
+                        timeLeft : Number(process.env.RACE_DURATION_SECONDS) * 1000,
                         isFinishing: false,
                         contestants: scheduledRace.contestants.reduce((obj, contestant) => {
 
@@ -54,7 +59,7 @@ export class RaceControlService {
 
                             return obj;
                         }, {} as Record<string, ActiveRaceContestant>),
-                        raceDurationSeconds : 10,
+                        raceDurationSeconds : Number(process.env.RACE_DURATION_SECONDS),
                         raceState: RaceState.Active
                     }
 

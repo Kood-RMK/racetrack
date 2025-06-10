@@ -127,14 +127,40 @@ export class ActiveRaceState {
 
     public static createNew(activeRace: ActiveRace, baseLogger: Logger, database: DatabaseSync) {
 
-        const updateRaceStateStatement = database.prepare(`UPDATE active_race SET raceState = @raceState WHERE raceId = @raceId`);
+        const updateRaceStateStatement = database.prepare(`
+            INSERT INTO active_race (raceId, raceScheduledStartTimeSlot, raceState, isHazard, isFinishing, timeLeft) 
+            VALUES (@raceId, @raceScheduledStartTimeSlot, @raceState, @isHazard, @isFinishing, @timeLeft)
+            `);
         updateRaceStateStatement.run({
-            raceState: RaceState.Active,
-            raceId: activeRace.raceId
+            raceId : activeRace.raceId,
+            raceScheduledStartTimeSlot: activeRace.raceScheduledStartTimeSlot,
+            raceState: activeRace.raceState,
+            isHazard: activeRace.isHazard ? 1 : 0,
+            isFinishing: activeRace.isFinishing ? 1 : 0,
+            timeLeft: activeRace.timeLeft
         });
 
-        return new ActiveRaceState(activeRace, baseLogger, database);
+        // Insert contestants into the database.
+        const insertContestantStatement = database.prepare(`
+                INSERT INTO active_race_contestants (activeRaceId, contestantId, place, lapCount, fastestLap, lapStopwatchTime)
+                VALUES (@activeRaceId, @contestantId, @place, @lapCount, @fastestLap, @lapStopwatchTime)
+            `)
 
+
+        for (const contestantId in activeRace.contestants) {
+            const contestant = activeRace.contestants[contestantId] as ActiveRaceContestant;
+
+            insertContestantStatement.run({
+                activeRaceId: activeRace.raceId,
+                contestantId: contestant.contestant.contestantId,
+                place: contestant.place,
+                lapCount: contestant.lapCount,
+                fastestLap: contestant.fastestLap,
+                lapStopwatchTime: contestant.lapStopwatchTime
+            })
+        }
+
+        return new ActiveRaceState(activeRace, baseLogger, database);
     }
 
     private constructor(activeRace : ActiveRace, baseLogger : Logger, database: DatabaseSync) {

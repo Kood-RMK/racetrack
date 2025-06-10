@@ -11,7 +11,8 @@ export enum RacetrackClientRole  {
 export type SignedToken = string;
 
 export type AuthenicationRequest = {
-    token: string;
+    token?: string;
+    isGuest?: boolean;
 }
 
 export type RacetrackAuthenticatedClient = {

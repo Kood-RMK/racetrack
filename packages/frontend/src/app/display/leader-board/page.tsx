@@ -14,10 +14,9 @@ import Header from "@/components/display/leaderboard-header";
 function LeaderboardPage() {
   const raceScheduleState = useRaceScheduleState();
   const activeRaceState = useActiveRaceState();
-  const raceController = useActiveRaceController();
   
 
-  if (!raceController || !raceScheduleState) {
+  if (!raceScheduleState) {
     return <div>Loading...</div>;
   }
   const [race, setRace] = useState<ActiveRace>()
@@ -48,17 +47,13 @@ function LeaderboardPage() {
 export default function Page() {
   return (
     <AuthenticationProvider>
-      <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.SAFETY] }}>
         <SocketProvider url="http://localhost:3001">
           <RaceScheduleStateProvider>
             <ActiveRaceStateProvider>
-              <RaceControllerProvider>
                 <LeaderboardPage />
-              </RaceControllerProvider>
             </ActiveRaceStateProvider>
           </RaceScheduleStateProvider>
         </SocketProvider>
-      </LoginWrapper>
     </AuthenticationProvider>
   )
 }  

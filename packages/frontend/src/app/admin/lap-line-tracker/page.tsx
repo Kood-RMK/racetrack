@@ -11,10 +11,9 @@ import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
 import { LoginWrapper } from "@/components/authentication/Login";
 
 
-
 function RaceObserverCardTag({title, value} : {title : string, value : string}) {
     return (
-            <span>{title} : {value}</span>
+        <span>{title} : {value}</span>
     )
 }
 
@@ -61,21 +60,13 @@ function RaceObserverPage() {
         return <div className="bg-white w-full h-full p-2">Loading...</div>
     }
 
-    // let contestants = Object.entries (activeRace.contestants).map(([contestantId, contestant]) => {
-    //     return contestant;
-    // });
-
-    // // Sort contestants by car number.
-    // contestants = contestants.sort((a, b) => {
-    //     return a.contestant.racecarNumber - b.contestant.racecarNumber;
-    // });
 
     return (
         <div className="bg-white flex justify-center flex-col w-full h-full py-12 px-12">
         <h1 className='text-center py-12 text-5xl'>Race Observer</h1>
 
-            {activeRace.raceState === 'active' &&
-            <RaceObserverPanel raceObserverController={raceObserverController} contestants={contestants}></RaceObserverPanel>
+            {activeRace.activeRaceState?.raceState == 'active' &&
+            <RaceObserverPanel raceObserverController={raceObserverController} contestants={Object.values (activeRace.activeRaceState.contestants)}></RaceObserverPanel>
             }
         </div>
     )
@@ -96,6 +87,5 @@ export default function Page() {
         </SocketProvider>
       </LoginWrapper>
       </AuthenticationProvider>
-
     );
 }

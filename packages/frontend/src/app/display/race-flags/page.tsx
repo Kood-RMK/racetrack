@@ -67,7 +67,6 @@ function RaceControlPage() {
 export default function Page() {
   return (
     <AuthenticationProvider>
-      <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.SAFETY] }}>
         <SocketProvider url="http://localhost:3001">
           <RaceScheduleStateProvider>
             <ActiveRaceStateProvider>
@@ -77,7 +76,6 @@ export default function Page() {
             </ActiveRaceStateProvider>
           </RaceScheduleStateProvider>
         </SocketProvider>
-      </LoginWrapper>
     </AuthenticationProvider>
   )
 }
