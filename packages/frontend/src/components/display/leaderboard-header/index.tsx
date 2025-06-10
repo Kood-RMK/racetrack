@@ -26,7 +26,6 @@ const raceFlagMap = ({ activeRace }: { activeRace: ActiveRace }) => {
 
 interface HeaderProps {
   activeRaceData: ActiveRace;
-
 }
 
 export default function Header({ activeRaceData }: HeaderProps) {
