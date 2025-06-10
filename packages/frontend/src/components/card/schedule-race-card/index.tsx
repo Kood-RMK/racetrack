@@ -28,6 +28,7 @@ import {
 
 import { useRaceScheduleController } from "@/app/providers/controllers/raceScheduleControllerProvider";
 import { RaceContestant, RaceState, ScheduledRace } from "racetrack-shared/types";
+import { useRaceScheduleState } from "@/app/providers/state/raceScheduleStateProvider";
 
 
 export default function NewRaceDialog() {
@@ -38,6 +39,7 @@ export default function NewRaceDialog() {
 
     // Get the scheduleController from the provider
     const scheduleController = useRaceScheduleController();
+    const scheduleState = useRaceScheduleState();
 
     const handleNameChange = (index: number, driverName: string) => {
         const updatedNames = [...driverNames];
@@ -70,9 +72,22 @@ export default function NewRaceDialog() {
 
         // Use the controller's tryAddRace method to add the new race
         if (scheduleController && scheduleController.current && scheduleController.current.tryAddRace) {
-            scheduleController.current.tryAddRace(newRace); // Add the new race to the schedule
+            scheduleController.current.tryAddRace(newRace);
         }
     }
+
+    const usedTimeslots = scheduleState.schedule
+        ? scheduleState.schedule.map(race => race.raceScheduledStartTimeSlot)
+        : [];
+
+    const allTimeslots = [
+        "9:00 - 9.30", "9:30 - 10.00", "10:00 - 10:30", "10:30 - 11:00",
+        "11:00 - 11:30", "11:30 - 12:00", "12:00 - 12:30", "12:30 - 13:00",
+        "13:30 - 14:00", "14:30 - 15:00", "15:00 - 15:30", "15:30 - 16:00",
+        "16:00 - 16:30", "16:30 - 17:00"
+    ];
+
+    const availableTimeslots = allTimeslots.filter(slot => !usedTimeslots.includes(slot));
 
     return (
         <div className="bg-gray-100 w-full h-full p-4 gap-4 flex items-center justify-center font-cairo">
@@ -135,23 +150,9 @@ export default function NewRaceDialog() {
                                     <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md z-50 absolute">
                                         <ListBox
                                             className="max-h-48 overflow-y-auto font-cairo"
-                                            selectionMode="single">
-                                            {[
-                                                "9:00 - 9.30",
-                                                "9:30 - 10.00",
-                                                "10:00 - 10:30",
-                                                "10:30 - 11:00",
-                                                "11:00 - 11:30",
-                                                "11:30 - 12:00",
-                                                "12:00 - 12:30",
-                                                "12:30 - 13:00",
-                                                "13:30 - 14:00",
-                                                "14:30 - 15:00",
-                                                "15:00 - 15:30",
-                                                "15:30 - 16:00",
-                                                "16:00 - 16:30",
-                                                "16:30 - 17:00"
-                                            ].map((slot) => (
+                                            selectionMode="single"
+                                        >
+                                            {availableTimeslots.map((slot) => (
                                                 <ListBoxItem key={slot} id={slot} textValue={slot}>
                                                     {slot}
                                                 </ListBoxItem>
