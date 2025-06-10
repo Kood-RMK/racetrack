@@ -29,6 +29,7 @@ import { useRaceScheduleController } from "@/app/providers/controllers/raceSched
 import React, { useEffect, useState } from "react";
 import { Button } from 'react-aria-components';
 import { ScheduledRace, RaceContestant, RaceState } from "racetrack-shared/types";
+import { useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
 
 
 
@@ -50,16 +51,8 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     }
   }, [isDialogOpen]);
 
-  // useEffect(() => {
-  //   setContestants((prev) => {
-  //     if (prev.length < driverCount) {
-  //       return [...prev, ...Array(driverCount - prev.length).fill("")];
-  //     }
-  //     return prev;
-  //   });
-  // }, [driverCount]);
-
   const scheduleControllerRef = useRaceScheduleController();
+  const scheduleState = useRaceScheduleState();
 
   const handleNameChange = (index: number, value: string) => {
     setContestants((prev) => {
@@ -67,14 +60,14 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
       const contestantIndex = contestants.findIndex(c => c?.racecarNumber == index + 1);
 
       if (contestantIndex !== -1) {
-          updated[contestantIndex].name = value;
+        updated[contestantIndex].name = value;
       } else {
-        updated.push ( {
-          contestantId : `driver-${index}-${Date.now()}`,
-          name : value,
-          racecarNumber : index + 1
+        updated.push({
+          contestantId: `driver-${index}-${Date.now()}`,
+          name: value,
+          racecarNumber: index + 1
         })
-      } 
+      }
 
       return updated;
     });
@@ -96,18 +89,11 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
       return;
     }
 
-    // const filteredContestants: RaceContestant[] = 
-      // .map((name, index) => ({
-      //   contestantId: `driver-${index}-${Date.now()}`,
-      //   name,
-      //   racecarNumber: index + 1,
-      // }));
-
     // Create the new race object 
     const updatedRace: ScheduledRace = {
       raceId: race.raceId,
       raceScheduledStartTimeSlot: selectedTimeSlot,
-      contestants : contestants.filter(contestant => contestant.name.trim() !== ""),
+      contestants: contestants.filter(contestant => contestant.name.trim() !== ""),
       raceState: RaceState.Pending,
     };
 
@@ -122,8 +108,18 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
     setIsDialogOpen(false);
   }
 
+  const usedTimeslots = scheduleState.schedule
+    ? scheduleState.schedule.map(race => race.raceScheduledStartTimeSlot)
+    : [];
 
+  const allTimeslots = [
+    "9:00 - 9.30", "9:30 - 10.00", "10:00 - 10:30", "10:30 - 11:00",
+    "11:00 - 11:30", "11:30 - 12:00", "12:00 - 12:30", "12:30 - 13:00",
+    "13:30 - 14:00", "14:30 - 15:00", "15:00 - 15:30", "15:30 - 16:00",
+    "16:00 - 16:30", "16:30 - 17:00"
+  ];
 
+  const availableTimeslots = allTimeslots.filter(slot => !usedTimeslots.includes(slot));
 
 
   return (
@@ -187,27 +183,12 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                       </div>
                     </Button>
 
-                    <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md">
+                    <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md z-50 absolute">
                       <ListBox
                         className="max-h-48 overflow-y-auto font-cairo"
                         selectionMode="single"
                       >
-                        {[
-                          "9:00 - 9.30",
-                          "9:30 - 10.00",
-                          "10:00 - 10:30",
-                          "10:30 - 11:00",
-                          "11:00 - 11:30",
-                          "11:30 - 12:00",
-                          "12:00 - 12:30",
-                          "12:30 - 13:00",
-                          "13:30 - 14:00",
-                          "14:30 - 15:00",
-                          "15:00 - 15:30",
-                          "15:30 - 16:00",
-                          "16:00 - 16:30",
-                          "16:30 - 17:00"
-                        ].map((slot) => (
+                        {availableTimeslots.map((slot) => (
                           <ListBoxItem key={slot} id={slot} textValue={slot}>
                             {slot}
                           </ListBoxItem>
@@ -235,10 +216,10 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
                           className="border border-gray-300 rounded-lg pl-8 py-1 w-full"
                           placeholder="Name"
                           value={contestants.find(c => c?.racecarNumber == i + 1)?.name || ""}
-                          onChange={(e) => 
-                              handleNameChange(i, e.target.value
-                              )}
-                            
+                          onChange={(e) =>
+                            handleNameChange(i, e.target.value
+                            )}
+
                         />
                       </div>
                     </TextField>
