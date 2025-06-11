@@ -245,12 +245,18 @@ export class ActiveRaceState {
     }
 
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
-        this._activeRace.isFinishing = isFinishing;
 
         if (this.timeLeft <= 0 && !isFinishing) {
             this.logger.warn(`Attempted to set isFinishing to false while timeLeft is 0. This is not allowed.`);
             return;
         }
+
+        if (this._activeRace.isFinishing == true) {
+            this.logger.warn(`Finishing flag set to true. This can't be undone.`)
+            return;
+        }
+
+        this._activeRace.isFinishing = isFinishing;
 
         const updateIsFinishingStatement = this._database.prepare(`UPDATE active_race SET isFinishing = @isFinishing WHERE raceId = @raceId`);
         updateIsFinishingStatement.run({

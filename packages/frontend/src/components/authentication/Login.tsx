@@ -66,7 +66,6 @@ export function TokenLoginCard({
    const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-
     onSubmit?.(token, setError)
   }
 
