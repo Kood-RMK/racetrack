@@ -54,7 +54,6 @@ export default function NewRaceDialog() {
             return;
         }
 
-        console.log(driverNames)
         const contestants: RaceContestant[] = driverNames
             .map((name, index) => {
                 if (!name || name.trim() === "") {

@@ -99,6 +99,21 @@ export class RaceScheduleState {
         }
 
 
+        const { contestants } = entry;
+        const duplicates = contestants
+            .map(contestant => contestant.name.trim().toLowerCase()) // Create a new array 'duplicates' 
+            .reduce((accumulatorArray, name, _, arr) => {
+                if (arr.indexOf(name) !== arr.lastIndexOf(name) && !accumulatorArray.includes(name)) {
+                    accumulatorArray.push(name);
+                }
+                return accumulatorArray;
+            }, [] as string[]);
+
+        if (duplicates.length > 0) {
+            throw new Error(`❌ Duplicate contestant names found: ${duplicates.join(', ')}`);
+        }
+
+
         for (const value of Object.values(this._raceScheduleStateEntries)) {
 
             if (value.raceScheduledStartTimeSlot === entry.raceScheduledStartTimeSlot && value.raceId !== raceId) {

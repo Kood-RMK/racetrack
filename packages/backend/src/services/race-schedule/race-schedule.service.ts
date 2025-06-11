@@ -190,7 +190,6 @@ export class RaceScheduleService {
         }));
 
         this.schedule.events.on(RaceScheduleStateEvents.RaceAdded, (entry: RaceScheduleEntryState) => {
-
             const { contestants, raceId, raceScheduledStartTimeSlot } = entry
 
             insertScheduledRace({
