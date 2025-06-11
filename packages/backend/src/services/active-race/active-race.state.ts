@@ -77,16 +77,7 @@ export class ActiveRaceState {
         }
 
         const activeRaceContestantsQuery = database.prepare(`
-            SELECT arc.contestantId as contestantId,
-                rc.name,
-                rc.racecarNumber,
-                arc.place,
-                arc.lapCount,
-                arc.fastestLap,
-                arc.lapStopwatchTime 
-            FROM active_race_contestants arc
-            JOIN race_contestants rc on rc.contestantId = arc.contestantId
-            WHERE activeRaceId = @activeRaceId`
+            SELECT * FROM active_race_contestants WHERE activeRaceId = @activeRaceId`
         );
         const activeRaceContestantsRows = activeRaceContestantsQuery.all({activeRaceId: activeRaceRow.raceId});
 
@@ -142,8 +133,8 @@ export class ActiveRaceState {
 
         // Insert contestants into the database.
         const insertContestantStatement = database.prepare(`
-                INSERT INTO active_race_contestants (activeRaceId, contestantId, place, lapCount, fastestLap, lapStopwatchTime)
-                VALUES (@activeRaceId, @contestantId, @place, @lapCount, @fastestLap, @lapStopwatchTime)
+                INSERT INTO active_race_contestants (activeRaceId, contestantId, place, lapCount, fastestLap, lapStopwatchTime, name, racecarNumber)
+                VALUES (@activeRaceId, @contestantId, @place, @lapCount, @fastestLap, @lapStopwatchTime, @name, @racecarNumber)
             `)
 
 
@@ -156,7 +147,9 @@ export class ActiveRaceState {
                 place: contestant.place,
                 lapCount: contestant.lapCount,
                 fastestLap: contestant.fastestLap,
-                lapStopwatchTime: contestant.lapStopwatchTime
+                lapStopwatchTime: contestant.lapStopwatchTime,
+                name: contestant.contestant.name,
+                racecarNumber: contestant.contestant.racecarNumber
             })
         }
 
@@ -182,7 +175,6 @@ export class ActiveRaceState {
         deleteActiveRaceStatement.run({
             raceId : this._activeRace.raceId
         })
-        
     }
 
     public get events() {

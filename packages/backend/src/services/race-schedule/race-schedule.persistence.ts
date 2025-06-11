@@ -33,21 +33,18 @@ export function insertScheduledRace(race: {
 // Delete race info from all relevant tables
 export function deleteFromScheduledRace(race: { raceId: string }) {
 
-
-    console.log("Deleting race from DB", race)
-    // const deleteScheduledRaceContestants = db.prepare(`
-    //     DELETE FROM race_contestants WHERE raceId = @raceId
-    // `);
-
     const deleteScheduledRace = db.prepare(`
-        DELETE FROM scheduled_races;
+        DELETE FROM scheduled_races WHERE raceId = @raceId;
     `);
- 
-    const result = deleteScheduledRace.run({
-        raceId : race.raceId
-    });
 
-    console.log("Delete result", result);
+    try {
+        const result = deleteScheduledRace.run({
+            raceId : race.raceId
+        });
+    } catch (err) {
+        console.error(err);
+    }
+
 }
 
 export function modifyScheduledRace(race: {

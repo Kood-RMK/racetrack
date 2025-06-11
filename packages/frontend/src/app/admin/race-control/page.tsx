@@ -120,7 +120,7 @@ function RaceControlPage() {
 
       return <div>Loading...</div>;
     }
-    const [race, setRace] = useState<ScheduledRace | ActiveRace>()
+    const [race, setRace] = useState<ScheduledRace | ActiveRace | null>()
     const [contestants, setContestants] = useState<RaceContestant[]>([]);
 
 
@@ -133,6 +133,9 @@ function RaceControlPage() {
       } else if (raceScheduleState.nextRace) {
         setContestants(raceScheduleState.nextRace.contestants);
         setRace(raceScheduleState.nextRace)
+      } else {
+        setRace(null);
+        setContestants([]);
       }
 
     }, [activeRaceState.activeRaceState, raceScheduleState]);

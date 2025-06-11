@@ -79,8 +79,8 @@ function initializeDatabase() {
 
   database.exec(`
     CREATE TABLE IF NOT EXISTS race_contestants (
-        raceId TEXT NOT NULL,
         contestantId TEXT PRIMARY KEY,
+        raceId TEXT NOT NULL,
         name TEXT NOT NULL,
         racecarNumber INT NOT NULL,
         FOREIGN KEY (raceId) REFERENCES scheduled_races(raceId) ON DELETE CASCADE
@@ -89,11 +89,12 @@ function initializeDatabase() {
   database.exec(`CREATE TABLE IF NOT EXISTS active_race_contestants (
       contestantId TEXT PRIMARY KEY,
       activeRaceId TEXT NOT NULL,
+      name TEXT NOT NULL,
+      racecarNumber INT NOT NULL,
       place INT NOT NULL,
       lapCount INT NOT NULL,
       fastestLap INT,
       lapStopwatchTime INT NOT NULL,
-      FOREIGN KEY (contestantId) REFERENCES race_contestants(contestantId),
       FOREIGN KEY (activeRaceId) REFERENCES active_race(raceId) ON DELETE CASCADE
     );`)
 }
