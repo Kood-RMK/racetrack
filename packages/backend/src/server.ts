@@ -12,9 +12,27 @@ import { RaceScheduleService } from './services/race-schedule/race-schedule.serv
 import { RaceControlService } from './services/race-control/race-control.service';
 import { ActiveRaceService } from './services/active-race/active-race.service';
 import { RaceObserverService } from './services/race-observer/race-observer.service';
-import { RaceScheduleState } from './services/race-schedule/race-schedule.state';
 import { AuthService } from './services/auth';
 import { initPersistence } from './services/race-schedule/race-schedule.persistence';
+
+
+function validateEnvironmentVariables() {
+  const requiredVars = [
+    'RECEPTIONIST_KEY',
+    'OBSERVER_KEY',
+    'SAFETY_KEY',
+    'JWT_SECRET',
+    'RACE_DURATION_SECONDS',
+    'STOPWATCH_TICK',
+  ];
+
+  const missing = requiredVars.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+}
+
+validateEnvironmentVariables();
 
 const app = express();
 
@@ -100,8 +118,8 @@ function initializeDatabase() {
 }
 
 initializeDatabase();
-
 initPersistence(database);
+
 
 const authService = new AuthService(app, logger);
 

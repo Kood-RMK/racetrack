@@ -21,7 +21,7 @@
   },
   "scripts": {
     "dev": "dotenv -e .env.dev -- nodemon --watch src --exec ts-node -r tsconfig-paths/register src/server.ts",
-    "prod": "dotenv -e .env -- nodemon --watch src --exec ts-node -r tsconfig-paths/register src/server.ts"
+    "prod": "dotenv -e .env.prod -- nodemon --watch src --exec ts-node -r tsconfig-paths/register src/server.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.18"
