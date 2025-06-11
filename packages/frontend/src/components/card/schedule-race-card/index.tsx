@@ -54,13 +54,19 @@ export default function NewRaceDialog() {
             return;
         }
 
+        console.log(driverNames)
         const contestants: RaceContestant[] = driverNames
-            .filter(name => name.trim() !== "")
-            .map((name, index) => ({
-                contestantId: `driver-${index}-${Date.now()}`, // or another unique strategy
-                name,
-                racecarNumber: index + 1,
-            }));
+            .map((name, index) => {
+                if (!name || name.trim() === "") {
+                    return null; // Skip this contestant
+                }
+
+                return {
+                    contestantId: `driver-${index}-${Date.now()}`, // or another unique strategy
+                    name,
+                    racecarNumber: index + 1,
+                }
+            }).filter(c => c !== null) as RaceContestant[]; // Filter out null values
 
         // Create the new race object (you can adjust the logic for the race data as needed)
         const newRace: ScheduledRace = {
