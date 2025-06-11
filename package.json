@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm -F racetrack-backend run dev & pnpm -F racetrack-frontend run dev"
+    "dev": "pnpm -F racetrack-backend run dev & pnpm -F racetrack-frontend run dev",
+    "prod": "pnpm -F racetrack-backend run prod & pnpm -F racetrack-frontend run dev"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   "homepage": "https://github.com/Kood-RMK/racetrack#readme",
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.9",
+    "dotenv-cli": "^8.0.0",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0"
   },
