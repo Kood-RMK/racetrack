@@ -247,6 +247,11 @@ export class ActiveRaceState {
     public setIsFinishing(isFinishing: ActiveRace['isFinishing']) {
         this._activeRace.isFinishing = isFinishing;
 
+        if (this.timeLeft <= 0 && !isFinishing) {
+            this.logger.warn(`Attempted to set isFinishing to false while timeLeft is 0. This is not allowed.`);
+            return;
+        }
+
         const updateIsFinishingStatement = this._database.prepare(`UPDATE active_race SET isFinishing = @isFinishing WHERE raceId = @raceId`);
         updateIsFinishingStatement.run({
             isFinishing: isFinishing ? 1 : 0,
@@ -264,6 +269,11 @@ export class ActiveRaceState {
 
     public setTimeLeft(timeLeft: ActiveRace['timeLeft']) {
         this._activeRace.timeLeft = timeLeft;
+
+        if (timeLeft < 0) {
+            this.logger.warn(`Attempted to set timeLeft to a negative value: ${timeLeft}. This is not allowed.`);
+            return;
+        }
 
         const updateTimeLeftStatement = this._database.prepare(`UPDATE active_race SET timeLeft = @timeLeft WHERE raceId = @raceId`);
         updateTimeLeftStatement.run({

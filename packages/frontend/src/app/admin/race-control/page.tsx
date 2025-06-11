@@ -141,16 +141,21 @@ function RaceControlPage() {
     }, [activeRaceState.activeRaceState, raceScheduleState]);
 
       return (
-        race ? <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
-          <h1 className='text-center py-12'>Race Control</h1>
-          {/* <h2 className='text-center py-10'>{race.raceScheduledStartTimeSlot}</h2> */}
-            <RaceCard 
-              tags={raceTags({race : race})}
-              contestants={contestants}
-              buttons={raceButtons({race : race, raceController})}
-              
-              />
-        </div> : <div>No upcoming races</div>
+
+        <div className="flex flex-1 h-full justify-center items-center">
+          {
+            race ? <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
+              <h1 className='text-center py-12'>Race Control</h1>
+              {/* <h2 className='text-center py-10'>{race.raceScheduledStartTimeSlot}</h2> */}
+                <RaceCard 
+                  tags={raceTags({race : race})}
+                  contestants={contestants}
+                  buttons={raceButtons({race : race, raceController})}
+                  
+                  />
+            </div> : <div className="font-medium md:text-4xl">No upcoming races</div>
+          }
+        </div>
       )
 }
 

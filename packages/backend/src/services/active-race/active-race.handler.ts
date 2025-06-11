@@ -72,8 +72,16 @@ export class ActiveRaceHandler {
         // Create a stopwatch to track the time left.
         this._stopwatch = new Stopwatch(Number(process.env.STOPWATCH_TICK));
         this._stopwatch.events.on(StopwatchEvents.onStopwatchTick, (elapsed) => {
-            this._activeRaceState.setTimeLeft(this._activeRaceState.timeLeft - elapsed);
-            this._stopwatch.reset();
+            const timeLeft = this._activeRaceState.timeLeft - elapsed;
+
+            if (timeLeft <= 0) { 
+                this._activeRaceState.setTimeLeft(0);
+                this._stopwatch.stop();
+            } else {
+                this._activeRaceState.setTimeLeft(timeLeft);
+                this._stopwatch.reset();
+            }
+
         });
 
         this._activeRaceState = activeRaceState;

@@ -72,30 +72,6 @@ function SidebarDisclosure({title, iconPath, items, children, ...props}: Sidebar
   )
 }
 
-function SidebarUserManagement() {
-
-
-  function ActionButton({iconPath, children, ...props} : {iconPath : string, children? : React.ReactNode}) {
-    return (
-      <Button className="flex text-white text-lg gap-2 font-medium items-center" {...props} aria-label={typeof children === 'string' ? children : undefined}>
-        <Icon className="w-7 min-w-7" path={iconPath} />
-        {children}
-      </Button>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-2 py-6">
-      <ActionButton iconPath={mdiAccountOutline}>
-        <span>Rivo</span>
-      </ActionButton>
-      <ActionButton iconPath={mdiPowerStandby}>
-        <span>Log out</span>
-      </ActionButton>
-    </div>
-  )
-}
-
 
 export default function Sidebar() {
 
@@ -122,7 +98,7 @@ export default function Sidebar() {
                   title="Front Desk" 
                   iconPath={mdiOfficeBuildingCog} 
                   items={[
-                    <SidebarItem title="Race Schedule" path="/admin/race-schedule"/>
+                    <SidebarItem title="Race Schedule" path="/front-desk"/>
                   ]}
                   >
                 </SidebarDisclosure>
@@ -131,10 +107,10 @@ export default function Sidebar() {
                   title="Race Display" 
                   iconPath={mdiDivingScubaFlag} 
                   items={[
-                    <SidebarItem title="Leaderboard" path="/display/race-leaderboard"/>,
-                    <SidebarItem title="Timer" path="/display/race-timer"/>,
-                    <SidebarItem title="Race Flag" path="/display/race-flag"/>,
-                    <SidebarItem title="Announcements" path="/display/race-announcements"/>
+                    <SidebarItem title="Leaderboard" path="/race-leaderboard"/>,
+                    <SidebarItem title="Next Race" path="/next-race"/>,
+                    <SidebarItem title="Countdown" path="/race-countdown"/>,
+                    <SidebarItem title="Race Flag" path="/race-flag"/>,
                   ]}>
                   Details about system requirements here
               </SidebarDisclosure>
@@ -144,8 +120,8 @@ export default function Sidebar() {
                 title="Race Control" 
                 iconPath={mdiCarCruiseControl} 
                 items={[
-                  <SidebarItem title="Race Control" path="/admin/race-control"/>,
-                  <SidebarItem title="Lap-line Observer" path="/admin/race-observer"/>
+                  <SidebarItem title="Race Safety" path="/race-control"/>,
+                  <SidebarItem title="Lap-line Observer" path="/lap-line-tracker"/>
                 ]}>
                 Details about system requirements here
               </SidebarDisclosure>
