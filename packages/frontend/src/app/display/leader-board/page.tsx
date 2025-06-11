@@ -29,8 +29,6 @@ function LeaderboardPage() {
 
   }, [activeRaceState.activeRaceState, raceScheduleState]);
 
-    console.log("raceState: ", race?.raceState)
-
     return (
       race ? <div>
                 <div className="bg-black min-h-screen min-w-screen text-white flex flex-col items-center pt-10">
@@ -38,7 +36,7 @@ function LeaderboardPage() {
                     
                   <LeaderboardTable activeRaceData={race}/>
                 </div>
-             </div> : "Loading ..."
+             </div> : "No Active Race"
     );
   }
 
