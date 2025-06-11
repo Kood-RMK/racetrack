@@ -1,14 +1,3 @@
-/* The purpose of this file is to ccreate functions for:
-
-    1) Inserting data into db
-    2) Updating data in db Overwrite
-    3) Deleting data from db
-
-    Pay attention to:
-        1) Are the tables properly joined where they have to be?
-*/
-
-// TODO: race_contestants modification in db isn't implemented atm, only the scheduled_races gets updated
 import { DatabaseSync } from 'node:sqlite';
 import { RaceContestant, RaceContestantId, RaceSchedule, RaceState, ScheduledRaceId } from 'racetrack-shared/types';
 
@@ -43,16 +32,22 @@ export function insertScheduledRace(race: {
 
 // Delete race info from all relevant tables
 export function deleteFromScheduledRace(race: { raceId: string }) {
-    const deleteScheduledRaceContestants = db.prepare(`
-        DELETE FROM race_contestants WHERE raceId = ?
-    `);
+
+
+    console.log("Deleting race from DB", race)
+    // const deleteScheduledRaceContestants = db.prepare(`
+    //     DELETE FROM race_contestants WHERE raceId = @raceId
+    // `);
 
     const deleteScheduledRace = db.prepare(`
-        DELETE FROM scheduled_races WHERE raceId = ?
+        DELETE FROM scheduled_races;
     `);
-    
-    deleteScheduledRaceContestants.run(race.raceId);
-    deleteScheduledRace.run(race.raceId);
+ 
+    const result = deleteScheduledRace.run({
+        raceId : race.raceId
+    });
+
+    console.log("Delete result", result);
 }
 
 export function modifyScheduledRace(race: {

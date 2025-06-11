@@ -231,12 +231,7 @@ export class ActiveRaceHandler {
     }
 
     public destroy() {
-        const activeRaceStateEvents = this._activeRaceState.events;
-
-        activeRaceStateEvents.off(ActiveRaceStateEvents.RaceStateChanged, this.onRaceStateChanged);
-        activeRaceStateEvents.off(ActiveRaceStateEvents.RaceHazardChanged, this.onRaceHazardChanged);
-        activeRaceStateEvents.off(ActiveRaceStateEvents.RaceIsFinishingChanged, this.onRaceIsFinishingChanged);
-        activeRaceStateEvents.off(ActiveRaceStateEvents.TimeLeftChanged, this.onTimeLeftChanged);
+        this._activeRaceState.destroy();
 
         Object.entries(this._activeRaceContestantHandlers).forEach(([contestantId, contestantHandler]) => {
             contestantHandler.destroy();

@@ -175,6 +175,16 @@ export class ActiveRaceState {
         this._database = database;
     }
 
+    public destroy() {
+        this.logger.info(`Destroying ActiveRace`);
+        this.events.removeAllListeners();
+        const deleteActiveRaceStatement = this._database.prepare(`DELETE FROM active_race WHERE raceId = @raceId`)
+        deleteActiveRaceStatement.run({
+            raceId : this._activeRace.raceId
+        })
+        
+    }
+
     public get events() {
         return this._eventEmitter;
     }

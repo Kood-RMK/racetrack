@@ -94,7 +94,7 @@ function initializeDatabase() {
       fastestLap INT,
       lapStopwatchTime INT NOT NULL,
       FOREIGN KEY (contestantId) REFERENCES race_contestants(contestantId),
-      FOREIGN KEY (activeRaceId) REFERENCES active_race(raceId)
+      FOREIGN KEY (activeRaceId) REFERENCES active_race(raceId) ON DELETE CASCADE
     );`)
 }
 

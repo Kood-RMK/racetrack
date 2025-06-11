@@ -53,7 +53,6 @@ export class ActiveRaceService {
 
         this._activeRaceState = ActiveRaceState.loadFromDatabase(logger, this._database);
 
-
         this._socketNamespace.on("connection", async (client: Socket) => {
 
             if (!await useRacetrackAuth(client, this.logger, [RacetrackClientRole.GUEST, RacetrackClientRole.SAFETY, RacetrackClientRole.OBSERVER])) {
@@ -66,6 +65,7 @@ export class ActiveRaceService {
         // Create active race handler if an active race is found in the database.
         if (this._activeRaceState) {
             this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
+            this.addActiveRaceListeners(this._activeRaceHandler);
             this._activeRaceHandler.initialize();
         }
     }
@@ -78,16 +78,25 @@ export class ActiveRaceService {
         return this._eventEmitter;
     }
 
-    public setActiveRace(activeRace: ActiveRace) {
-        this._activeRaceState = ActiveRaceState.createNew(activeRace, this.logger, this._database);
-        this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
+    private addActiveRaceListeners(activeRaceHandler: ActiveRaceHandler) {
 
-        this._activeRaceHandler.activeRaceState.events.on(ActiveRaceStateEvents.RaceStateChanged, (newState) => {
+        activeRaceHandler.activeRaceState.events.on(ActiveRaceStateEvents.RaceStateChanged, (newState) => {
             if (newState === RaceState.Completed || newState === RaceState.Canceled) {
                 this.removeActiveRace();
             }
         })
 
+        activeRaceHandler.activeRaceState.events.on(ActiveRaceStateEvents.TimeLeftChanged, (timeLeft) => {
+            if (timeLeft <= 0 && this._activeRaceHandler) {
+                this._activeRaceHandler.activeRaceState.setIsFinishing(true);
+            }
+        });
+    }
+
+    public setActiveRace(activeRace: ActiveRace) {
+        this._activeRaceState = ActiveRaceState.createNew(activeRace, this.logger, this._database);
+        this._activeRaceHandler = new ActiveRaceHandler(this._activeRaceState, this._socketNamespace, this.logger);
+        this.addActiveRaceListeners(this._activeRaceHandler);
         this._activeRaceHandler.initialize();
         this._eventEmitter.emit(ActiveRaceServiceEvents.ActiveRaceSet, activeRace);
     }

@@ -14,11 +14,11 @@ import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers
 
 
 // Mapping between race state and components for buttons and tags
-const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
+const raceTags = ({ race: race }: {race: ActiveRace | ScheduledRace}) => {
 
-  const raceState = activeRace.raceState;
+  const raceState = race.raceState;
 
-  activeRace.raceScheduledStartTimeSlot
+  race.raceScheduledStartTimeSlot
   // const calculateTimeslot = (raceStartUnixTime : number, raceDurationSeconds : number) => {
   //     const startDateTime = new Date(raceStartUnixTime * 1000); // Convert to milliseconds
   //     const startHours = startDateTime.getHours().toString().padStart(2, '0');
@@ -45,14 +45,15 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
     case RaceState.Pending: {
       return <>
         <RacePendingTag></RacePendingTag>
-        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={race.raceScheduledStartTimeSlot}></RaceTimeslotTag>
       </>;
     }
 
     case RaceState.Active : {
+      const activeRace = race as ActiveRace;
       return <>
         <RaceActiveTag></RaceActiveTag>
-        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={race.raceScheduledStartTimeSlot}></RaceTimeslotTag>
         <RaceCountdownTag timeLeft={calculateTimeleft(activeRace.timeLeft)}></RaceCountdownTag>
         {activeRace.isHazard && <RaceHazardTag></RaceHazardTag>}
         {activeRace.isFinishing && <RaceFinishingTag></RaceFinishingTag>}
@@ -61,13 +62,13 @@ const raceTags = ({ activeRace: activeRace }: {activeRace: ActiveRace}) => {
     case RaceState.Paused : {
       return <>
         <RaceActiveTag></RaceActiveTag>
-        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={race.raceScheduledStartTimeSlot}></RaceTimeslotTag>
         <RaceDangerTag></RaceDangerTag>
       </>;
     }
     case RaceState.Canceled : {
       return <>
-        <RaceTimeslotTag timeslot={activeRace.raceScheduledStartTimeSlot}></RaceTimeslotTag>
+        <RaceTimeslotTag timeslot={race.raceScheduledStartTimeSlot}></RaceTimeslotTag>
         <RaceCancelledTag></RaceCancelledTag>
       </>;
     }
@@ -97,7 +98,7 @@ function raceButtons({ race, raceController }: { race: ActiveRace | ScheduledRac
 
         case 'paused':
             return <>
-                <CancelRaceButton race={race as ActiveRace} raceController={raceController}></CancelRaceButton>
+                {/* <CancelRaceButton race={race as ActiveRace} raceController={raceController}></CancelRaceButton> */}
                 <ResumeRaceButton race={race as ActiveRace} raceController={raceController}></ResumeRaceButton>
             </>;
         case 'canceled':
@@ -123,33 +124,25 @@ function RaceControlPage() {
     const [contestants, setContestants] = useState<RaceContestant[]>([]);
 
 
-    console.log("race: ", raceScheduleState)
-
     useEffect(() => {
 
       if (activeRaceState.activeRaceState) {
-      console.log("Change", activeRaceState);
         setContestants(Object.values(activeRaceState.activeRaceState.contestants).map(activeContestant => activeContestant.contestant));
         setRace(activeRaceState.activeRaceState);
 
       } else if (raceScheduleState.nextRace) {
         setContestants(raceScheduleState.nextRace.contestants);
         setRace(raceScheduleState.nextRace)
-      
       }
-      // } else if (!raceScheduleState.nextRace){
-      //   setContestants([]);
-      //   setRace(undefined);   
-      // }
 
     }, [activeRaceState.activeRaceState, raceScheduleState]);
 
       return (
         race ? <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
           <h1 className='text-center py-12'>Race Control</h1>
-          <h2 className='text-center py-10'>{race.raceScheduledStartTimeSlot}</h2>
+          {/* <h2 className='text-center py-10'>{race.raceScheduledStartTimeSlot}</h2> */}
             <RaceCard 
-              // tags={raceTags({})}
+              tags={raceTags({race : race})}
               contestants={contestants}
               buttons={raceButtons({race : race, raceController})}
               
