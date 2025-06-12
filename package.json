@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm -F racetrack-backend run dev & pnpm -F racetrack-frontend run dev",
-    "start": "pnpm -F racetrack-backend run prod & pnpm -F racetrack-frontend run dev"
+    "dev": "pnpm -F racetrack-backend run dev",
+    "start": "pnpm -F racetrack-backend run prod"
   },
   "repository": {
     "type": "git",
