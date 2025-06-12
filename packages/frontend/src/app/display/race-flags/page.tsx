@@ -26,17 +26,12 @@ const raceFlagMap = ({ activeRace }: { activeRace: ActiveRace }) => {
 };
 
 function RaceControlPage() {
-
   const activeRaceState = useActiveRaceState();
   const raceController = useActiveRaceController();
   
   if (!raceController) {
     return <RaceFlagRed />;
   }
-
-  // useEffect(() => {
-  //     setRace(activeRaceState.activeRaceState);
-  // }, [activeRaceState.activeRaceState]);
 
   const race = activeRaceState.activeRaceState;
   return (
@@ -47,7 +42,6 @@ function RaceControlPage() {
     </div> : <RaceFlagRed />
   )
 }
-
 
 export default function Page() {
   return (
