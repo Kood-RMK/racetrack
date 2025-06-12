@@ -30,19 +30,19 @@ export class RaceScheduleService {
             const raceId = activeRace.raceId;
             this.schedule.deleteRace(raceId);
 
-            // this.socketIO.of("/race-schedule").emit("activeRaceAdded", {
-            //     raceId: activeRace.raceId,
-            //     message: "Active race was added",
-            // });
+            this.socketIO.of("/race-schedule").emit("activeRaceAdded", {
+                raceId: activeRace.raceId,
+                message: "Active race was added",
+            });
         })
 
         activeRaceService.events.on(ActiveRaceServiceEvents.ActiveRaceRemoved, (activeRace) => {
             console.log("[SERVER]: Emitting 'activeRaceRemoved' for race", activeRace.raceId);
 
-            // this.socketIO.of("/race-schedule").emit("activeRaceRemoved", {
-            //     raceId: activeRace.raceId,
-            //     message: "Active race was removed",
-            // });
+            this.socketIO.of("/race-schedule").emit("activeRaceRemoved", {
+                raceId: activeRace.raceId,
+                message: "Active race was removed",
+            });
         })
 
         if (Object.keys(this.schedule.raceScheduleEntries).length === 0) {
@@ -60,7 +60,7 @@ export class RaceScheduleService {
             }
         }
 
-        // Siia jäävad kõik commandid ja kasutavad sealt ülevalt evente
+        // Commands below, events above
         socketNamespace.on("connection", async (client) => {
 
             this.logger.info(`New client connected!, ID`, client.id);

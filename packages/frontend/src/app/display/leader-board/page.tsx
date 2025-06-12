@@ -43,7 +43,6 @@ function LeaderboardPage() {
 }
 
 
-
 export default function Page() {
   return (
     <AuthenticationProvider>

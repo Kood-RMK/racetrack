@@ -17,14 +17,12 @@ const RaceScheduleContext = createContext<RaceScheduleContextType>({
     schedule: null,
     nextRace: null,
     sortedSchedule: [],
-    isPaddockMessageVisible: false,
+    isPaddockMessageVisible: true,
 });
 
 // Provider
 export const RaceScheduleStateProvider = ({ children }: { children: ReactNode }) => {
 
-    // You are creating a piece of state called scheduleState that starts as an empty array [], 
-    // and it must match the type RaceSchedule.
     const [scheduleState, setScheduleState] = useState<RaceScheduleEntries | null>(null);
     const [nextRace, setNextRace] = useState<ScheduledRace | null>(null);
     const raceScheduleSocket = useSocket("/race-schedule");
