@@ -12,29 +12,6 @@ export class AuthService {
     constructor(parentLogger: Logger) {
         const logger = parentLogger.child({ serviceName: this.constructor.name });
         this.logger = logger;
-
-        // app.post('/auth', async (req, res) => {
-        //     const { token } = req.body as AuthenicationRequest;
-
-        //     if (!token) {
-        //         res.status(400).send('Token is required');
-        //         return;
-        //     }
-
-        //     const jwt = this.authenticate(token);
-        //     if (jwt) {
-        //         res.cookie(RACETRACK_AUTH_COOKIE, jwt);
-        //         res.contentType('application/json');
-        //         res.header(RACETRACK_AUTH_HEADER, jwt);
-        //         res.header('Access-Control-Expose-Headers', RACETRACK_AUTH_HEADER);
-        //         res.status(200).send('Authenticated');
-        //     } else {
-
-        //         setTimeout(() => {
-        //             res.status(401).send('Authentication failed');
-        //         }, 500)
-        //     }
-        // });
     }
 
     public handle(req: IncomingMessage, res: ServerResponse, url: UrlWithParsedQuery) {

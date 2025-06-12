@@ -1,10 +1,8 @@
 "use client";
 
-import { ActiveRace } from "racetrack-shared/types"; import { useEffect, useState } from "react";
-import { SocketProvider } from "@providers/socket/socketProvider";
+ import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
-import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers/state/raceScheduleStateProvider";
 
 function LeaderboardPage() {
   const activeRaceState = useActiveRaceState();
@@ -32,10 +30,9 @@ function LeaderboardPage() {
       <div className="bg-black min-h-screen min-w-screen text-white flex items-center justify-center text-9xl">
 
        {formattedTime}
-         
 
       </div>
-    </div> : "Loading ..."
+    </div> : "No Active Race"
   );
 }
 
