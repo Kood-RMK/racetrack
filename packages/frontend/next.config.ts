@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
       destination: "/admin/front-desk"
     },
     {
+      source: "/",
+      destination: "/admin/front-desk"
+    },
+    {
       source : "/race-control",
       destination : "/admin/race-control",
     },
