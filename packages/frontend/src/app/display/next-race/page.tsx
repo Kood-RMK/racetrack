@@ -6,6 +6,7 @@ import { SocketProvider } from '@/app/providers/socket/socketProvider';
 import { ActiveRaceStateProvider, useActiveRaceState } from '@/app/providers/state/activeRaceStateProvider';
 import { AuthenticationProvider } from '@/app/providers/auth/authProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
+import { RaceState } from 'racetrack-shared/types';
 
 type AnnouncementCardProps = {
   driver: string;
@@ -26,8 +27,23 @@ const AnnouncementCard = ({ driver, car }: AnnouncementCardProps) => (
 
 function NextRacePage() {
 
-  const { nextRace, isPaddockMessageVisible } = useRaceScheduleState();
+  const { nextRace } = useRaceScheduleState();
+  const { activeRaceState } = useActiveRaceState();
+  const [isPaddockMessageVisible, setIsPaddockMessageVisible] = useState(true);
   console.log("[PAGE]: isPaddockMessageVisible:", isPaddockMessageVisible);
+
+  useEffect (
+    () => {
+
+      if (activeRaceState === null) {
+        setIsPaddockMessageVisible(true);
+      } else {
+        setIsPaddockMessageVisible(false);
+      }
+      console.log("next race active race state", activeRaceState);
+
+    }, [activeRaceState?.raceState]
+  )
 
   const upcomingRace = nextRace;
 

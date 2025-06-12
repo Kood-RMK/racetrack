@@ -10,14 +10,12 @@ export type RaceScheduleContextType = {
     schedule: RaceScheduleEntries | null;
     nextRace: ScheduledRace | null;
     sortedSchedule: ScheduledRace[] | [];
-    isPaddockMessageVisible: boolean;
 };
 
 const RaceScheduleContext = createContext<RaceScheduleContextType>({
     schedule: null,
     nextRace: null,
     sortedSchedule: [],
-    isPaddockMessageVisible: true,
 });
 
 // Provider
@@ -26,7 +24,6 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
     const [scheduleState, setScheduleState] = useState<RaceScheduleEntries | null>(null);
     const [nextRace, setNextRace] = useState<ScheduledRace | null>(null);
     const raceScheduleSocket = useSocket("/race-schedule");
-    const [isPaddockMessageVisible, setIsPaddockMessageVisible] = useState(false);
 
 
     useEffect(() => {
@@ -66,28 +63,10 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
         };
         raceScheduleSocket.current.on(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
 
-        const onActiveRaceAdded = (data: { raceId: string; message: string }) => {
-
-            console.log("[CLIENT]: Received 'activeRaceAdded'", data);
-
-            setIsPaddockMessageVisible(false);
-        };
-        raceScheduleSocket.current.on("activeRaceAdded", onActiveRaceAdded);
-
-        const onActiveRaceRemoved = (data: { raceId: string; message: string }) => {
-
-            console.log("[CLIENT]: Received 'activeRaceRemoved'", data);
-
-            setIsPaddockMessageVisible(true);
-        };
-        raceScheduleSocket.current.on("activeRaceRemoved", onActiveRaceRemoved);
-
 
     return () => {
         raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleInitialState, onScheduleInitialState);
         raceScheduleSocket.current?.off(RaceScheduleEvents.RaceScheduleUpdated, onRaceScheduleUpdated);
-        raceScheduleSocket.current?.off("activeRaceAdded", onActiveRaceAdded);
-        raceScheduleSocket.current?.off("activeRaceRemoved", onActiveRaceRemoved);
     };
 }, [raceScheduleSocket]);
 
@@ -111,7 +90,6 @@ export const RaceScheduleStateProvider = ({ children }: { children: ReactNode })
             schedule: scheduleState,
             nextRace: nextRace,
             sortedSchedule: sortedSchedule,
-            isPaddockMessageVisible,
         }}>
             {children}
         </RaceScheduleContext.Provider>
