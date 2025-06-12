@@ -164,7 +164,7 @@ export default function Page() {
   return (
     <AuthenticationProvider>
       <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.SAFETY] }}>
-        <SocketProvider url="http://localhost:3001">
+        <SocketProvider>
           <RaceScheduleStateProvider>
             <ActiveRaceStateProvider>
               <RaceControllerProvider>

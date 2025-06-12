@@ -4,9 +4,7 @@ import { ActiveRace, RaceState, RacetrackClientRole } from "racetrack-shared/typ
 import { RaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
-import { LoginWrapper } from "@/components/authentication/Login";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
-import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers/state/raceScheduleStateProvider";
 import { RaceFlagCheckered, RaceFlagGreen, RaceFlagRed, RaceFlagYellow } from "@/components/display/flags";
 
 const raceFlagMap = ({ activeRace }: { activeRace: ActiveRace }) => {
@@ -27,35 +25,22 @@ const raceFlagMap = ({ activeRace }: { activeRace: ActiveRace }) => {
   }
 };
 
-
 function RaceControlPage() {
 
-  const raceScheduleState = useRaceScheduleState();
   const activeRaceState = useActiveRaceState();
   const raceController = useActiveRaceController();
   
-  
-  if (!raceController || !raceScheduleState) {
+  if (!raceController) {
     return <RaceFlagRed />;
   }
 
-  const [race, setRace] = useState<ActiveRace>()
+  // useEffect(() => {
+  //     setRace(activeRaceState.activeRaceState);
+  // }, [activeRaceState.activeRaceState]);
 
-  // if (!race) {
-  //   return <RaceFlagRed />;
-  // }
-  useEffect(() => {
-
-    if (activeRaceState.activeRaceState) {
-      setRace(activeRaceState.activeRaceState);
-    }
-
-  }, [activeRaceState.activeRaceState, raceScheduleState]);
-
-
+  const race = activeRaceState.activeRaceState;
   return (
     race ? <div>
-
       <div className="min-h-screen w-full">
         {race ? raceFlagMap({ activeRace: race }) : <RaceFlagRed />}
       </div>
@@ -67,14 +52,12 @@ function RaceControlPage() {
 export default function Page() {
   return (
     <AuthenticationProvider>
-        <SocketProvider url="http://localhost:3001">
-          <RaceScheduleStateProvider>
+        <SocketProvider>
             <ActiveRaceStateProvider>
               <RaceControllerProvider>
                 <RaceControlPage />
               </RaceControllerProvider>
             </ActiveRaceStateProvider>
-          </RaceScheduleStateProvider>
         </SocketProvider>
     </AuthenticationProvider>
   )

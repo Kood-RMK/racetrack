@@ -17,7 +17,6 @@ const SocketContext = createContext<SocketContextValue>({
 
 // Props for SocketProvider
 interface SocketProviderProps {
-  url: string;
   options?: Partial<ManagerOptions & SocketOptions>;
   children: ReactNode;
 }
@@ -25,7 +24,7 @@ interface SocketProviderProps {
 /**
  * SocketProvider establishes and caches Socket.IO connections per namespace.
  */
-export function SocketProvider({ url, options = {}, children }: SocketProviderProps) {
+export function SocketProvider({ options = {}, children }: SocketProviderProps) {
 
   // Map to store namespace -> Socket instance
   const socketsRef = useRef<Map<string, Socket>>(new Map());
@@ -41,7 +40,7 @@ export function SocketProvider({ url, options = {}, children }: SocketProviderPr
         }
       }
 
-      const socket = io(`${url}${nsKey}`, options);
+      const socket = io(`${window.location.host}${nsKey}`, options);
       console.log(`[📩 Socket]: Socket initialized for namespace: ${namespace}`);
       socketsRef.current.set(nsKey, socket);
     }
@@ -89,7 +88,6 @@ export function useSocket(namespace: string = '/', secure : boolean = true): Ref
 
     }, []);
   }
-
 
   return socketRef;
 }

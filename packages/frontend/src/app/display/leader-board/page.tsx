@@ -46,7 +46,7 @@ function LeaderboardPage() {
 export default function Page() {
   return (
     <AuthenticationProvider>
-      <SocketProvider url="http://localhost:3001">
+      <SocketProvider>
         <RaceScheduleStateProvider>
           <ActiveRaceStateProvider>
             <LeaderboardPage />

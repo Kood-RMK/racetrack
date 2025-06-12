@@ -57,7 +57,7 @@ export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
     const authenticate = async (token : string) : Promise<AuthenticationState> => {
         const body = { token: token };
         const headers = { 'Content-Type': 'application/json' };
-        const result = await fetch('http://localhost:3001/auth', {
+        const result = await fetch(`${window.location.origin}/auth`, {
             method : 'POST',
             credentials: 'include',
             body : JSON.stringify(body),

@@ -14,7 +14,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "next": "^15.3.2",
-    "nodemon": "^3.1.9",
+    "nodemon": "^3.1.10",
     "racetrack-shared": "workspace:*",
     "react": "^19.1.0",
     "react-aria": "^3.37.0",

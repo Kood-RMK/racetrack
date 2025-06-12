@@ -42,8 +42,6 @@ function SidebarDisclosure({title, iconPath, items, children, ...props}: Sidebar
       <Button
         slot="trigger" 
         className="group flex flex-row w-full items-center justify-between bg-secondary rounded-lg py-2 px-2 mb-2"
-        aria-expanded={props.isOpen}
-      
         >
         <div className="flex align-middle items-center">
           <Icon className="w-7 min-w-7 h-auto" path={iconPath} />
@@ -75,7 +73,7 @@ function SidebarDisclosure({title, iconPath, items, children, ...props}: Sidebar
 
 export default function Sidebar() {
 
-  const [isSidebarOpen, setIsSidebarOpen ] = React.useState(false);
+  const [isSidebarOpen, setIsSidebarOpen ] = React.useState(true);
 
   return (
     <header
@@ -107,10 +105,10 @@ export default function Sidebar() {
                   title="Race Display" 
                   iconPath={mdiDivingScubaFlag} 
                   items={[
-                    <SidebarItem title="Leaderboard" path="/race-leaderboard"/>,
+                    <SidebarItem title="Leaderboard" path="/leader-board"/>,
                     <SidebarItem title="Next Race" path="/next-race"/>,
                     <SidebarItem title="Countdown" path="/race-countdown"/>,
-                    <SidebarItem title="Race Flag" path="/race-flag"/>,
+                    <SidebarItem title="Race Flag" path="/race-flags"/>,
                   ]}>
                   Details about system requirements here
               </SidebarDisclosure>
