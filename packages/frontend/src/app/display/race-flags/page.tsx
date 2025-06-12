@@ -1,7 +1,6 @@
 "use client";
 
 import { ActiveRace, RaceState, RacetrackClientRole } from "racetrack-shared/types";import { useEffect, useState } from "react";
-import { RaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 import { SocketProvider } from "@providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
@@ -27,12 +26,7 @@ const raceFlagMap = ({ activeRace }: { activeRace: ActiveRace }) => {
 
 function RaceControlPage() {
   const activeRaceState = useActiveRaceState();
-  const raceController = useActiveRaceController();
   
-  if (!raceController) {
-    return <RaceFlagRed />;
-  }
-
   const race = activeRaceState.activeRaceState;
   return (
     race ? <div>
@@ -48,9 +42,7 @@ export default function Page() {
     <AuthenticationProvider>
         <SocketProvider>
             <ActiveRaceStateProvider>
-              <RaceControllerProvider>
                 <RaceControlPage />
-              </RaceControllerProvider>
             </ActiveRaceStateProvider>
         </SocketProvider>
     </AuthenticationProvider>
