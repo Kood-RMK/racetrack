@@ -1,5 +1,5 @@
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ChangeRaceState, DeleteRace, ModifyRace, RaceScheduleCommands, RacetrackCommand, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
+import { DeleteRace, ModifyRace, RaceScheduleCommands, RacetrackCommand, ScheduledRace, ScheduleNewRace } from "racetrack-shared/types";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
 
 
@@ -7,7 +7,6 @@ export type RaceScheduleController = {
     tryAddRace: (newRace: ScheduledRace) => void;
     tryModifyRace: (raceId: string, updatedRace: ScheduledRace) => void;
     tryDeleteRace: (raceId: string) => void;
-//     tryChangeRaceState: (raceId: string, newState: string) => void;
 }
 
 const RaceScheduleControllerContext = createContext<RefObject<RaceScheduleController> | null>(null);
@@ -17,7 +16,6 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
         tryAddRace: () => { console.error("RaceScheduleControllerProvider: tryAddRace not implemented.") },
         tryModifyRace: () => { console.error("RaceScheduleControllerProvider: tryModifyRace not implemented.") },
         tryDeleteRace: () => { console.error("RaceScheduleControllerProvider: tryDeleteRace not implemented.") },
-        // tryChangeRaceState: () => { console.error("RaceScheduleControllerProvider: tryDeleteRace not implemented.") },
     })
 
     const socketRef = useSocket("/race-schedule");
@@ -81,23 +79,7 @@ export const RaceScheduleControllerProvider = ({ children }: { children: ReactNo
                 if (command.message?.type) {
                     socket.emit(command.message.type, command);
                 }
-            },
-                // tryChangeRaceState: (raceId: string, newState: string) => {
-                //     const command: RacetrackCommand<ChangeRaceState> = {
-                //         senderId: socket.id,
-                //         message: {
-                //             type: RaceScheduleCommands.ChangeRaceState,
-                //             data: {
-                //                 raceId: raceId,
-                //                 state: newState,
-                //             },
-                //         },
-                //     };
-
-                //     if (command.message?.type) {
-                //         socket.emit(command.message.type, command);
-                //     }
-                // }
+            },     
         };
 
     }, [socketRef])
