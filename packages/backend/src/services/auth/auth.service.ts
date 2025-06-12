@@ -57,7 +57,7 @@ export class AuthService {
                     const jwtToken = this.authenticate(token);
                     if (jwtToken) {
                         // Set cookie
-                        res.setHeader('Set-Cookie', `${RACETRACK_AUTH_COOKIE}=${jwtToken}; Path=/; HttpOnly`);
+                        res.setHeader('Set-Cookie', `${RACETRACK_AUTH_COOKIE}=${jwtToken}; Path=/`);
                         res.setHeader('Content-Type', 'application/json');
                         res.setHeader(RACETRACK_AUTH_HEADER, jwtToken);
                         res.setHeader('Access-Control-Expose-Headers', RACETRACK_AUTH_HEADER);

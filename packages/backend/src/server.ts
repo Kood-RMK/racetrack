@@ -1,9 +1,7 @@
-import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import pino from 'pino';
 import pretty from 'pino-pretty';
-import cors from 'cors';
 import 'dotenv/config';
 import { DatabaseSync } from 'node:sqlite';
 
@@ -15,12 +13,8 @@ import { RaceObserverService } from './services/race-observer/race-observer.serv
 import { AuthService } from './services/auth';
 import { initPersistence } from './services/race-schedule/race-schedule.persistence';
 
-
-
 import { parse } from 'url'
 import next from 'next'
-// import nextConfig from '../next.config'
- 
 
 function validateEnvironmentVariables() {
   const requiredVars = [
@@ -39,19 +33,6 @@ function validateEnvironmentVariables() {
 }
 
 validateEnvironmentVariables();
-
-// const app = express();
-
-// app.use(express.json());
-// app.use(cors({
-//   origin: "http://localhost:3000",
-//   credentials: true,
-//   methods: ["GET", "POST"],
-// }))
-
-
-// const server = createServer(app);
-
 
 
 const logStream = pretty({
@@ -119,12 +100,9 @@ initPersistence(database);
 
 const authService = new AuthService(logger);
 
-// leaderboardService(io);
-
-
 const port = parseInt(process.env.PORT || '3000', 10)
 const dev = process.env.NODE_ENV !== 'production'
-const nextApp = next({ dev, turbo: true, dir : '../frontend' })
+const nextApp = next({ dev, turbo: true, turbopack : true, dir : '../frontend' })
 const handle = nextApp.getRequestHandler()
  
 
@@ -146,11 +124,7 @@ nextApp.prepare().then(() => {
   const activeRaceService = new ActiveRaceService(io, logger, database);
   const raceControlService = new RaceControlService(io, activeRaceService, logger);
   const raceObserverService = new RaceObserverService(io, activeRaceService, logger);
-
   const raceScheduleService = new RaceScheduleService(io, logger, activeRaceService);
-io.on('connection', (socket) => {
-  console.log('⚡ Client connected:', socket.id);
-});
 
   console.log(
     `> Server listening at http://localhost:${port} as ${

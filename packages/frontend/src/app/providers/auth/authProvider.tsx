@@ -43,6 +43,8 @@ export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
 
     useEffect(() => {
         const cookies = getBrowserCookies()
+
+        console.log("[AUTH]: Cookies found:", cookies);
         const jwtToken = cookies[RACETRACK_AUTH_COOKIE];
         const authenticatedClient : RacetrackAuthenticatedClient | null = jwtToken ? tryExtractJwtData(jwtToken) : null;
 
