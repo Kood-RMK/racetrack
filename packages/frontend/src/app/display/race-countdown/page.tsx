@@ -40,8 +40,6 @@ function LeaderboardPage() {
 
   }, [activeRaceState.activeRaceState, raceScheduleState]);
 
-  console.log("raceState: ", race?.raceState)
-
   return (
     race ? <div>
       <div className="bg-black min-h-screen min-w-screen text-white flex items-center justify-center text-9xl">

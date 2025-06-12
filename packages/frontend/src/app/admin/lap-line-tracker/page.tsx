@@ -3,7 +3,7 @@
 import { RaceObserverController, RaceObserverControllerProvider, useRaceObserverController } from "@/app/providers/controllers/raceObserverControllerProvider";
 import { SocketProvider } from "@/app/providers/socket/socketProvider";
 import { ActiveRaceStateProvider, useActiveRaceState } from "@/app/providers/state/activeRaceStateProvider";
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useState } from "react";
 import { Button } from "react-aria-components";
 import { millisecondsToMinutes } from "@/utils/timeConverter"
 import { ActiveRaceContestant, RacetrackClientRole } from "racetrack-shared/types";
@@ -54,14 +54,11 @@ function RaceObserverPanel({contestants, raceObserverController} : {raceObserver
 function RaceObserverPage() {
 
     const activeRace = useActiveRaceState();
-
-    console.log("activeRace: ", activeRace)
     const raceObserverController = useRaceObserverController();
 
     if (!activeRace || !raceObserverController) {
         return <div className="bg-white w-full h-full p-2">Loading...</div>
     }
-
 
     return (
         <div className="bg-white flex justify-center items-center flex-col w-full py-12 px-12">
@@ -77,17 +74,16 @@ function RaceObserverPage() {
 export default function Page() {
 
     return (
-
-    <AuthenticationProvider>
-      <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.OBSERVER] }}>
-        <SocketProvider url="http://localhost:3001">
-            <ActiveRaceStateProvider>
-                <RaceObserverControllerProvider>
-                    <RaceObserverPage></RaceObserverPage>
-                </RaceObserverControllerProvider>
-            </ActiveRaceStateProvider>
-        </SocketProvider>
-      </LoginWrapper>
-      </AuthenticationProvider>
+        <AuthenticationProvider>
+            <LoginWrapper options={{ permittedRoles: [RacetrackClientRole.OBSERVER] }}>
+                <SocketProvider>
+                    <ActiveRaceStateProvider>
+                        <RaceObserverControllerProvider>
+                            <RaceObserverPage></RaceObserverPage>
+                        </RaceObserverControllerProvider>
+                    </ActiveRaceStateProvider>
+                </SocketProvider>
+            </LoginWrapper>
+        </AuthenticationProvider>
     );
 }

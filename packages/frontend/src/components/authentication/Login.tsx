@@ -17,9 +17,6 @@ export const LoginWrapper = ({children, options} : LoginWrapperProps) => {
     const authProvider = useAuthentication();
     const { authState, authenticate } = authProvider;
 
-    useEffect(() => {
-        console.log("authState", authState);
-    }, [authState])
     
     const isPermitted = (authState : AuthenticationState) =>  authState.isAuthenticated
      && authState.racetrackClient?.role

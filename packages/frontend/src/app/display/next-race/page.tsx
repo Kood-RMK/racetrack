@@ -30,7 +30,6 @@ function NextRacePage() {
   const { nextRace } = useRaceScheduleState();
   const { activeRaceState } = useActiveRaceState();
   const [isPaddockMessageVisible, setIsPaddockMessageVisible] = useState(true);
-  console.log("[PAGE]: isPaddockMessageVisible:", isPaddockMessageVisible);
 
   useEffect (
     () => {
@@ -40,7 +39,6 @@ function NextRacePage() {
       } else {
         setIsPaddockMessageVisible(false);
       }
-      console.log("next race active race state", activeRaceState);
 
     }, [activeRaceState?.raceState]
   )

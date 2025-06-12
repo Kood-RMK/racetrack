@@ -189,8 +189,6 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
 export const useActiveRaceState = () : ActiveRaceStateContextType => {
   const context = useContext(ActiveRaceStateContext);
 
-  console.log("context", context);
-
   if (context === undefined) {
     throw new Error("useActiveRaceState must be used within an ActiveRaceStateProvider");
   }

@@ -42,8 +42,6 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  console.log(contestants);
-
   useEffect(() => {
     if (isDialogOpen) {
       setContestants(race.contestants);

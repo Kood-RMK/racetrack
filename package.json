@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "pnpm -F racetrack-backend run dev",
-    "start": "pnpm -F racetrack-backend run prod"
+    "start": "pnpm -F racetrack-frontend build && pnpm -F racetrack-backend run prod"
   },
   "repository": {
     "type": "git",

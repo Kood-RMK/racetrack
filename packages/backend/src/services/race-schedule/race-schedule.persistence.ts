@@ -135,6 +135,5 @@ export function loadFromDatabase(): RaceSchedule {
         };
     }
 
-    console.log(raceSchedule);
     return raceSchedule;
 }

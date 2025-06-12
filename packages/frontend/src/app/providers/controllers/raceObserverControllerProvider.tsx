@@ -11,11 +11,10 @@ const RaceObserverControllerContext = createContext<RefObject<RaceObserverContro
 
 export const RaceObserverControllerProvider = ({children} : {children : React.ReactNode}) => {
     const observerController = useRef<RaceObserverController>({
-        tryHandleLineCrossed: (contestantId : RaceContestantId) => {
+        tryHandleLineCrossed: (_contestantId : RaceContestantId) => {
             console.error("ObserverController: trySetLineCrossed not implemented.");
         }
     });
-
 
     const socketRef = useSocket("/race-observer", true);
     const activeRace = useActiveRaceState();
@@ -23,7 +22,7 @@ export const RaceObserverControllerProvider = ({children} : {children : React.Re
     useEffect(() => {
         const socket = socketRef.current;
 
-        if (!socket || !activeRace) {
+        if (!socket || !activeRace.activeRaceState || !activeRace.activeRaceState == null) {
             return;
         }
 
@@ -33,7 +32,7 @@ export const RaceObserverControllerProvider = ({children} : {children : React.Re
                     senderId: socket.id,
                     message: {
                         type: RaceObserverCommands.HandleLineCrossed,
-                        raceId : activeRace.raceId,
+                        raceId : activeRace.activeRaceState?.raceId ?? "unknown",
                         contestantId : contestantId,
                     }
                 };
@@ -44,7 +43,7 @@ export const RaceObserverControllerProvider = ({children} : {children : React.Re
             }
         };
 
-    }, [socketRef, activeRace]);
+    }, [socketRef, activeRace.activeRaceState]);
 
 
   return (

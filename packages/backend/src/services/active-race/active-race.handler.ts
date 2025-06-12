@@ -45,7 +45,6 @@ export class ActiveRaceHandler {
         // Sort the contestants by fastest lap time.
         contestants.sort((a, b) => {
 
-            console.log(a.fastestLap, b.fastestLap);
             if (!a.fastestLap) {
                 return 1;
             }

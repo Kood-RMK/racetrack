@@ -1,9 +1,8 @@
 "use client";
 
 import { useSocket } from "@/app/providers/socket/socketProvider";
-import { ActiveRace, RacetrackCommand, RaceState, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, ScheduledRaceId, StartRace, ScheduledRace, ActiveRaceId } from "racetrack-shared/types";
+import { RacetrackCommand, RaceState, ChangeActiveRaceHazard, ChangeActiveRaceIsFinishing, ChangeActiveRaceState, RaceControlCommands, StartRace, ScheduledRace, ActiveRaceId } from "racetrack-shared/types";
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef } from "react";
-import { useActiveRaceState } from "@providers/state/activeRaceStateProvider";
 
 
 export type RaceController = {
@@ -19,10 +18,10 @@ const RaceStateControllerContext = createContext<RefObject<RaceController> | nul
 export const RaceControllerProvider = ({children} : {children : ReactNode}) => {
 
   const raceStateController = useRef<RaceController>({
-    trySetHazard: (raceId : ActiveRaceId, isHazard: boolean) => {console.error("ActiveRaceStateController: trySetHazard not implemented.")},
-    trySetFinishing: (raceId : ActiveRaceId, isFinishing: boolean) => {console.error("ActiveRaceStateController: trySetFinishing not implemented.")},
-    tryChangeRaceState: (raceId : ActiveRaceId, newState: RaceState) => {console.error("ActiveRaceStateController: tryChangeRaceState not implemented.")},
-    tryStartRace: (scheduledRace : ScheduledRace) => {console.error("ActiveRaceStateController: tryStartRace not implemented.")}
+    trySetHazard: (_raceId : ActiveRaceId, _isHazard: boolean) => {console.error("ActiveRaceStateController: trySetHazard not implemented.")},
+    trySetFinishing: (_raceId : ActiveRaceId, _isFinishing: boolean) => {console.error("ActiveRaceStateController: trySetFinishing not implemented.")},
+    tryChangeRaceState: (_raceId : ActiveRaceId, _newState: RaceState) => {console.error("ActiveRaceStateController: tryChangeRaceState not implemented.")},
+    tryStartRace: (_scheduledRace : ScheduledRace) => {console.error("ActiveRaceStateController: tryStartRace not implemented.")}
   });
 
   const socketRef = useSocket("/race-control");

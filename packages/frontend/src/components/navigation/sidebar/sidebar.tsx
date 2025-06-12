@@ -1,9 +1,9 @@
 'use client'
 
-import {Button, Disclosure, DisclosureGroup, DisclosurePanel, DisclosureProps, Heading, Label, ListBox, ListBoxItem, Popover, Select, SelectValue} from 'react-aria-components';
-import React, { Key, ReactNode, useEffect } from 'react';
+import {Button, Disclosure, DisclosureGroup, DisclosurePanel, DisclosureProps} from 'react-aria-components';
+import React, { ReactNode } from 'react';
 import Icon from '@mdi/react';
-import { mdiAccountOutline, mdiArrowLeft, mdiBookOpenOutline, mdiCarCruiseControl, mdiChevronDown, mdiChevronUp, mdiCloseBoxOutline, mdiDivingScubaFlag, mdiLightningBoltOutline, mdiMenu, mdiMenuClose, mdiMenuOpen, mdiOfficeBuildingCog, mdiOfficeBuildingCogOutline, mdiPowerStandby } from '@mdi/js';
+import { mdiCarCruiseControl, mdiChevronDown, mdiDivingScubaFlag, mdiMenu, mdiMenuOpen, mdiOfficeBuildingCog } from '@mdi/js';
 import Link from 'next/link';
 
 interface SidebarDisclosureProps extends Omit<DisclosureProps, 'children'> {

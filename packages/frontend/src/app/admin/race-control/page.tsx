@@ -2,8 +2,8 @@
 
 import { ActiveRace, RaceContestant, RaceState, RacetrackClientRole, ScheduledRace } from "racetrack-shared/types";
 import RaceCard from '@/components/card/race-control-card/RaceControlCard';
-import { CancelRaceButton, EndRaceButton, FinishRaceButton, HazardRaceButton, RaceButtonParams, ResumeRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
-import { ReactNode, RefObject, useEffect, useState } from "react";
+import { EndRaceButton, FinishRaceButton, HazardRaceButton, ResumeRaceButton, StartRaceButton, StopRaceButton } from "@/components/card/race-control-card/Buttons";
+import { RefObject, useEffect, useState } from "react";
 import { RaceActiveTag, RaceCancelledTag, RaceCountdownTag, RaceDangerTag, RaceFinishingTag, RaceHazardTag, RacePendingTag, RaceTimeslotTag } from "@/components/card/race-control-card/Tags";
 import { RaceController, RaceControllerProvider, useActiveRaceController } from "@/app/providers/controllers/raceControllerProvider";
 import { SocketProvider } from "@providers/socket/socketProvider";
@@ -17,22 +17,6 @@ import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers
 const raceTags = ({ race: race }: {race: ActiveRace | ScheduledRace}) => {
 
   const raceState = race.raceState;
-
-  race.raceScheduledStartTimeSlot
-  // const calculateTimeslot = (raceStartUnixTime : number, raceDurationSeconds : number) => {
-  //     const startDateTime = new Date(raceStartUnixTime * 1000); // Convert to milliseconds
-  //     const startHours = startDateTime.getHours().toString().padStart(2, '0');
-  //     const startMinutes = startDateTime.getMinutes().toString().padStart(2, '0');
-  //     const startSeconds = startDateTime.getSeconds().toString().padStart(2, '0');
-
-  //     const endDateTime = new Date(startDateTime.getTime() + (raceDurationSeconds * 1000)); // Convert to milliseconds
-  //     const endHours = endDateTime.getHours().toString().padStart(2, '0');
-  //     const endMinutes = endDateTime.getMinutes().toString().padStart(2, '0');
-  //     const endSeconds = endDateTime.getSeconds().toString().padStart(2, '0');
-      
-  //     return `${startHours}:${startMinutes}:${startSeconds} - ${endHours}:${endMinutes}:${endSeconds}`;
-  // }
-
   const calculateTimeleft = (timeLeft : number) => {
      const hours = Math.floor(timeLeft / 3_600_000);
      const minutes = Math.floor((timeLeft % 3_600_000) / 60_000);
@@ -112,16 +96,14 @@ function raceButtons({ race, raceController }: { race: ActiveRace | ScheduledRac
 function RaceControlPage() {
     const raceScheduleState = useRaceScheduleState();
 
+    const [race, setRace] = useState<ScheduledRace | ActiveRace | null>()
+    const [contestants, setContestants] = useState<RaceContestant[]>([]);
   
     const activeRaceState = useActiveRaceState();
     const raceController = useActiveRaceController();
-    console.log("activeRaceState: ", activeRaceState)
     if (!raceController || !raceScheduleState) {
-
       return <div>Loading...</div>;
     }
-    const [race, setRace] = useState<ScheduledRace | ActiveRace | null>()
-    const [contestants, setContestants] = useState<RaceContestant[]>([]);
 
 
     useEffect(() => {
