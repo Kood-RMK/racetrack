@@ -42,8 +42,8 @@ The Beachside Racetrack Info-Screens System is a Node.js-based application that 
 
 - **Backend**: Node.js with Express
 - **Real-time Communication**: Socket.IO
-- **Frontend**: HTML5, CSS3, JavaScript (framework agnostic)
-- **Data Storage**: In-memory (MVP version) with optional persistence
+- **Frontend**: Next.Js with React
+- **Data Storage**: SQLite
 - **Security**: Environment variable-based access keys
 
 ## Installation
@@ -56,14 +56,17 @@ cd racetrack-info-screens
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 3. Set up environment variables (see [Environment Variables](#environment-variables))
 
 4. Start the server:
 ```bash
-npm start
+Production build with 10 min timer:
+    pnpm start
+Dev build with 1 min timer:
+    pnpm run dev
 ```
 
 ## Environment Variables
@@ -71,11 +74,13 @@ npm start
 The system requires three access keys to be set as environment variables before starting. These have been pre-set for you:
 
 
-### Access Keys:
+
 ```bash
-Access key for /front-desk = rec
-Access key for /lap-line-tracker = lap
-Access key for /race-control = safe
+RECEPTIONIST_KEY=rec
+OBSERVER_KEY=lap
+SAFETY_KEY=safe
+RACE_DURATION_SECONDS=600
+STOPWATCH_TICK=100
 ```
 
 
@@ -83,15 +88,44 @@ Access key for /race-control = safe
 
 ### Production Mode (10-minute races):
 ```bash
-npm start
+pnpm start
 ```
 
 ### Development Mode (1-minute races):
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 The server will start and display the available routes. Make sure your chosen method for exposing interfaces (ngrok, port forwarding, etc.) is configured.
+
+### (Optional) Expose your local server to external networks using ngrok
+If you want the application to be accessible from other devices (for example, to use it on a mobile device):
+ 
+Sign Up and Download:
+Go to [ngrok.com](https://ngrok.com/), create a free account, and download the appropriate version for your operating system, or;
+ 
+Install ngrok via Apt with the following command in the terminal:
+```bash
+	curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+	| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+	&& echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+	| sudo tee /etc/apt/sources.list.d/ngrok.list \
+	&& sudo apt update \
+	&& sudo apt install ngrok
+```
+ 
+Authenticate ngrok:
+Open a terminal, then run:
+```bash
+ngrok authtoken YOUR_AUTHTOKEN
+```
+Replace YOUR_AUTHTOKEN with the authtoken provided in your ngrok dashboard.
+ 
+Start the tunnel:
+Assuming your application runs on port 3000, execute:
+```bash
+ngrok http http://localhost:3000
+```
 
 ## User Guide
 
