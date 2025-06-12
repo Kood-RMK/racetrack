@@ -32,7 +32,9 @@ function NextRacePage() {
   const upcomingRace = nextRace;
 
   if (upcomingRace === null) {
-    return "No upcoming races";
+    return <div className="flex flex-1 min-h-screen justify-center items-center bg-zinc-950 text-white">
+      <div className="font-medium md:text-4xl">No upcoming races</div>
+    </div>
   }
 
   const announcements =
@@ -42,9 +44,11 @@ function NextRacePage() {
     })) ?? [];
 
   return (
+
     <div className="min-h-screen bg-black text-white px-6 py-16 flex flex-col items-center">
       <NextRaceHeader />
-      <h2 className='text-center py-10'>{upcomingRace.raceScheduledStartTimeSlot}</h2>
+      <h2 className='text-center py-10'>{upcomingRace.raceScheduledStartTimeSlot}
+      </h2>
 
       <main className="flex flex-col items-center space-y-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 m-20 pt-10">
