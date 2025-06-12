@@ -11,7 +11,6 @@ export type ActiveRaceStateContextType = {
 
 const ActiveRaceStateContext = createContext<ActiveRaceStateContextType>({activeRaceState : null});
 
-
 export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => {
 
   const [activeRaceState, setActiveRaceState] = useState<ActiveRace | null>(null);
@@ -23,8 +22,6 @@ export const ActiveRaceStateProvider = ({children} : {children : ReactNode}) => 
     const socket = socketRef.current;
     console.log("socketRef.current", socketRef.current);
 
-
-    
     if (!socket) {
       // Socket is not yet available.
       console.log("acticeRaceStateProvider, // Socket is not yet available.")

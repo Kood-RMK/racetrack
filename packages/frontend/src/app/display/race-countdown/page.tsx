@@ -7,15 +7,9 @@ import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
 import { RaceScheduleStateProvider, useRaceScheduleState } from "@/app/providers/state/raceScheduleStateProvider";
 
 function LeaderboardPage() {
-  const raceScheduleState = useRaceScheduleState();
   const activeRaceState = useActiveRaceState();
 
-  if (!raceScheduleState) {
-    return <div>Loading...</div>;
-  }
-
-  const [race, setRace] = useState<ActiveRace>()
-
+  const race = activeRaceState.activeRaceState;
   const activeRaceData = race?.timeLeft;
   const formattedTime = activeRaceData ? formatTimeLeft(activeRaceData) : '00:00:00';
 
@@ -32,13 +26,6 @@ function LeaderboardPage() {
     return `${pad(minutes)}:${pad(seconds)}:${pad(milliseconds)}`;
   }
 
-  useEffect(() => {
-
-    if (activeRaceState.activeRaceState) {
-      setRace(activeRaceState.activeRaceState);
-    }
-
-  }, [activeRaceState.activeRaceState, raceScheduleState]);
 
   return (
     race ? <div>
@@ -46,7 +33,6 @@ function LeaderboardPage() {
 
        {formattedTime}
          
-    
 
       </div>
     </div> : "Loading ..."
@@ -58,11 +44,9 @@ export default function Page() {
   return (
     <AuthenticationProvider>
       <SocketProvider>
-        <RaceScheduleStateProvider>
           <ActiveRaceStateProvider>
             <LeaderboardPage />
           </ActiveRaceStateProvider>
-        </RaceScheduleStateProvider>
       </SocketProvider>
     </AuthenticationProvider>
   )

@@ -6,7 +6,6 @@ import { SocketProvider } from '@/app/providers/socket/socketProvider';
 import { ActiveRaceStateProvider, useActiveRaceState } from '@/app/providers/state/activeRaceStateProvider';
 import { AuthenticationProvider } from '@/app/providers/auth/authProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
-import { RaceState } from 'racetrack-shared/types';
 
 type AnnouncementCardProps = {
   driver: string;
@@ -33,7 +32,6 @@ function NextRacePage() {
 
   useEffect (
     () => {
-
       if (activeRaceState === null) {
         setIsPaddockMessageVisible(true);
       } else {
@@ -61,7 +59,7 @@ function NextRacePage() {
 
     <div className="min-h-screen bg-black text-white px-6 py-16 flex flex-col items-center">
       <NextRaceHeader />
-      <h2 className='text-center py-10'>{upcomingRace.raceScheduledStartTimeSlot}
+      <h2 className='text-center py-4'>{upcomingRace.raceScheduledStartTimeSlot}
       </h2>
 
       <main className="flex flex-col items-center space-y-10">

@@ -1,5 +1,5 @@
 
-import type { DefaultEventsMap, Namespace, RemoteSocket, Socket, Server as SocketIOServer } from "socket.io";
+import type { Namespace, Socket, Server as SocketIOServer } from "socket.io";
 import EventEmitter from "events";
 import { ActiveRaceHandler } from "./active-race.handler";
 import { Logger } from "pino";
