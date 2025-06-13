@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import NextRaceHeader from '@/components/display/next-race-header';
 import { SocketProvider } from '@/app/providers/socket/socketProvider';
 import { ActiveRaceStateProvider, useActiveRaceState } from '@/app/providers/state/activeRaceStateProvider';
 import { AuthenticationProvider } from '@/app/providers/auth/authProvider';
 import { RaceScheduleStateProvider, useRaceScheduleState } from '@/app/providers/state/raceScheduleStateProvider';
+import { mdiArrowExpandAll } from '@mdi/js';
+import Icon from '@mdi/react';
 
 type AnnouncementCardProps = {
   driver: string;
@@ -13,9 +15,7 @@ type AnnouncementCardProps = {
 };
 
 const AnnouncementCard = ({ driver, car }: AnnouncementCardProps) => (
-  <div
-    className={`relative flex flex-col justify-center bg-zinc-950 text-white px-6 py-4 font-cairo w-48 border-s border-red-600`}
-  >
+  <div className="relative flex flex-col justify-center bg-zinc-950 text-white px-6 py-4 font-cairo w-48 border-s border-red-600">
     <div className="text-sm text-gray-400 font-medium">RACECAR</div>
     <div className="text-2xl font-bold">{car}</div>
     <div className="text-sm text-gray-400 font-medium flex justify-end">DRIVER</div>
@@ -23,30 +23,37 @@ const AnnouncementCard = ({ driver, car }: AnnouncementCardProps) => (
   </div>
 );
 
-
 function NextRacePage() {
-
   const { nextRace } = useRaceScheduleState();
   const { activeRaceState } = useActiveRaceState();
   const [isPaddockMessageVisible, setIsPaddockMessageVisible] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect (
-    () => {
-      if (activeRaceState === null) {
-        setIsPaddockMessageVisible(true);
-      } else {
-        setIsPaddockMessageVisible(false);
-      }
+  const toggleFullscreen = () => {
+    const el = containerRef.current;
+    if (!el) return;
 
-    }, [activeRaceState?.raceState]
-  )
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().catch(err => {
+        console.error('Failed to enter fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    setIsPaddockMessageVisible(activeRaceState === null);
+  }, [activeRaceState?.raceState]);
 
   const upcomingRace = nextRace;
 
   if (upcomingRace === null) {
-    return <div className="flex flex-1 min-h-screen justify-center items-center bg-zinc-950 text-white">
-      <div className="font-medium md:text-4xl">No upcoming races</div>
-    </div>
+    return (
+      <div className="flex flex-1 min-h-screen justify-center items-center bg-zinc-950 text-white">
+        <div className="font-medium md:text-4xl">No upcoming races</div>
+      </div>
+    );
   }
 
   const announcements =
@@ -56,11 +63,20 @@ function NextRacePage() {
     })) ?? [];
 
   return (
+    <div ref={containerRef} className="relative min-h-screen bg-black text-white px-6 py-16 flex flex-col items-center">
+      {/* Fullscreen button */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          aria-label="Enter fullscreen"
+          onClick={toggleFullscreen}
+          className="w-10 h-10 p-2 bg-gray-800 hover:bg-gray-700 rounded-full"
+        >
+          <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-white" />
+        </button>
+      </div>
 
-    <div className="min-h-screen bg-black text-white px-6 py-16 flex flex-col items-center">
       <NextRaceHeader />
-      <h2 className='text-center py-4'>{upcomingRace.raceScheduledStartTimeSlot}
-      </h2>
+      <h2 className="text-center py-4">{upcomingRace.raceScheduledStartTimeSlot}</h2>
 
       <main className="flex flex-col items-center space-y-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 m-20 pt-10">
@@ -74,7 +90,6 @@ function NextRacePage() {
             Please proceed to the paddock
           </h3>
         )}
-
       </main>
     </div>
   );
