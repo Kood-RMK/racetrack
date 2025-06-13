@@ -1,50 +1,75 @@
-"use client";
+'use client';
 
- import { SocketProvider } from "@providers/socket/socketProvider";
-import { ActiveRaceStateProvider, useActiveRaceState } from "@providers/state/activeRaceStateProvider";
-import { AuthenticationProvider } from "@/app/providers/auth/authProvider";
+import React, { useRef } from 'react';
+import { SocketProvider } from '@providers/socket/socketProvider';
+import { ActiveRaceStateProvider, useActiveRaceState } from '@providers/state/activeRaceStateProvider';
+import { AuthenticationProvider } from '@/app/providers/auth/authProvider';
+import { mdiArrowExpandAll } from '@mdi/js';
+import Icon from '@mdi/react';
 
 function LeaderboardPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const activeRaceState = useActiveRaceState();
-
   const race = activeRaceState.activeRaceState;
-  const activeRaceData = race?.timeLeft;
-  const formattedTime = activeRaceData ? formatTimeLeft(activeRaceData) : '00:00:00';
+  const timeLeft = race?.timeLeft;
+
+  const formattedTime = timeLeft ? formatTimeLeft(timeLeft) : '00:00:00';
+
+  function toggleFullscreen() {
+    const el = containerRef.current;
+    if (!el) return;
+
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().catch((err) => {
+        console.error('Failed to enter fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
 
   function formatTimeLeft(ms: number): string {
     const clampedMs = Math.min(ms, 10 * 60 * 1000); // Cap at 10 min max
-
-    const absMs = Math.abs(clampedMs); // Always positive for display
+    const absMs = Math.abs(clampedMs); // Always positive
     const totalSeconds = Math.floor(absMs / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    const milliseconds = Math.floor((absMs % 1000) / 10); // centiseconds
+    const milliseconds = Math.floor((absMs % 1000) / 10);
 
     const pad = (n: number, len = 2) => n.toString().padStart(len, '0');
     return `${pad(minutes)}:${pad(seconds)}:${pad(milliseconds)}`;
   }
 
+  if (!race) {
+    return <div className="flex min-h-screen justify-center items-center text-white bg-black text-4xl">No Active Race</div>;
+  }
 
   return (
-    race ? <div>
-      <div className="bg-black min-h-screen min-w-screen text-white flex items-center justify-center text-9xl">
-
-       {formattedTime}
-
+    <div ref={containerRef} className="relative bg-black min-h-screen text-white flex items-center justify-center">
+      {/* Fullscreen Button */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          aria-label="Toggle fullscreen"
+          onClick={toggleFullscreen}
+          className="w-10 h-10 p-2 bg-gray-800 hover:bg-gray-700 rounded-full"
+        >
+          <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-white" />
+        </button>
       </div>
-    </div> : "No Active Race"
+
+      <div className="text-9xl">{formattedTime}</div>
+    </div>
   );
 }
-
 
 export default function Page() {
   return (
     <AuthenticationProvider>
       <SocketProvider>
-          <ActiveRaceStateProvider>
-            <LeaderboardPage />
-          </ActiveRaceStateProvider>
+        <ActiveRaceStateProvider>
+          <LeaderboardPage />
+        </ActiveRaceStateProvider>
       </SocketProvider>
     </AuthenticationProvider>
-  )
+  );
 }
