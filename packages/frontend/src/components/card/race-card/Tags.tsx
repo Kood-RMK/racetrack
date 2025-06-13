@@ -10,18 +10,17 @@ import { ScheduledRace } from "racetrack-shared/types";
 
 
 // Race Pending Tags
-
 export function RacePendingTags({ race }: { race: ScheduledRace }) {
     return (
         <TagGroup aria-label="Race pending tags" className="w-full h-5 flex flex-shrink-0">
           <TagList className="flex gap-4">
             
-            <Tag textValue="Time" className="bg-blue-200 w-24 h-5 text-xs text-blue-800 font-medium rounded flex justify-center items-center gap-1 p-1 whitespace-nowrap">
+            <Tag textValue="Time" className="bg-blue-200 w-24 h-5 text-xs text-blue-800 font-medium rounded flex justify-center items-center gap-1 p-3 whitespace-nowrap">
                 <Icon path={mdiClockTimeFour} className="w-4 h-4 flex-shrink-0"/>
                 {race.raceScheduledStartTimeSlot}</Tag>
                 
 
-            <Tag textValue="Race Pending" className="bg-yellow-200 w-24 h-5 text-xs text-yellow-900 font-medium rounded flex justify-center items-center gap-1 p-1 whitespace-nowrap">
+            <Tag textValue="Race Pending" className="bg-yellow-200 w-24 h-5 text-xs text-yellow-900 font-medium rounded flex justify-center items-center gap-1 p-3 whitespace-nowrap">
                 <Icon path={mdiTimerSandFull} className="w-4 h-4 flex-shrink-0"/>
                 {race.raceState}</Tag>
                 

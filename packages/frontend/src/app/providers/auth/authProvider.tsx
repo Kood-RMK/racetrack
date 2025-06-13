@@ -49,7 +49,7 @@ export const AuthenticationProvider = ({children} : {children : ReactNode}) => {
         const authenticatedClient : RacetrackAuthenticatedClient | null = jwtToken ? tryExtractJwtData(jwtToken) : null;
 
         setAuthState({
-            isAuthenticated: authenticatedClient == null ? true : false,
+            isAuthenticated: authenticatedClient !== null ? true : false,
             racetrackClient: authenticatedClient,
             jwt: jwtToken,
         });

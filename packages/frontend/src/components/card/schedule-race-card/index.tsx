@@ -158,7 +158,7 @@ export default function NewRaceDialog() {
                                             selectionMode="single"
                                         >
                                             {availableTimeslots.map((slot) => (
-                                                <ListBoxItem key={slot} id={slot} textValue={slot}>
+                                                <ListBoxItem key={slot} id={slot} textValue={slot} className={`hover:cursor-pointer`}>
                                                     {slot}
                                                 </ListBoxItem>
                                             ))}

@@ -41,6 +41,7 @@ export function SocketProvider({ options = {}, children }: SocketProviderProps) 
       }
 
       const socket = io(`${window.location.host}${nsKey}`, options);
+      console.log(`[📩 Socket]: Connecting to namespace: ${nsKey} with options:`, options);
       console.log(`[📩 Socket]: Socket initialized for namespace: ${namespace}`);
       socketsRef.current.set(nsKey, socket);
     }

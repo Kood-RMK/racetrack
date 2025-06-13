@@ -29,11 +29,11 @@ function RaceControlPage() {
   
   const race = activeRaceState.activeRaceState;
   return (
-    race ? <div>
+    <div>
       <div className="min-h-screen w-full">
         {race ? raceFlagMap({ activeRace: race }) : <RaceFlagRed />}
       </div>
-    </div> : <RaceFlagRed />
+    </div>
   )
 }
 

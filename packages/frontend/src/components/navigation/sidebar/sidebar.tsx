@@ -21,14 +21,8 @@ interface SidebarItemProps {
 function SidebarItem({title, path} : SidebarItemProps) {
 
   return (
-    <Link href={path}>
-      <Button 
-        slot="trigger" 
-        className="flex transition-all duration-200 hover:text-gray-300"
-        aria-label={`Go to ${title}`}
-      >
+    <Link href={path} className='flex transition-all duration-200 hover:text-gray-300'>
         <span className="text-lg">{title}</span>
-      </Button>
     </Link>
   )
 }

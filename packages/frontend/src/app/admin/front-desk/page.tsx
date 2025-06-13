@@ -28,12 +28,6 @@ function RaceSchedulePage() {
     return <div>No sorted schedule...</div>;
   }
 
-  // Debug logs to verify race states
-  console.log("Sorted Schedule:", pendingSortedSchedule);
-  sortedSchedule.forEach(race => {
-    console.log(`Race ID: ${race.raceId}, State: ${race.raceState}`);
-  });
-
   return (
     <div className='font-cairo flex flex-col min-h-full p-10 text-5xl'>
       <p className='text-center py-10'>Race Schedule</p>
