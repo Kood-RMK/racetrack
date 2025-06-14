@@ -17,6 +17,7 @@ function LeaderboardPage() {
   const race = activeRaceState.activeRaceState;
 
   const toggleFullscreen = () => {
+    console.log("Toggling fullscreen mode");
     const el = containerRef.current;
     if (!el) return;
 
@@ -49,7 +50,18 @@ function LeaderboardPage() {
     </div>
   </div>
 ) : (
-  <div className="bg-black min-h-screen min-w-screen flex justify-center items-center text-white">
+  <div ref={containerRef} className="bg-black min-h-screen min-w-screen flex justify-center items-center text-white relative">
+
+      {/* Fullscreen Button */}
+      <div className="absolute top-4 right-4 z-50">
+        <Button
+          aria-label="fullscreen"
+          className="w-10 h-10 p-2 bg-gray-800 hover:bg-gray-700 rounded-full"
+          onPress={toggleFullscreen}
+        >
+          <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-white" />
+        </Button>
+      </div>
     <div className="font-medium md:text-4xl">No ongoing races</div>
   </div>
 );

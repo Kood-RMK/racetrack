@@ -79,6 +79,10 @@ export default function NewRaceDialog() {
         if (scheduleController && scheduleController.current && scheduleController.current.tryAddRace) {
             scheduleController.current.tryAddRace(newRace);
         }
+
+        // Reset the form after saving
+        setSelectedTimeslot("");
+        setDriverNames([]);
     }
 
     const usedTimeslots = scheduleState.schedule

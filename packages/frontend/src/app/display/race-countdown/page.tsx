@@ -41,7 +41,22 @@ function LeaderboardPage() {
   }
 
   if (!race) {
-    return <div className="flex min-h-screen justify-center items-center text-white bg-black text-4xl">No Active Race</div>;
+    return (
+      <div ref={containerRef} className="flex min-h-screen justify-center items-center text-white bg-black text-4xl">
+
+      {/* Fullscreen Button */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          aria-label="Toggle fullscreen"
+          onClick={toggleFullscreen}
+          className="w-10 h-10 p-2 bg-gray-800 hover:bg-gray-700 rounded-full"
+        >
+          <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-white" />
+        </button>
+      </div>
+        <span>No Active Race</span>
+      </div>
+    )
   }
 
   return (

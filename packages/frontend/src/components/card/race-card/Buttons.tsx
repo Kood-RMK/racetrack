@@ -103,6 +103,9 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
       console.error("❌ Controller not available");
     }
 
+    // Reset state after saving.
+    setContestants([])
+    setSelectedTimeSlot("");
     setIsDialogOpen(false);
   }
 
@@ -183,7 +186,7 @@ export function RacePendingButtons({ race }: { race: ScheduledRace }) {
 
                     <Popover className="bg-white/80 rounded w-48 p-2 shadow-lg backdrop-blur-md z-50 absolute">
                       <ListBox
-                        className="max-h-48 overflow-y-auto font-cairo"
+                        className="max-h-48 overflow-y-auto font-cairo hover:cursor-pointer"
                         selectionMode="single"
                       >
                         {availableTimeslots.map((slot) => (

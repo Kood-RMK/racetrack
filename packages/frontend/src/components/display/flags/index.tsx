@@ -38,7 +38,18 @@ export function RaceFlagCheckered () {
         backgroundSize: `${squareSize}px ${squareSize}px`,
         backgroundPosition: `0 0, 0 ${squareSize/2}px, ${squareSize/2}px -${squareSize/2}px, -${squareSize/2}px 0`,
       }}
-    />
+    >
+            <div className="flex justify-end p-5">
+                <button
+                aria-label="Toggle fullscreen"
+                onClick={toggleFullscreen}
+                className="w-10 h-10 p-2 bg-gray-200 hover:bg-gray-300 rounded-full"
+                >
+                <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-black" />
+                </button>
+            </div>
+
+        </div>
     )
 }
 
@@ -57,10 +68,13 @@ export function RaceFlagRed () {
     return (
         <div className="w-screen h-screen bg-red-700">
             <div className="flex justify-end p-5">
-                <Button aria-label="fullscreen" className="w-10 h-10 whitespace-nowrap"
-                    onPress={toggleFullscreen}>
-                    <Icon path={mdiArrowExpandAll} className="w-10 h-10 flex-shrink-0 text-white"/>
-                </Button>
+                <button
+                aria-label="Toggle fullscreen"
+                onClick={toggleFullscreen}
+                className="w-10 h-10 p-2 bg-gray-200 hover:bg-gray-300 rounded-full"
+                >
+                <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-black" />
+                </button>
             </div>
         </div>
     );
@@ -81,10 +95,13 @@ export function RaceFlagYellow () {
     return (
         <div className="w-screen h-screen bg-amber-300">
             <div className="flex justify-end p-5">
-                <Button aria-label="fullscreen" className="w-10 h-10 whitespace-nowrap"
-                    onPress={toggleFullscreen}>
-                    <Icon path={mdiArrowExpandAll} className="w-10 h-10 flex-shrink-0 text-slate-700"/>
-                </Button>
+                <button
+                aria-label="Toggle fullscreen"
+                onClick={toggleFullscreen}
+                className="w-10 h-10 p-2 bg-gray-200 hover:bg-gray-300 rounded-full"
+                >
+                    <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-black" />
+                </button>
             </div>
         </div>
     );
@@ -105,10 +122,13 @@ export function RaceFlagGreen () {
     return (
         <div className="w-screen h-screen bg-green-500">
             <div className="flex justify-end p-5">
-                <Button aria-label="fullscreen" className="w-10 h-10 whitespace-nowrap"
-                    onPress={toggleFullscreen}>
-                    <Icon path={mdiArrowExpandAll} className="w-10 h-10 flex-shrink-0 text-white"/>
-                </Button>
+                <button
+                aria-label="Toggle fullscreen"
+                onClick={toggleFullscreen}
+                className="w-10 h-10 p-2 bg-gray-200 hover:bg-gray-300 rounded-full"
+                >
+                    <Icon path={mdiArrowExpandAll} className="w-6 h-6 text-black" />
+                </button>
             </div>
         </div>
     );
