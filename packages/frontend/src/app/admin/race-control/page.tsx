@@ -124,7 +124,7 @@ function RaceControlPage() {
 
       return (
 
-        <div className="flex flex-1 h-full justify-center items-center">
+        <div className="flex flex-1 py-12 justify-center items-center">
           {
             race ? <div className='font-cairo flex  items-center flex-col w-full text-5xl px-12'>
               <h1 className='text-center py-12'>Race Control</h1>

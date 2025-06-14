@@ -29,15 +29,15 @@ export default function RaceControlCard({ tags, buttons, contestants }: RaceCont
         
         {/* Driver Info */}
         <div className="w-full items-center">
-          <h3 className="text-3xl font-semibold py-6 flex items-center gap-4">
+          <h3 className="text-2xl md:text-3xl font-semibold py-2 md:py-4 flex items-center gap-4">
             <Icon path={mdiAccountMultiple} size={1.5} />
               {`Drivers ${contestants.length}/8`}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-4 xl:grid-cols-4 xl:grid-rows-2 gap-y-6 md:gap-y-12 gap-x-2 w-full h-full justify-center items-center py-6 md:py-20">
+          <div className="flex flex-wrap md:flex-row gap-x-12 gap-y-2 w-full justify-center md:justify-start py-6 md:py-20 px-12">
             {contestants.map((contestant, index) => (
-                <div key={index} className="flex flex-col items-center text-center text-xl lg:text-2xl font-medium">
+                <div key={index} className="flex flex-col items-center text-center text-lg lg:text-xl font-medium">
                   <p>Racecar {contestant.racecarNumber}</p>
-                  <p className="text-black font-medium text-2xl lg:text-3xl max-w-xs md:max-w-sm">{contestant.name}</p>
+                  <p className="text-black font-medium text-xl lg:text-3xl max-w-xs md:max-w-sm">{contestant.name}</p>
                 </div>
               ))}
           </div>
